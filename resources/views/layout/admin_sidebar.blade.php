@@ -2,14 +2,8 @@
 
     <ul class="sidebar-nav" id="sidebar-nav">
       
-      <li class="nav-heading">HOME</li>
-      
-      <li class="nav-item">
-        <a class="nav-link " href="">
-          <i class="bi bi-grid"></i>
-          <span>Dashboard</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
+      <!-- Sidebar Home Here -->
+      @include('layout.home_sidebar')
 
       <!-- Sidebar Kretech ID Here -->
       @include('layout.kretech_sidebar')
@@ -17,9 +11,9 @@
       <li class="nav-heading">ADMINISTRATOR</li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="">
+        <a class="nav-link collapsed" href="{{ route('user') }}">
           <i class="bi bi-people"></i>
-          <span>Users</span>
+          <span>User</span>
         </a>
       </li><!-- End Users Nav -->
       
