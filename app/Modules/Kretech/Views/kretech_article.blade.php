@@ -1,11 +1,12 @@
 @extends('layout.admin_app')
 @section('content')
     <div class="pagetitle">
-        <h1>User</h1>
+        <h1>Contents</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="">Administrator</a></li>
-                <li class="breadcrumb-item active">User</li>
+                <li class="breadcrumb-item"><a href="index.html">Page</a></li>
+                <li class="breadcrumb-item">Contents</li>
+                <li class="breadcrumb-item active">Article</li>
             </ol>
         </nav>
     </div><!-- End Page Title -->
@@ -15,9 +16,9 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">User List</h5>
+                        <h5 class="card-title">Article List</h5>
 
-                        <!-- User List -->
+                        <!-- Article List -->
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -66,7 +67,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <!-- End User List -->
+                        <!-- End Article List -->
 
                     </div>
                 </div>

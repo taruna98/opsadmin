@@ -1,4 +1,4 @@
-@extends('Layout.admin_app')
+@extends('layout.admin_app')
 @section('content')
     <div class="pagetitle">
         <h1>Dashboard</h1>
