@@ -25,3 +25,6 @@ Route::get('/', 'HomeController@index')->name('home');
 
 // User Route
 Route::get('/user', 'UserController@index')->name('user');
+
+// Activity Log Route
+Route::get('/activity-log', 'ActivityLogController@index')->name('activity_log');

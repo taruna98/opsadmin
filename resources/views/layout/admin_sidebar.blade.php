@@ -18,7 +18,7 @@
       </li><!-- End Users Nav -->
       
       <li class="nav-item">
-        <a class="nav-link collapsed" href="">
+        <a class="nav-link collapsed" href="{{ route('activity_log') }}">
           <i class="bi bi-person-lines-fill"></i>
           <span>Activity Log</span>
         </a>
