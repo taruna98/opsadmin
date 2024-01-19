@@ -18,13 +18,18 @@ use Illuminate\Support\Facades\Route;
 // });
 
 // Auth Route
-Route::get('/login', 'AuthController@login')->name('login');
+Route::get('/login', 'AuthController@index')->name('index');
+Route::post('/login', 'AuthController@login')->name('login');
+Route::get('/logout', 'AuthController@logout')->name('logout');
 
-// Home Route
-Route::get('/', 'HomeController@index')->name('home');
-
-// User Route
-Route::get('/user', 'UserController@index')->name('user');
-
-// Activity Log Route
-Route::get('/activity-log', 'ActivityLogController@index')->name('activity_log');
+// Require Login
+Route::middleware(['auth'])->group(function () {
+    // Home Route
+    Route::get('/', 'HomeController@index')->name('home');
+    
+    // User Route
+    Route::get('/user', 'UserController@index')->name('user');
+    
+    // Activity Log Route
+    Route::get('/activity-log', 'ActivityLogController@index')->name('activity_log');
+});

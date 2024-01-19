@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['prefix' => 'kretech'], function () {
+Route::group(['middleware' => ['auth'], 'prefix' => 'kretech'], function () {
 
     Route::group(['namespace' => "Modules\Kretech\Controllers"], function () {
 
