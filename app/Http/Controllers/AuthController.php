@@ -31,6 +31,10 @@ class AuthController extends BaseController
         $data = $response->json();
 
         if ($data['suc']) {
+            $response = response('Hello World')->cookie('name', 'value', 60);
+            return $data['dat']['tok'];
+
+
             Session::put('api_token', $data['dat']['tok']);
 
             return redirect('/');
