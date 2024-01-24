@@ -74,16 +74,16 @@
                     @endif
 
                     <div class="col-12">
-                      <label for="eml" class="form-label">Email</label>
+                      <label for="email" class="form-label">Email</label>
                       <div class="input-group has-validation">
-                        <input type="email" name="eml" class="form-control" id="eml" required>
+                        <input type="email" name="email" class="form-control" id="email" required>
                         <div class="invalid-feedback">Please enter your email.</div>
                       </div>
                     </div>
 
                     <div class="col-12">
-                      <label for="pas" class="form-label">Password</label>
-                      <input type="password" name="pas" class="form-control" id="pas" minlength="6" required>
+                      <label for="password" class="form-label">Password</label>
+                      <input type="password" name="password" class="form-control" id="password" minlength="6" required>
                       <div class="invalid-feedback">Please enter your min 6 char password!</div>
                     </div>
 

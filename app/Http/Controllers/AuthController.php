@@ -21,50 +21,20 @@ class AuthController extends BaseController
  
     public function login(Request $request)
     {
-        $credentials = $request->only('eml', 'pas');
+        $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            return redirect()->intended('/');
+            return redirect('/');
         }
 
         return back()
             ->withInput($request->only('email'))
             ->withErrors(['login' => ['Login failed. Please check your credentials.']]);
-
-        // // login by API
-        // $apiUrl = 'http://localhost:8000/login';
-
-        // $response = Http::post($apiUrl, [
-        //     'eml' => $request->input('email'),
-        //     'pas' => $request->input('password'),
-        // ]);
-        
-        // $data = $response->json();
-
-        // if ($data['suc']) {
-        //     $response = response('Hello World')->cookie('name', 'value', 60);
-        //     return $data['dat']['tok'];
-
-
-        //     Session::put('api_token', $data['dat']['tok']);
-
-        //     return redirect('/');
-
-        //     // return view('admin_home', [
-        //     //     'data'  => $data
-        //     // ]);
-        // } else {
-        //     return back()
-        //         ->withInput($request->only('email'))
-        //         ->withErrors(['login' => ['Login failed. Please check your credentials.']]);
-        // }
     }
 
     public function logout()
     {
         Auth::logout();
-        // Session::forget('api_token');
-
         return redirect('/login');
     }
 }
