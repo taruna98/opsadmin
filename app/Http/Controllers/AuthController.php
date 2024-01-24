@@ -12,6 +12,11 @@ class AuthController extends BaseController
     public function index()
     {
         $title = 'Login to Your Account';
+        
+        // check if user is Authenticable
+        if (Auth::guard()->check()) {
+            return redirect('/');  
+        }
 
         return view('auth/login', [
             'title' => $title,

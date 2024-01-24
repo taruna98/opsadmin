@@ -6,6 +6,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends BaseController
 {
@@ -18,6 +19,7 @@ class HomeController extends BaseController
 
     public function index()
     {
+        // return Auth::user();
         $title = 'Home';
         // $data_games = Games::where('status',1)->get();
 
