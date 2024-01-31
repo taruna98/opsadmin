@@ -26,7 +26,7 @@ class HomeController extends BaseController
         $title = 'Home';
 
         // $user = User::find(1); // Mendapatkan pengguna dari database
-        // $role = Role::where('name', 'kretech admin')->first(); // Mendapatkan peran 'owner' dari database
+        // $role = Role::where('name', 'owner')->first(); // Mendapatkan peran 'owner' dari database
         // $user->removeRole($role); // Mencabut peran 'owner' dari pengguna
         // $user->assignRole($role); // Menetapkan peran 'owner' ke pengguna
         // return User::find(1)->getRoleNames(); // Mendapatkan peran dari pengguna

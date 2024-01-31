@@ -3,12 +3,16 @@
   <ul class="sidebar-nav" id="sidebar-nav">
     
     <!-- Sidebar Home Here -->
-    @include('layout.home_sidebar')
-
+    @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
+      @include('layout.home_sidebar')
+    @endif
+    
     <!-- Sidebar Kretech ID Here -->
-    @include('layout.kretech_sidebar')
+    @if(auth()->check() && auth()->user()->hasRole('kretech member'))
+      @include('layout.kretech_sidebar')
+    @endif
 
-    @if(auth()->check() && auth()->user()->hasRole('owner'))
+    @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
       <li class="nav-heading">ADMINISTRATOR</li>
       
       <li class="nav-item">

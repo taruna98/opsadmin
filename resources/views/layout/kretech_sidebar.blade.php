@@ -36,7 +36,7 @@
 
 <li class="nav-item">
     <a class="nav-link collapsed" href="/">
-        <i class="bi bi-grid"></i>
-        <span>Activity Log</span>
+        <i class="bi bi-person-lines-fill"></i>
+        <span>Activity</span>
     </a>
-</li><!-- End Activity Log Nav -->
+</li><!-- End Activity Nav -->
