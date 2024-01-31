@@ -15,7 +15,7 @@ class AuthController extends BaseController
         
         // check if user is Authenticable
         if (Auth::guard()->check()) {
-            return redirect('/');  
+            return redirect('/');
         }
 
         return view('auth/login', [

@@ -31,3 +31,12 @@
         </li>
     </ul>
 </li><!-- End Contents Nav -->
+
+<li class="nav-heading">HISTORY</li>
+
+<li class="nav-item">
+    <a class="nav-link collapsed" href="/">
+        <i class="bi bi-grid"></i>
+        <span>Activity Log</span>
+    </a>
+</li><!-- End Activity Log Nav -->
