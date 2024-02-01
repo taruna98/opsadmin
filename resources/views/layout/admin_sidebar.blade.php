@@ -16,7 +16,7 @@
       <li class="nav-heading">ADMINISTRATOR</li>
       
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{{ route('user') }}">
+        <a class="nav-link {{ (request()->segment(1) == 'user') ? '' : 'collapsed' }}" href="{{ route('user') }}">
           <i class="bi bi-people"></i>
           <span>User</span>
         </a>
