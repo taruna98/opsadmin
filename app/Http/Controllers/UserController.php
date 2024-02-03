@@ -48,4 +48,14 @@ class UserController extends BaseController
             'users' => $result
         ]);
     }
+
+    public function store()
+    {
+        $title = 'News Kiko Run';
+        return view('admin_user::news/news_add',['title' => $title]);
+
+        return view('admin_user', [
+            'title' => $title,
+        ]);
+    }
 }
