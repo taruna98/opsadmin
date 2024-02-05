@@ -31,7 +31,7 @@ Route::middleware(['auth'])->group(function () {
     
     // User Route
     Route::get('/user', 'UserController@index')->name('user');
-    Route::get('/user/create', 'UserController@create')->name('user.create');
+    Route::post('/user/store', 'UserController@store')->name('user.store');
     
     // Activity Log Route
     Route::get('/activity-log', 'ActivityLogController@index')->name('activity_log');

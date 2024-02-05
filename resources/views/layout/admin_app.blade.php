@@ -29,6 +29,9 @@
   <!-- Template Main CSS File -->
   <link href="{{ URL::asset('assets/css/style.css') }}" rel="stylesheet">
 
+  <!-- Sweetalert 2 -->
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
   <!-- =======================================================
   * Template Name: NiceAdmin
   * Updated: Jan 09 2024 with Bootstrap v5.3.2
@@ -39,6 +42,8 @@
 </head>
 
 <body>
+  <!-- SweetAlert2 -->
+  @include('sweet::alert')
 
   <!-- ======= Header ======= -->
   @include('layout.admin_header')

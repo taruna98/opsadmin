@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+use SweetAlert;
 
 class UserController extends BaseController
 {
@@ -21,6 +25,7 @@ class UserController extends BaseController
     {
         $title = 'User';
         $users = User::with('roles')->get();
+        $roles = Role::where('id', '!=', '1')->get();
 
         if ($users != null) {
             $data = json_decode($users, true);
@@ -39,23 +44,76 @@ class UserController extends BaseController
                 ];
                 $result[] = $user;
             }
+            $data2 = json_decode($roles, true);
+            $result2 = [];
+            foreach ($data2 as $item2) {
+                $user2 = [
+                    'id' => $item2['id'],
+                    'name' => $item2['name'],
+                    'guard_name' => $item2['guard_name'],
+                    'created_at' => $item2['created_at'],
+                    'updated_at' => $item2['updated_at']
+                ];
+                $result2[] = $user2;
+            }
         } else {
             $result = [];
+            $result2 = [];
         }
 
         return view('admin_user', [
             'title' => $title,
-            'users' => $result
+            'users' => $result,
+            'roles' => $result2
         ]);
     }
 
-    public function store()
+    public function store(Request $request)
     {
-        $title = 'News Kiko Run';
-        return view('admin_user::news/news_add',['title' => $title]);
-
-        return view('admin_user', [
-            'title' => $title,
+        $request->validate([
+            'name'      => 'required|max:50',
+            'email'     => 'required|email',
+            'password'  => 'required'
         ]);
+
+        // get params
+        $name       = $request->name;
+        $email      = $request->email;
+        $password   = Hash::make($request->password);
+        $role       = $request->role;
+        $status     = $request->status;
+
+        // temp variable
+        $temp = [
+            'name'      => $name,
+            'email'     => $email,
+            'password'  => $password,
+            'role'      => $role,
+            'status'    => $status
+        ];
+
+        return SweetAlert::message('Robots are working!');
+
+        // return $temp;
+
+        // // create user
+        // $user_create = User::create([
+        //     'name'  => $request->input('name'),
+        //     'email' => $request->input('email'),
+        //     'password' => Hash::make($request->input('password')),
+        //     'is_active' => Hash::make($request->input('password')),
+        // ]);
+
+        // // assign role user
+
+        // // $user = User::find(1); // Mendapatkan pengguna dari database
+        // // $role = Role::where('name', 'owner')->first(); // Mendapatkan peran 'owner' dari database
+        // // $user->removeRole($role); // Mencabut peran 'owner' dari pengguna
+        // // $user->assignRole($role); // Menetapkan peran 'owner' ke pengguna
+        // // return User::find(1)->getRoleNames(); // Mendapatkan peran dari pengguna
+
+        // return view('admin_user', [
+        //     'title' => $title,
+        // ]);
     }
 }

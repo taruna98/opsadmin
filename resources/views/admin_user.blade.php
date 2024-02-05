@@ -71,27 +71,53 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form class="row g-3 needs-validation" method="POST" action="{{ route('login') }}" novalidate>
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="m-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li class="m-0 p-0">{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        <form class="row g-3 needs-validation" role="form" method="POST" action="{{ route('user.store') }}" enctype="multipart/form-data" novalidate>
                             @csrf
                             @if($errors->has('login'))
                                 <div class="alert alert-danger" role="alert">
                                     {{ $errors->first('login') }}
                                 </div>
                             @endif
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="name" value="{{ old('name') }}" required>
+                                <input type="text" class="form-control" name="name" id="name" value="{{ old('name') }}" required>
                                 <div class="invalid-feedback">Please enter your name.</div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" value="{{ old('email') }}" required>
+                                <input type="email" class="form-control" name="email" id="email" value="{{ old('email') }}" required>
                                 <div class="invalid-feedback">Please enter your email.</div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" value="{{ old('password') }}" minlength="6" required>
+                                <input type="password" class="form-control" name="password" id="password" value="{{ old('password') }}" minlength="6" required>
                                 <div class="invalid-feedback">Please enter your min 6 char password.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="role" class="form-label">Select Role</label>
+                                <select class="form-select" name="role" id="role" required>
+                                    @foreach ($roles as $role)
+                                        <option value="{{ $role['name'] }}">{{ ucwords($role['name']) }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback">Please select role.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">Select Status</label>
+                                <select class="form-select" name="status" id="status" required>
+                                    <option selected value="1">Active</option>
+                                    <option value="0">Not Active</option>
+                                </select>
+                                <div class="invalid-feedback">Please select status.</div>
                             </div>
                             <div class="col-md-12 d-flex justify-content-end">
                                 {{-- <button type="button" class="btn btn-secondary btn-sm my-2 me-2" data-bs-dismiss="modal">Close</button> --}}
