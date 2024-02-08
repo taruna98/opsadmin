@@ -10,7 +10,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
-use SweetAlert;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class UserController extends BaseController
 {
@@ -83,37 +83,86 @@ class UserController extends BaseController
         $role       = $request->role;
         $status     = $request->status;
 
-        // temp variable
-        $temp = [
-            'name'      => $name,
-            'email'     => $email,
-            'password'  => $password,
-            'role'      => $role,
-            'status'    => $status
-        ];
+        // // temp variable
+        // $temp = [
+        //     'name'      => $name,
+        //     'email'     => $email,
+        //     'password'  => $password,
+        //     'role'      => $role,
+        //     'status'    => $status
+        // ];
 
-        return SweetAlert::message('Robots are working!');
+        // check email user
+        $user_check = User::where('email', $email)->first();
+        if ($user_check) {
+            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+        
+        // create user
+        $user_create = User::create([
+            'name'  => $name,
+            'email' => $email,
+            'password' => $password,
+            'is_active' => $status,
+        ]);
+        $user_create->assignRole($role);
+        
+        if (!$user_create) {
+            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
 
-        // return $temp;
+        Alert::success('Success', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+        return redirect()->back();
+    }
+ 
+    public function update(Request $request)
+    {
+        $request->validate([
+            'name'      => 'required|max:50',
+            'email'     => 'required|email',
+            'password'  => 'required'
+        ]);
 
-        // // create user
-        // $user_create = User::create([
-        //     'name'  => $request->input('name'),
-        //     'email' => $request->input('email'),
-        //     'password' => Hash::make($request->input('password')),
-        //     'is_active' => Hash::make($request->input('password')),
-        // ]);
+        // get params
+        $name       = $request->name;
+        $email      = $request->email;
+        $password   = Hash::make($request->password);
+        $role       = $request->role;
+        $status     = $request->status;
 
-        // // assign role user
+        // // temp variable
+        // $temp = [
+        //     'name'      => $name,
+        //     'email'     => $email,
+        //     'password'  => $password,
+        //     'role'      => $role,
+        //     'status'    => $status
+        // ];
 
-        // // $user = User::find(1); // Mendapatkan pengguna dari database
-        // // $role = Role::where('name', 'owner')->first(); // Mendapatkan peran 'owner' dari database
-        // // $user->removeRole($role); // Mencabut peran 'owner' dari pengguna
-        // // $user->assignRole($role); // Menetapkan peran 'owner' ke pengguna
-        // // return User::find(1)->getRoleNames(); // Mendapatkan peran dari pengguna
+        // check email user
+        $user_check = User::where('email', $email)->first();
+        if ($user_check) {
+            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+        
+        // create user
+        $user_create = User::create([
+            'name'  => $name,
+            'email' => $email,
+            'password' => $password,
+            'is_active' => $status,
+        ]);
+        $user_create->assignRole($role);
+        
+        if (!$user_create) {
+            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
 
-        // return view('admin_user', [
-        //     'title' => $title,
-        // ]);
+        Alert::success('Success', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+        return redirect()->back();
     }
 }

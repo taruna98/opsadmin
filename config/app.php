@@ -175,9 +175,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
+        
         Spatie\Permission\PermissionServiceProvider::class,
-        UxWeb\SweetAlert\SweetAlertServiceProvider::class,
     ],
 
     /*
@@ -193,7 +192,6 @@ return [
 
     'aliases' => [
 
-        'Alert' => UxWeb\SweetAlert\SweetAlert::class, // additional
         'App' => Illuminate\Support\Facades\App::class,
         'Arr' => Illuminate\Support\Arr::class,
         'Artisan' => Illuminate\Support\Facades\Artisan::class,
