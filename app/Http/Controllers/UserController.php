@@ -113,7 +113,7 @@ class UserController extends BaseController
             Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
             return redirect()->back();
         }
-        
+
         // create user
         $user_create = User::create([
             'name'  => $name,
@@ -122,7 +122,7 @@ class UserController extends BaseController
             'is_active' => $status,
         ]);
         $user_create->assignRole($role);
-        
+
         if (!$user_create) {
             Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
             return redirect()->back();
@@ -131,8 +131,9 @@ class UserController extends BaseController
         Alert::success('Success', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
         return redirect()->back();
     }
-    
-    public function edit($id) {
+
+    public function edit($id)
+    {
         $user = User::with('roles')->findOrFail($id);
         return response()->json($user);
     }
@@ -164,7 +165,7 @@ class UserController extends BaseController
         //     'role'      => $role,
         //     'status'    => $status
         // ];
-        
+
         // update user
         $user_update = User::find($id);
         if (!$user_update) {
@@ -182,5 +183,11 @@ class UserController extends BaseController
 
         Alert::success('Success', 'Update User')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
         return redirect()->back();
+    }
+
+    public function detail($id)
+    {
+        $user = User::with('roles')->findOrFail($id);
+        return response()->json($user);
     }
 }
