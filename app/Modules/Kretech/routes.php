@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function () { //middleware ip,auth , web
+Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function () { // middleware web, auth
 
     Route::group(['middleware' => ['role_or_permission:owner|admin|kretech member'], 'namespace' => 'Modules\Kretech\Controllers'], function () {
 

@@ -15,14 +15,13 @@ class HomeController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    // public function __construct()
-    // {
-    //     $this->middleware('auth');
-    // }
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+    }
 
     public function index()
     {
-        // return Auth::user();
         $title = 'Home';
 
         // $user = User::find(1); // Mendapatkan pengguna dari database
