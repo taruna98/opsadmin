@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\LogActivity;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use RealRashid\SweetAlert\Facades\Alert;
+
 
 class UserController extends BaseController
 {
@@ -27,7 +30,7 @@ class UserController extends BaseController
         $users = User::with('roles')->get();
         $roles = Role::where('id', '!=', '1')->get();
         $rolez = Role::get();
-
+        
         if ($users != null) {
             $data = json_decode($users, true);
             $result = [];
@@ -92,6 +95,12 @@ class UserController extends BaseController
         ]);
 
         // get params
+        $user_id    = Auth::user()->id;
+        $module     = 'Admin';
+        $scene      = 'User';
+        $activity   = 'Create - ' . $request->create_email;
+        $ip         = $request->ip();
+        // ---
         $name       = $request->create_name;
         $email      = $request->create_email;
         $password   = Hash::make($request->create_password);
@@ -100,6 +109,12 @@ class UserController extends BaseController
 
         // // temp variable
         // $temp = [
+        //     'user_id'   => $user_id,
+        //     'module'    => $module,
+        //     'scene'     => $scene,
+        //     'activity'  => $activity,
+        //     'ip'        => $ip,
+        // // ---
         //     'name'      => $name,
         //     'email'     => $email,
         //     'password'  => $password,
@@ -128,6 +143,12 @@ class UserController extends BaseController
             return redirect()->back();
         }
 
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
         Alert::success('Success', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
         return redirect()->back();
     }
@@ -149,6 +170,12 @@ class UserController extends BaseController
         $user = User::where('email', $request->edit_email)->first();
 
         // get params
+        $user_id    = Auth::user()->id;
+        $module     = 'Admin';
+        $scene      = 'User';
+        $activity   = 'Edit - ' . $request->edit_email;
+        $ip         = $request->ip();
+        // ---
         $id         = $request->edit_id;
         $name       = $request->edit_name;
         $email      = $request->edit_email;
@@ -158,6 +185,12 @@ class UserController extends BaseController
 
         // // temp variable
         // $temp = [
+        //     'user_id'   => $user_id,
+        //     'module'    => $module,
+        //     'scene'     => $scene,
+        //     'activity'  => $activity,
+        //     'ip'        => $ip,
+        // // ---
         //     'id'        => $id,
         //     'name'      => $name,
         //     'email'     => $email,
@@ -180,6 +213,12 @@ class UserController extends BaseController
         $user_update->save();
         $user_update->roles()->detach();
         $user_update->assignRole($role);
+
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
 
         Alert::success('Success', 'Update User')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
         return redirect()->back();

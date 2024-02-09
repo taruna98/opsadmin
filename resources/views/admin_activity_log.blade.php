@@ -22,14 +22,16 @@
 
             <!-- List group with Activity Log -->
             <div class="list-group">
-              <a class="list-group-item list-group-item-action" aria-current="true">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">admin</h5>
-                    <small>3 days ago</small>
-                </div>
-                <p class="mb-1">activity</p>
-                <small>id content</small>
-              </a>
+              @foreach ($log_activity as $log)
+                <a class="list-group-item list-group-item-action" aria-current="true">
+                  <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1">{{ ucwords($log['name']) }}</h5>
+                      <small>{{ substr($log['created_at'], 0, 16) }}</small>
+                  </div>
+                  <p class="mb-1 fw-bold">{{ $log['activity'] }}</p>
+                  <small>{{ $log['module'] }} - {{ $log['scene'] }}</small>
+                </a>
+              @endforeach
             </div><!-- End List group Activity Log -->
 
           </div>

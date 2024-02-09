@@ -261,7 +261,7 @@
     <script>
         // table user
         $(document).ready(function() {
-            $('#table-users').DataTable();
+            // $('#table-users').DataTable();
         });
 
         // edit modal
