@@ -29,6 +29,9 @@
   <!-- Template Main CSS File -->
   <link href="{{ URL::asset('assets/css/style.css') }}" rel="stylesheet">
 
+  <!-- jQuery 3.6.0 -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
   <!-- =======================================================
   * Template Name: NiceAdmin
   * Updated: Jan 09 2024 with Bootstrap v5.3.2

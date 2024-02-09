@@ -48,7 +48,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <a href="" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i></a>
+                                            <button class="btn-edit btn btn-primary btn-sm" id="{{ $user['id'] }}"><i class="bi bi-pencil-square"></i></button>
                                             <a href="" class="btn btn-danger btn-sm"><i class="bi bi-ban"></i></a>
                                         </td>
                                     </tr>
@@ -88,23 +88,23 @@
                                 </div>
                             @endif
                             <div class="col-md-6">
-                                <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" name="name" id="name" value="{{ old('name') }}" required>
+                                <label for="create_name" class="form-label">Name</label>
+                                <input type="text" class="form-control" name="create_name" id="create_name" value="{{ old('create_name') }}" required>
                                 <div class="invalid-feedback">Please enter your name.</div>
                             </div>
                             <div class="col-md-6">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" name="email" id="email" value="{{ old('email') }}" required>
+                                <label for="create_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" name="create_email" id="create_email" value="{{ old('create_email') }}" required>
                                 <div class="invalid-feedback">Please enter your email.</div>
                             </div>
                             <div class="col-md-6">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" name="password" id="password" value="{{ old('password') }}" minlength="6" required>
+                                <label for="create_password" class="form-label">Password</label>
+                                <input type="password" class="form-control" name="create_password" id="create_password" value="{{ old('create_password') }}" minlength="6" required>
                                 <div class="invalid-feedback">Please enter your min 6 char password.</div>
                             </div>
                             <div class="col-md-6">
-                                <label for="role" class="form-label">Select Role</label>
-                                <select class="form-select" name="role" id="role" required>
+                                <label for="create_role" class="form-label">Select Role</label>
+                                <select class="form-select" name="create_role" id="create_role" required>
                                     @foreach ($roles as $role)
                                         <option value="{{ $role['name'] }}">{{ ucwords($role['name']) }}</option>
                                     @endforeach
@@ -112,8 +112,8 @@
                                 <div class="invalid-feedback">Please select role.</div>
                             </div>
                             <div class="col-md-6">
-                                <label for="status" class="form-label">Select Status</label>
-                                <select class="form-select" name="status" id="status" required>
+                                <label for="create_status" class="form-label">Select Status</label>
+                                <select class="form-select" name="create_status" id="create_status" required>
                                     <option selected value="1">Active</option>
                                     <option value="0">Not Active</option>
                                 </select>
@@ -129,5 +129,101 @@
             </div>
         </div>
         <!-- End Create User Modal-->
+
+        <!-- Edit User Modal -->
+        <div class="modal fade" id="userEditModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">User Edit</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="m-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li class="m-0 p-0">{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        <form class="row g-3 edit-form needs-validation" role="form" method="POST" enctype="multipart/form-data" novalidate>
+                            @csrf
+                            @if($errors->has('login'))
+                                <div class="alert alert-danger" role="alert">
+                                    {{ $errors->first('login') }}
+                                </div>
+                            @endif
+                            <div class="col-md-6 d-none">
+                                <input type="hidden" class="form-control" name="edit_id" id="edit_id" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_name" class="form-label">Name</label>
+                                <input type="text" class="form-control" name="edit_name" id="edit_name" required>
+                                <div class="invalid-feedback">Please enter your name.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" name="edit_email" id="edit_email" readonly>
+                                <div class="invalid-feedback">Please enter your email.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_password" class="form-label">Password</label>
+                                <input type="password" class="form-control" name="edit_password" id="edit_password" minlength="6">
+                                <div class="invalid-feedback">Please enter your min 6 char password.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_role" class="form-label">Select Role</label>
+                                <select class="form-select" name="edit_role" id="edit_role" required>
+                                    @foreach ($rolez as $role)
+                                        <option value="{{ $role['name'] }}">{{ ucwords($role['name']) }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback">Please select role.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_status" class="form-label">Select Status</label>
+                                <select class="form-select" name="edit_status" id="edit_status" required>
+                                    <option value="1">Active</option>
+                                    <option value="0">Not Active</option>
+                                </select>
+                                <div class="invalid-feedback">Please select status.</div>
+                            </div>
+                            <div class="col-md-12 d-flex justify-content-end">
+                                {{-- <button type="button" class="btn btn-secondary btn-sm my-2 me-2" data-bs-dismiss="modal">Close</button> --}}
+                                <button class="btn btn-primary btn-sm my-2" type="submit">Edit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Edit User Modal-->
     </section>
+
+    <script>
+        $(document).ready(function(){
+            $('.btn-edit').on('click', function() {
+                var userId = $(this).attr('id');
+                var routeUrl = "{{ url('user/update/:id') }}".replace(':id', userId);
+                $.ajax({
+                    url: '/user/edit/' + userId,
+                    type: 'GET',
+                    success: function(data) {
+                        $('#edit_id').val(data.id);
+                        $('#edit_name').val(data.name);
+                        $('#edit_email').val(data.email);
+                        $('#edit_role').val(data.roles[0].name);
+                        $('#edit_status').val(data.is_active);
+                        $('#userEditModal').modal('show');
+                        $('.edit-form').attr('action', routeUrl);
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
 @endsection
