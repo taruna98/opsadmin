@@ -4,12 +4,16 @@
     
     <!-- Sidebar Home Here -->
     @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
-      @include('layout.home_sidebar')
+      @if(request()->segment(1) == '' || request()->segment(1) == 'user' || request()->segment(1) == 'activity-log')
+        @include('layout.home_sidebar')
+      @endif
     @endif
     
     <!-- Sidebar Kretech ID Here -->
-    @if(auth()->check() && auth()->user()->hasRole('kretech member'))
-      @include('layout.kretech_sidebar')
+    @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin', 'kretech member']))
+      @if(request()->segment(1) == 'kretech')
+        @include('layout.kretech_sidebar')
+      @endif
     @endif
 
     @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
