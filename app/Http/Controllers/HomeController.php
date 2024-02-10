@@ -24,6 +24,8 @@ class HomeController extends BaseController
     {
         $title = 'Home';
 
+        // return Auth::user()->roles->pluck('name')[0];
+
         // $user = User::find(1); // Mendapatkan pengguna dari database
         // $role = Role::where('name', 'owner')->first(); // Mendapatkan peran 'owner' dari database
         // $user->removeRole($role); // Mencabut peran 'owner' dari pengguna

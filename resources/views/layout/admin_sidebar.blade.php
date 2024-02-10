@@ -3,7 +3,7 @@
   <ul class="sidebar-nav" id="sidebar-nav">
     
     <!-- Sidebar Home Here -->
-    @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
+    @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin', 'kretech member']))
       @if(request()->segment(1) == '' || request()->segment(1) == 'user' || request()->segment(1) == 'activity-log')
         @include('layout.home_sidebar')
       @endif

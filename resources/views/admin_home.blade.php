@@ -17,24 +17,26 @@
       <div class="col-lg-8">
         <div class="row">
 
-          <!-- Kretech Card -->
-          <div class="col-xxl-4 col-md-6">
-            <div class="card info-card sales-card">
-              <a href="{{ route('kretech.dashboard') }}">
-                <div class="card-body">
-                  <h5 class="card-title">Kretech ID</h5>
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-cart"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>CMS</h6>
+          @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin', 'kretech member']))
+            <!-- Kretech Card -->
+            <div class="col-xxl-4 col-md-6">
+              <div class="card info-card sales-card">
+                <a href="{{ route('kretech.dashboard') }}">
+                  <div class="card-body">
+                    <h5 class="card-title">Kretech ID</h5>
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-cart"></i>
+                      </div>
+                      <div class="ps-3">
+                        <h6>CMS</h6>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </a>
-            </div>
-          </div><!-- End Kretech Card -->
+                </a>
+              </div>
+            </div><!-- End Kretech Card -->
+          @endif
 
         </div>
       </div><!-- End Left side columns -->
