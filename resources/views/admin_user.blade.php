@@ -126,7 +126,7 @@
                                 <small>dimensions must 120 x 120 in JPG (max size: 500KB)</small>
                                 <img id="create_img_profile_preview" class="w-100" src="" /><br>
                                 <input type="file" class="form-control pb-3 mt-2" accept=".jpg"
-                                    onchange="loadImgProfile(event)" name="create_img_profile" id="create_img_profile">
+                                    onchange="loadCreateImgProfile(event)" name="create_img_profile" id="create_img_profile">
                                 <strong id="create_img_profile_response" class="text-danger"></strong>
                             </div>
                             <div class="col-md-6">
@@ -203,6 +203,15 @@
                                 <div class="invalid-feedback">Please select role.</div>
                             </div>
                             <div class="col-md-6">
+                                <label for="edit_img_profile" class="form-label">Image Profile</label>
+                                <br>
+                                <small>dimensions must 120 x 120 in JPG (max size: 500KB)</small>
+                                <img id="edit_img_profile_preview" class="w-100" src="" /><br>
+                                <input type="file" class="form-control pb-3 mt-2" accept=".jpg"
+                                    onchange="loadEditImgCard(event)" name="edit_img_profile" id="edit_img_profile">
+                                <strong id="edit_img_profile_response" class="text-danger"></strong>
+                            </div>
+                            <div class="col-md-6">
                                 <label for="edit_status" class="form-label">Select Status</label>
                                 <select class="form-select" name="edit_status" id="edit_status" required>
                                     <option value="1">Active</option>
@@ -234,12 +243,12 @@
                             <div class="col-md-12">
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item d-flex justify-content-between">
-                                        <b>ID</b>
-                                        <a class="text-decoration-none text-dark" id="detail_id">Id</a>
+                                        <img id="detail_img_profile" class="w-25 rounded-circle" src="" />
+                                        <a class="text-decoration-none text-dark fw-bold my-auto" id="detail_name">Name</a>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between">
-                                        <b>Name</b>
-                                        <a class="text-decoration-none text-dark" id="detail_name">Name</a>
+                                        <b>ID</b>
+                                        <a class="text-decoration-none text-dark" id="detail_id">Id</a>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between">
                                         <b>Email</b>
@@ -270,8 +279,8 @@
     <script>
         var _URL = window.URL || window.webkitURL;
 
-        // image profile
-        var loadImgProfile = function(event) {
+        // image profile create
+        var loadCreateImgProfile = function(event) {
             var output = document.getElementById('create_img_profile_preview');
             output.src = URL.createObjectURL(event.target.files[0]);
         };
@@ -302,6 +311,38 @@
             }
         });
 
+        // image profile edit
+        var loadEditImgCard = function(event) {
+            var output = document.getElementById('edit_img_profile_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $("#edit_img_profile").change(function(e) {
+            var file, img;
+            if (this.files[0].size / 1024 <= 500) {
+                if ((file = this.files[0])) {
+                    img = new Image();
+                    img.onload = function() {
+                        if (this.width == 120 && this.height == 120) {
+                            $("#edit_img_profile_response ").text("");
+                        } else {
+                            $("#edit_img_profile_response").text("image dimensions must 120 x 120");
+                            document.getElementById("edit_img_profile").value = "";
+                            document.getElementById("edit_img_profile_preview").src = window.URL
+                                .revokeObjectURL(this.files);
+                        }
+                    };
+                    img.onerror = function() {
+                        alert("not a valid file: " + file.type);
+                    };
+                    img.src = _URL.createObjectURL(file);
+                }
+            } else {
+                $("#edit_img_profile_response").text("image max size 500KB");
+                document.getElementById("edit_img_profile").value = "";
+                document.getElementById("edit_img_profile_preview").src = window.URL.revokeObjectURL(this.files);
+            }
+        });
+
         // table user
         $(document).ready(function() {
             // $('#table-users').DataTable();
@@ -320,6 +361,7 @@
                         $('#edit_name').val(data.name);
                         $('#edit_email').val(data.email);
                         $('#edit_role').val(data.roles[0].name);
+                        $('#edit_img_profile_preview').attr('src', window.location.origin + '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
                         $('#edit_status').val(data.is_active);
                         $('#userEditModal').modal('show');
                         $('.edit-form').attr('action', routeUrl);
@@ -340,6 +382,7 @@
                     type: 'GET',
                     success: function(data) {
                         $('#detail_id').text(data.id);
+                        $('#detail_img_profile').attr('src', window.location.origin + '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
                         $('#detail_name').text(data.name);
                         $('#detail_email').text(data.email);
                         $('#detail_role').text(data.roles[0].name);

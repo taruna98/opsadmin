@@ -92,7 +92,7 @@ class UserController extends BaseController
             'create_name'           => 'required|max:50',
             'create_email'          => 'required|email',
             'create_password'       => 'required',
-            'create_img_profile'    => 'required|image|mimes:jpeg,jpg|max:2048'
+            'create_img_profile'    => 'required|image|mimes:jpg|max:2048'
         ]);
 
         // get params
@@ -126,11 +126,6 @@ class UserController extends BaseController
         //     'status'    => $status
         // ];
 
-        // check image
-        if ($image !== null || $image != '') {
-            $image->move(public_path('assets/img'), $image_name);
-        }
-
         // check email user
         $user_check = User::where('email', $email)->first();
         if ($user_check) {
@@ -152,6 +147,11 @@ class UserController extends BaseController
             return redirect()->back();
         }
 
+        // check image
+        if ($image !== null || $image != '') {
+            $image->move(public_path('assets/img'), $image_name);
+        }
+
         $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
         if (!$save_log_activity) {
             Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
@@ -171,8 +171,9 @@ class UserController extends BaseController
     public function update(Request $request)
     {
         $request->validate([
-            'edit_id'   => 'required',
-            'edit_name' => 'required|max:50'
+            'edit_id'               => 'required',
+            'edit_name'             => 'required|max:50',
+            'create_img_profile'    => 'image|mimes:jpg|max:2048'
         ]);
 
         // get user
@@ -190,6 +191,8 @@ class UserController extends BaseController
         $email      = $request->edit_email;
         $password   = ($request->edit_password == null) ? $user->password : Hash::make($request->edit_password);
         $role       = $request->edit_role;
+        $image      = $request->file('edit_img_profile');
+        $image_name = isset($image) ? 'admin_img_' . strstr($email, '@', true) . '.' . $image->extension() : '';
         $status     = $request->edit_status;
 
         // // temp variable
@@ -205,6 +208,7 @@ class UserController extends BaseController
         //     'email'     => $email,
         //     'password'  => $password,
         //     'role'      => $role,
+        //     'image'     => $image_name,
         //     'status'    => $status
         // ];
 
@@ -222,6 +226,11 @@ class UserController extends BaseController
         $user_update->save();
         $user_update->roles()->detach();
         $user_update->assignRole($role);
+
+        // check image
+        if ($image !== null || $image != '') {
+            $image->move(public_path('assets/img'), $image_name);
+        }
 
         $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
         if (!$save_log_activity) {
