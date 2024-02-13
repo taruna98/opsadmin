@@ -472,7 +472,7 @@
                     $('#detail_role').text(data.roles[0].name);
                     if (data.is_active == 1) {
                         $('#detail_status').html(
-                            '<span class="badge rounded-pill text-white bg-primary">Active</span>'
+                            '<span class="badge rounded-pill text-white bg-success">Active</span>'
                         );
                     } else if (data.is_active == 0) {
                         $('#detail_status').html(
