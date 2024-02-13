@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/edit/{id}', 'UserController@edit')->name('user.edit');
     Route::post('/user/update/{id}', 'UserController@update')->name('user.update');
     Route::get('/user/detail/{id}', 'UserController@detail')->name('user.detail');
+    Route::get('/user/roles', 'UserController@roles')->name('user.roles');
 
     // Activity Log Route
     Route::get('/activity-log', 'ActivityLogController@index')->name('activity_log');

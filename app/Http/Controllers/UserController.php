@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use RealRashid\SweetAlert\Facades\Alert;
+use Yajra\DataTables\DataTables;
 
 
 class UserController extends BaseController
@@ -24,30 +25,36 @@ class UserController extends BaseController
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $title = 'User';
         $users = User::with('roles')->get();
         $roles = Role::where('id', '!=', '1')->get();
         $rolez = Role::get();
 
+
+        // $users = User::whereHas('roles', function($query) {
+        //     $query->where('name', 'owner');
+        // })->with('roles')->get();
+        // return $users;
+
         if ($users != null) {
-            $data = json_decode($users, true);
-            $result = [];
-            foreach ($data as $item) {
-                $user = [
-                    'id' => $item['id'],
-                    'name' => $item['name'],
-                    'email' => $item['email'],
-                    'email_verified_at' => $item['email_verified_at'],
-                    'is_active' => $item['is_active'],
-                    'created_at' => $item['created_at'],
-                    'updated_at' => $item['updated_at'],
-                    'role_id' => $item['roles'][0]['id'],
-                    'role_name' => $item['roles'][0]['name']
-                ];
-                $result[] = $user;
-            }
+            // $data = json_decode($users, true);
+            // $result = [];
+            // foreach ($data as $item) {
+            //     $user = [
+            //         'id' => $item['id'],
+            //         'name' => $item['name'],
+            //         'email' => $item['email'],
+            //         'email_verified_at' => $item['email_verified_at'],
+            //         'is_active' => $item['is_active'],
+            //         'created_at' => $item['created_at'],
+            //         'updated_at' => $item['updated_at'],
+            //         'role_id' => $item['roles'][0]['id'],
+            //         'role_name' => $item['roles'][0]['name']
+            //     ];
+            //     $result[] = $user;
+            // }
             $data2 = json_decode($roles, true);
             $result2 = [];
             foreach ($data2 as $item2) {
@@ -73,14 +80,47 @@ class UserController extends BaseController
                 $result3[] = $user3;
             }
         } else {
-            $result = [];
+            // $result = [];
             $result2 = [];
             $result3 = [];
         }
 
+
+        if ($request->ajax()) {
+            // $users = User::with('roles');
+            // return DataTables::of($users)->make(true);
+
+
+
+
+
+            if (!empty($request->filter_role)) {
+                // $data = DB::connection('mysql15')->table('player')
+                //     ->select('id', 'player_id', 'game_id', 'uid', 'nickname', 'platform', 'cheat_attempt', 'apple', 'google', 'block', 'status', 'diamond', 'coin', 'star', 'lives', 'level_progress', 'vn_progress', 'booster', 'powerup', 'player_avatar', 'player_frame', 'created_at', 'updated_at')->where('block', $request->filter_role)->get();
+                //     $count_data = count($data);
+
+                $filter_role = $request->filter_role;
+                $users = User::whereHas('roles', function($query) use ($filter_role) {
+                    $query->where('name', $filter_role);
+                })->with('roles')->get();
+                $count_data = count($users);
+
+            } else {
+                // $data = DB::connection('mysql15')->table('player')->select('id', 'player_id', 'game_id', 'uid', 'nickname', 'platform', 'cheat_attempt', 'apple', 'google', 'block', 'status', 'diamond', 'coin', 'star', 'lives', 'level_progress', 'vn_progress', 'booster', 'powerup', 'player_avatar', 'player_frame', 'created_at', 'updated_at')->where('block', '>', 0)->get();
+                // $count_data = count($data);
+
+                $users = User::with('roles')->get();
+                $count_data = count($users);
+            }
+
+            return Datatables::of($users)->setTotalRecords($count_data)->setFilteredRecords(0)->make(true);
+
+            // return DataTables::of($users)->make(true);
+        }
+
         return view('admin_user', [
             'title' => $title,
-            'users' => $result,
+            // 'users' => $result,
             'roles' => $result2,
             'rolez' => $result3
         ]);
@@ -246,5 +286,11 @@ class UserController extends BaseController
     {
         $user = User::with('roles')->findOrFail($id);
         return response()->json($user);
+    }
+
+    public function roles()
+    {
+        $roles = Role::get();
+        return response()->json($roles);
     }
 }

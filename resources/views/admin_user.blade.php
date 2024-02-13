@@ -35,7 +35,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($users as $user)
+                                {{-- @foreach ($users as $user)
                                     <tr>
                                         <th scope="row">{{ $loop->iteration }}</th>
                                         <td>{{ ucwords($user['name']) }}</td>
@@ -57,7 +57,7 @@
                                             </button>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @endforeach --}}
                             </tbody>
                         </table>
                         <!-- End User List -->
@@ -274,6 +274,7 @@
             </div>
         </div>
         <!-- End Detail User Modal-->
+        
     </section>
 
     <script>
@@ -344,65 +345,147 @@
         });
 
         // table user
+        var rolesData;
         $(document).ready(function() {
-            // $('#table-users').DataTable();
+            getRolesData();
+            fill_datatable();
+            function getRolesData() {
+                $.ajax({
+                    url: "{{ route('user.roles') }}",
+                    type: "GET",
+                    success: function(data) {
+                        rolesData = data;
+                        // buildRoleDropdown();
+                    }
+                });
+            }
+            function buildRoleDropdown() {
+                var dropdown = '<select class="form-select my-2" id="filter_role"> <option value="" selected disabled>Select Role</option>';
+                $.each(rolesData, function(key, val) {
+                    dropdown += '<option value="' + val.name + '">' + val.name + '</option>';
+                });
+                dropdown += '</select>';
+                
+                $('#table-users_filter').append(dropdown);
+
+                $('#filter_role').on('change', function() {
+                    var filter_role = $(this).val();
+
+                    if (filter_role != '') {
+                        $('#table-users').DataTable().destroy();
+                        fill_datatable(filter_role);
+                    } else {
+                        $('#filter_role').val('');
+                        $('#table-users').DataTable().destroy();
+                        fill_datatable();
+                    }
+                });
+            }
+            function fill_datatable(filter_role = '') {
+                var table = $('#table-users').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "{{ route('user') }}",
+                        type: 'GET',
+                        data: {
+                            filter_role: filter_role
+                        }
+                    },
+                    initComplete: function(settings, json) {
+                        // console.log(json);
+                        buildRoleDropdown();
+                    },
+                    columns: [
+                        {data: 'id', name:'id', render: function (data, type, row, meta) 
+                            {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            }
+                        },
+                        {data: 'name', name: 'name'},
+                        {data: 'email', name: 'email'},
+                        {data: 'roles', name:'roles', render: function (data, type, row, meta) 
+                            {
+                                return data[0]['name'];
+                            }
+                        },
+                        {data: 'is_active', name:'is_active', render: function (data, type, row, meta)
+                            {
+                                if (data == 1) {
+                                    return '<span class="badge rounded-pill bg-success">Active</span>';
+                                } else {
+                                    return '<span class="badge rounded-pill bg-danger">Not Active</span>';
+                                }
+                            }
+                        },
+                        {data: 'id', name:'id', render: function (data, type, row, meta) 
+                            {
+                                var html = '<button class="btn-edit btn btn-primary btn-sm mx-1" id="' + data + '"><i class="bi bi-pencil-square"></i></button>';
+                                html += '<button class="btn-detail btn btn-info btn-sm mx-1" id="' + data + '"><i class="bi bi-eye text-white"></i></button>';
+                                return html;
+                            }
+                        }
+                    ],
+                    columnDefs: [
+                        { 'orderable': false, 'targets': [0, 3, 5] }
+                    ],
+                    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    pageLength: 5
+                });
+            }
         });
 
         // edit modal
-        $(document).ready(function() {
-            $('.btn-edit').on('click', function() {
-                var userId = $(this).attr('id');
-                var routeUrl = "{{ url('user/update/:id') }}".replace(':id', userId);
-                $.ajax({
-                    url: '/user/edit/' + userId,
-                    type: 'GET',
-                    success: function(data) {
-                        $('#edit_id').val(data.id);
-                        $('#edit_name').val(data.name);
-                        $('#edit_email').val(data.email);
-                        $('#edit_role').val(data.roles[0].name);
-                        $('#edit_img_profile_preview').attr('src', window.location.origin + '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
-                        $('#edit_status').val(data.is_active);
-                        $('#userEditModal').modal('show');
-                        $('.edit-form').attr('action', routeUrl);
-                    },
-                    error: function(xhr) {
-                        console.log(xhr.responseText);
-                    }
-                });
+        $(document).on('click', '.btn-edit', function() {
+            var userId = $(this).attr('id');
+            var routeUrl = "{{ url('user/update/:id') }}".replace(':id', userId);
+            $.ajax({
+                url: '/user/edit/' + userId,
+                type: 'GET',
+                success: function(data) {
+                    $('#edit_id').val(data.id);
+                    $('#edit_name').val(data.name);
+                    $('#edit_email').val(data.email);
+                    $('#edit_role').val(data.roles[0].name);
+                    $('#edit_img_profile_preview').attr('src', window.location.origin + '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
+                    $('#edit_status').val(data.is_active);
+                    $('#userEditModal').modal('show');
+                    $('.edit-form').attr('action', routeUrl);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
             });
         });
 
         // detail modal
-        $(document).ready(function() {
-            $('.btn-detail').on('click', function() {
-                var userId = $(this).attr('id');
-                $.ajax({
-                    url: '/user/detail/' + userId,
-                    type: 'GET',
-                    success: function(data) {
-                        $('#detail_id').text(data.id);
-                        $('#detail_img_profile').attr('src', window.location.origin + '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
-                        $('#detail_name').text(data.name);
-                        $('#detail_email').text(data.email);
-                        $('#detail_role').text(data.roles[0].name);
-                        if (data.is_active == 1) {
-                            $('#detail_status').html(
-                                '<span class="badge rounded-pill text-white bg-primary">Active</span>'
-                            );
-                        } else if (data.is_active == 0) {
-                            $('#detail_status').html(
-                                '<span class="badge rounded-pill text-white bg-danger">Not Active</span>'
-                            );
-                        }
-                        $('#detail_register_at').text(new Date(data.created_at).toISOString()
-                            .slice(0, 16).replace('T', ' '));
-                        $('#userDetailModal').modal('show');
-                    },
-                    error: function(xhr) {
-                        console.log(xhr.responseText);
+        $(document).on('click', '.btn-detail', function() {
+            var userId = $(this).attr('id');
+            $.ajax({
+                url: '/user/detail/' + userId,
+                type: 'GET',
+                success: function(data) {
+                    $('#detail_id').text(data.id);
+                    $('#detail_img_profile').attr('src', window.location.origin + '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
+                    $('#detail_name').text(data.name);
+                    $('#detail_email').text(data.email);
+                    $('#detail_role').text(data.roles[0].name);
+                    if (data.is_active == 1) {
+                        $('#detail_status').html(
+                            '<span class="badge rounded-pill text-white bg-primary">Active</span>'
+                        );
+                    } else if (data.is_active == 0) {
+                        $('#detail_status').html(
+                            '<span class="badge rounded-pill text-white bg-danger">Not Active</span>'
+                        );
                     }
-                });
+                    $('#detail_register_at').text(new Date(data.created_at).toISOString()
+                        .slice(0, 16).replace('T', ' '));
+                    $('#userDetailModal').modal('show');
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
             });
         });
     </script>
