@@ -28,5 +28,8 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function 
 
         // Kretech Article
         Route::get('article', 'ArticleController@index')->name('kretech.article');
+        
+        // Kretech Activity
+        Route::get('activity', 'ActivityController@index')->name('kretech.activity');
     });
 });

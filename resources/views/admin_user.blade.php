@@ -360,7 +360,7 @@
                 });
             }
             function buildRoleDropdown() {
-                var dropdown = '<select class="form-select my-2" id="filter_role"> <option value="" selected disabled>Select Role</option>';
+                var dropdown = '<select class="form-select my-2" id="filter_role"> <option value="" selected disabled>Select Role</option> <option value="">all role</option>';
                 $.each(rolesData, function(key, val) {
                     dropdown += '<option value="' + val.name + '">' + val.name + '</option>';
                 });
