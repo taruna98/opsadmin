@@ -17,7 +17,24 @@
       <div class="col-lg-8">
         <div class="row">
 
-          @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin', 'kretech member']))
+          @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
+            <!-- Admin Card -->
+            <div class="col-xxl-4 col-md-6">
+              <div class="card info-card sales-card">
+                <div class="card-body">
+                  <h5 class="card-title">Kretech ID</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-cart"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6>CMS</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- End Kretech Card -->
+          @elseif(auth()->check() && auth()->user()->hasRole(['kretech member']))
             <!-- Kretech Card -->
             <div class="col-xxl-4 col-md-6">
               <div class="card info-card sales-card">
