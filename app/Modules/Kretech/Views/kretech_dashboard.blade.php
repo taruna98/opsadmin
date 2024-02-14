@@ -27,7 +27,7 @@
                                         <i class="bi bi-cart"></i>
                                     </div>
                                     <div class="ps-3">
-                                        <h6>9</h6>
+                                        <h6>{{ count($data['portfolio']) }}</h6>
                                         <span class="text-muted small pt-2 ps-1">item</span>
                                     </div>
                                 </div>
@@ -45,7 +45,7 @@
                                         <i class="bi bi-people"></i>
                                     </div>
                                     <div class="ps-3">
-                                        <h6>12</h6>
+                                        <h6>{{ count($data['article']) }}</h6>
                                         <span class="text-muted small pt-2 ps-1">item</span>
                                     </div>
                                 </div>
@@ -65,29 +65,19 @@
                         <h5 class="card-title">Recent Activity <span>| last two</span></h5>
                         <div class="activity">
 
-                            <div class="activity-item d-flex">
-                                <div class="activite-label">13 day</div>
-                                <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                                <div class="activity-content">
-                                    admin name
-                                    <br>
-                                    <a href="#" class="text-decoration-none text-dark fw-bold">activities</a>
-                                    <br>
-                                    2024-01-01 10:22
-                                </div>
-                            </div><!-- End activity item-->
-
-                            <div class="activity-item d-flex">
-                                <div class="activite-label">2 month</div>
-                                <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                                <div class="activity-content">
-                                    admin name
-                                    <br>
-                                    <a href="#" class="text-decoration-none text-dark fw-bold">activities</a>
-                                    <br>
-                                    2024-01-01 10:22
-                                </div>
-                            </div><!-- End activity item-->
+                            @foreach($activity as $act)
+                                <div class="activity-item d-flex">
+                                    <div class="activite-label">{{ ucwords($act->name) }}</div>
+                                    <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                                    <div class="activity-content">
+                                        {{ \Carbon\Carbon::parse($act->created_at)->diffForHumans() }}
+                                        <br>
+                                        <a href="#" class="text-decoration-none text-dark fw-bold">{{ $act->activity }}</a>
+                                        <br>
+                                        {{ substr($act->created_at, 0, 16) }}
+                                    </div>
+                                </div><!-- End activity item-->
+                            @endforeach
 
                         </div>
                     </div>
