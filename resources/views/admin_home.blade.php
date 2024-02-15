@@ -1,6 +1,15 @@
 @extends('layout.admin_app')
 @section('content')
-    <div class="pagetitle">
+  <style>
+    .list-user-app {
+      height: 10rem;
+      width: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+  </style>
+
+  <div class="pagetitle">
     <h1>Dashboard</h1>
     <nav>
       <ol class="breadcrumb">
@@ -14,12 +23,25 @@
     <div class="row">
 
       <!-- Left side columns -->
-      <div class="col-lg-8">
+      <div class="col-lg-12">
         <div class="row">
 
           @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
             <!-- Admin Card -->
             <div class="col-xxl-4 col-md-6">
+              <div class="card mb-1">
+                <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+              </div>
+              <div class="card mb-1">
+                <ul class="list-user-app list-group list-group-flush">
+                  <li class="list-group-item bg-primary text-light text-center sticky-top">User List</li>
+                  <li class="list-group-item">user1@gmail.com</li>
+                  <li class="list-group-item">user2@gmail.com</li>
+                  <li class="list-group-item">user3@gmail.com</li>
+                  <li class="list-group-item">user4@gmail.com</li>
+                  <li class="list-group-item">user5@gmail.com</li>
+                </ul>
+              </div>
               <div class="card info-card sales-card">
                 <div class="card-body">
                   <h5 class="card-title">Kretech ID</h5>
@@ -59,7 +81,7 @@
       </div><!-- End Left side columns -->
 
       <!-- Right side columns -->
-      <div class="col-lg-4">
+      <div class="col-lg-12">
 
         <!-- Recent Activity -->
         <div class="card d-none">
