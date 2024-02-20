@@ -7,6 +7,9 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
+    .list-user-app .header-user {
+      z-index: 1;
+    }
   </style>
 
   <div class="pagetitle">
@@ -23,23 +26,21 @@
     <div class="row">
 
       <!-- Left side columns -->
-      <div class="col-lg-12">
+      <div class="col-lg-8">
         <div class="row">
 
           @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
             <!-- Admin Card -->
-            <div class="col-xxl-4 col-md-6">
+            <div class="col-md-6">
               <div class="card mb-1">
-                <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+                <input class="form-control search-kretech-user" type="search" placeholder="Search" aria-label="Search">
               </div>
               <div class="card mb-1">
                 <ul class="list-user-app list-group list-group-flush">
-                  <li class="list-group-item bg-primary text-light text-center sticky-top">User List</li>
-                  <li class="list-group-item">user1@gmail.com</li>
-                  <li class="list-group-item">user2@gmail.com</li>
-                  <li class="list-group-item">user3@gmail.com</li>
-                  <li class="list-group-item">user4@gmail.com</li>
-                  <li class="list-group-item">user5@gmail.com</li>
+                  <li class="list-group-item header-user bg-primary text-light text-center sticky-top">User List</li>
+                  @foreach ($user_kretech as $user)
+                    <li class="list-group-item item-user">{{ $user->email }}</li>
+                  @endforeach
                 </ul>
               </div>
               <div class="card info-card sales-card">
@@ -51,6 +52,9 @@
                     </div>
                     <div class="ps-3">
                       <h6>CMS</h6>
+                      <div class="d-flex justify-content-center align-items-center py-2">
+                        total user <span class="badge rounded-pill bg-primary ms-2">{{ count($user_kretech) }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -81,83 +85,64 @@
       </div><!-- End Left side columns -->
 
       <!-- Right side columns -->
-      <div class="col-lg-12">
+      <div class="col-lg-4">
 
-        <!-- Recent Activity -->
-        <div class="card d-none">
-          <div class="filter">
-            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              <li class="dropdown-header text-start">
-                <h6>Filter</h6>
-              </li>
+        @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="filter d-none">
+              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                  <h6>Filter</h6>
+                </li>
 
-              <li><a class="dropdown-item" href="#">Today</a></li>
-              <li><a class="dropdown-item" href="#">This Month</a></li>
-              <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul>
-          </div>
-
-          <div class="card-body">
-            <h5 class="card-title">Recent Activity <span>| Today</span></h5>
-
-            <div class="activity">
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">32 min</div>
-                <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                <div class="activity-content">
-                  Quia quae rerum <a href="#" class="fw-bold text-dark">explicabo officiis</a> beatae
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">56 min</div>
-                <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                <div class="activity-content">
-                  Voluptatem blanditiis blanditiis eveniet
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">2 hrs</div>
-                <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                <div class="activity-content">
-                  Voluptates corrupti molestias voluptatem
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">1 day</div>
-                <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                <div class="activity-content">
-                  Tempore autem saepe <a href="#" class="fw-bold text-dark">occaecati voluptatem</a> tempore
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">2 days</div>
-                <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                <div class="activity-content">
-                  Est sit eum reiciendis exercitationem
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">4 weeks</div>
-                <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                <div class="activity-content">
-                  Dicta dolorem harum nulla eius. Ut quidem quidem sit quas
-                </div>
-              </div><!-- End activity item-->
-
+                <li><a class="dropdown-item" href="#">Today</a></li>
+                <li><a class="dropdown-item" href="#">This Month</a></li>
+                <li><a class="dropdown-item" href="#">This Year</a></li>
+              </ul>
             </div>
 
-          </div>
-        </div><!-- End Recent Activity -->
+            <div class="card-body">
+              <h5 class="card-title">Recent Activity <span>| last six</span></h5>
+              <div class="activity">
+                @foreach($all_activity as $all_act)
+                  <div class="activity-item d-flex">
+                    <div class="activite-label">{{ str_replace('ago', '', \Carbon\Carbon::parse($all_act->created_at)->diffForHumans()) }}</div>
+                    <i class='bi bi-circle-fill activity-badge text-{{ $all_act->module == "Admin" ? "primary" : "danger" }} align-self-start'></i>
+                    <div class="activity-content">
+                      {{ ucwords($all_act->name) }}
+                      <br>
+                      <a class="text-decoration-none text-dark fw-bold">{{ $all_act->activity }}</a>
+                      <br>
+                      {{ substr($all_act->created_at, 0, 16) }}
+                    </div>
+                  </div><!-- End activity item-->
+                @endforeach
+              </div>
+            </div>
+          </div><!-- End Recent Activity -->
+        @endif
 
       </div><!-- End Right side columns -->
 
     </div>
   </section>
+
+  <script>
+    // live search kretech user
+    $(document).ready(function(){
+      $('.search-kretech-user').keyup(function(){
+        var searchTerm = $(this).val().toLowerCase();
+        $('.list-user-app .item-user').each(function(){
+          var text = $(this).text().toLowerCase();
+          if(text.indexOf(searchTerm) === -1){
+            $(this).hide();
+          } else {
+            $(this).show();
+          }
+        });
+      });
+    });
+  </script>
 @endsection

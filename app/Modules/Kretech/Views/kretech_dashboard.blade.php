@@ -67,12 +67,12 @@
 
                             @foreach($activity as $act)
                                 <div class="activity-item d-flex">
-                                    <div class="activite-label">{{ ucwords($act->name) }}</div>
+                                    <div class="activite-label">{{ str_replace('ago', '', \Carbon\Carbon::parse($act->created_at)->diffForHumans()) }}</div>
                                     <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
                                     <div class="activity-content">
-                                        {{ \Carbon\Carbon::parse($act->created_at)->diffForHumans() }}
+                                        {{ ucwords($act->name) }}
                                         <br>
-                                        <a href="#" class="text-decoration-none text-dark fw-bold">{{ $act->activity }}</a>
+                                        <a class="text-decoration-none text-dark fw-bold">{{ $act->activity }}</a>
                                         <br>
                                         {{ substr($act->created_at, 0, 16) }}
                                     </div>
