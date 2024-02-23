@@ -32,7 +32,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
 
     <!-- Template Main CSS File -->
-    @if(request()->segment(1)=='kretech')
+    @if (request()->segment(1) == 'kretech')
         <link href="{{ URL::asset('assets/css/style-kretech.css') }}" rel="stylesheet">
     @else
         <link href="{{ URL::asset('assets/css/style.css') }}" rel="stylesheet">

@@ -25,13 +25,13 @@ class DashboardController extends BaseController
 
         // get user
         $get_user = DB::connection('mysql')->table('users')->where('email', $email)->first();
-        
+
         // get profile
         $get_profile = DB::connection('mysql2')->table('profiles')->where('eml', $get_user->email)->first();
-        
+
         $get_profile->nme = $get_user->name;
         $get_profile->stt = $get_user->is_active;
-        
+
         // get code
         $code = $get_profile->cod;
         $url = 'http://localhost:8000/profile/' . $code;
@@ -44,12 +44,12 @@ class DashboardController extends BaseController
         $data = json_decode($response, true);
 
         // get activity
-        $activity = DB::connection('mysql')->table('log_activity')->join('users', 'log_activity.user_id', '=', 'users.id')->select('users.name', 'log_activity.*')->where('log_activity.module', 'Kretech')->where('log_activity.user_id', '1')->orderBy('log_activity.created_at', 'desc')->limit(2)->get();
+        $activity = DB::connection('mysql')->table('log_activity')->join('users', 'log_activity.user_id', '=', 'users.id')->select('users.name', 'log_activity.*')->where('log_activity.module', 'Admin')->where('log_activity.user_id', '1')->orderBy('log_activity.created_at', 'desc')->limit(2)->get();
 
         return view('Kretech::kretech_dashboard', [
             'title'     => $title,
             'data'      => $data,
             'activity'  => $activity
-        ]);  
+        ]);
     }
 }

@@ -1,5 +1,23 @@
 @extends('layout.admin_app')
 @section('content')
+    <style>
+        /* style for datatable */
+        table.dataTable {
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+        }
+
+        table.dataTable tr>td,
+        table.dataTable tr>th {
+            border: none;
+        }
+
+        table.dataTable td,
+        table.dataTable th {
+            padding: 10px !important;
+        }
+    </style>
+
     <div class="pagetitle">
         <h1>User</h1>
         <nav>
@@ -126,7 +144,8 @@
                                 <small>dimensions must 120 x 120 in JPG (max size: 500KB)</small>
                                 <img id="create_img_profile_preview" class="w-100" src="" /><br>
                                 <input type="file" class="form-control pb-3 mt-2" accept=".jpg"
-                                    onchange="loadCreateImgProfile(event)" name="create_img_profile" id="create_img_profile">
+                                    onchange="loadCreateImgProfile(event)" name="create_img_profile"
+                                    id="create_img_profile">
                                 <strong id="create_img_profile_response" class="text-danger"></strong>
                             </div>
                             <div class="col-md-6">
@@ -244,7 +263,8 @@
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item d-flex justify-content-between">
                                         <img id="detail_img_profile" class="w-25 rounded-circle" src="" />
-                                        <a class="text-decoration-none text-dark fw-bold my-auto" id="detail_name">Name</a>
+                                        <a class="text-decoration-none text-dark fw-bold my-auto"
+                                            id="detail_name">Name</a>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between">
                                         <b>ID</b>
@@ -274,7 +294,7 @@
             </div>
         </div>
         <!-- End Detail User Modal-->
-        
+
     </section>
 
     <script>
@@ -349,6 +369,7 @@
         $(document).ready(function() {
             getRolesData();
             fill_datatable();
+
             function getRolesData() {
                 $.ajax({
                     url: "{{ route('user.roles') }}",
@@ -359,13 +380,15 @@
                     }
                 });
             }
+
             function buildRoleDropdown() {
-                var dropdown = '<select class="form-select my-2" id="filter_role"> <option value="" selected disabled>Select Role</option> <option value="">all role</option>';
+                var dropdown =
+                    '<select class="form-select my-2" id="filter_role"> <option value="" selected disabled>Select Role</option> <option value="">all role</option>';
                 $.each(rolesData, function(key, val) {
                     dropdown += '<option value="' + val.name + '">' + val.name + '</option>';
                 });
                 dropdown += '</select>';
-                
+
                 $('#table-users_filter').append(dropdown);
 
                 $('#filter_role').on('change', function() {
@@ -381,10 +404,12 @@
                     }
                 });
             }
+
             function fill_datatable(filter_role = '') {
                 var table = $('#table-users').DataTable({
                     processing: true,
                     serverSide: true,
+                    responsive: true,
                     ajax: {
                         url: "{{ route('user') }}",
                         type: 'GET',
@@ -396,21 +421,32 @@
                         // console.log(json);
                         buildRoleDropdown();
                     },
-                    columns: [
-                        {data: 'id', name:'id', render: function (data, type, row, meta) 
-                            {
+                    columns: [{
+                            data: 'id',
+                            name: 'id',
+                            render: function(data, type, row, meta) {
                                 return meta.row + meta.settings._iDisplayStart + 1;
                             }
                         },
-                        {data: 'name', name: 'name'},
-                        {data: 'email', name: 'email'},
-                        {data: 'roles', name:'roles', render: function (data, type, row, meta) 
-                            {
+                        {
+                            data: 'name',
+                            name: 'name'
+                        },
+                        {
+                            data: 'email',
+                            name: 'email'
+                        },
+                        {
+                            data: 'roles',
+                            name: 'roles',
+                            render: function(data, type, row, meta) {
                                 return data[0]['name'];
                             }
                         },
-                        {data: 'is_active', name:'is_active', render: function (data, type, row, meta)
-                            {
+                        {
+                            data: 'is_active',
+                            name: 'is_active',
+                            render: function(data, type, row, meta) {
                                 if (data == 1) {
                                     return '<span class="badge rounded-pill bg-success">Active</span>';
                                 } else {
@@ -418,18 +454,27 @@
                                 }
                             }
                         },
-                        {data: 'id', name:'id', render: function (data, type, row, meta) 
-                            {
-                                var html = '<button class="btn-edit btn btn-primary btn-sm mx-1" id="' + data + '"><i class="bi bi-pencil-square"></i></button>';
-                                html += '<button class="btn-detail btn btn-info btn-sm mx-1" id="' + data + '"><i class="bi bi-eye text-white"></i></button>';
+                        {
+                            data: 'id',
+                            name: 'id',
+                            render: function(data, type, row, meta) {
+                                var html =
+                                    '<button class="btn-edit btn btn-primary btn-sm mx-1" id="' +
+                                    data + '"><i class="bi bi-pencil-square"></i></button>';
+                                html += '<button class="btn-detail btn btn-info btn-sm mx-1" id="' +
+                                    data + '"><i class="bi bi-eye text-white"></i></button>';
                                 return html;
                             }
                         }
                     ],
-                    columnDefs: [
-                        { 'orderable': false, 'targets': [0, 3, 5] }
+                    columnDefs: [{
+                        'orderable': false,
+                        'targets': [0, 3, 5]
+                    }],
+                    lengthMenu: [
+                        [5, 10, 25, 50, -1],
+                        [5, 10, 25, 50, "All"]
                     ],
-                    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
                     pageLength: 5
                 });
             }
@@ -447,7 +492,8 @@
                     $('#edit_name').val(data.name);
                     $('#edit_email').val(data.email);
                     $('#edit_role').val(data.roles[0].name);
-                    $('#edit_img_profile_preview').attr('src', window.location.origin + '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
+                    $('#edit_img_profile_preview').attr('src', window.location.origin +
+                        '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
                     $('#edit_status').val(data.is_active);
                     $('#userEditModal').modal('show');
                     $('.edit-form').attr('action', routeUrl);
@@ -466,7 +512,8 @@
                 type: 'GET',
                 success: function(data) {
                     $('#detail_id').text(data.id);
-                    $('#detail_img_profile').attr('src', window.location.origin + '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
+                    $('#detail_img_profile').attr('src', window.location.origin +
+                        '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
                     $('#detail_name').text(data.name);
                     $('#detail_email').text(data.email);
                     $('#detail_role').text(data.roles[0].name);
