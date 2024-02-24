@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Profile;
 use App\Models\User;
 use App\Models\LogActivity;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Role;
 use RealRashid\SweetAlert\Facades\Alert;
 use Yajra\DataTables\DataTables;
@@ -23,6 +25,29 @@ class UserController extends BaseController
     public function __construct()
     {
         $this->middleware('auth');
+
+        // function kretech generate code profile
+        function generateCode($length = 11)
+        {
+            $characters = 'abcdefghijklmnopqrstuvwxyz';
+            $code = '';
+
+            // generate the first character (3 or 4)
+            $firstChar = (string) rand(3, 4);
+            $code .= $firstChar;
+
+            // generate the second and third characters (uppercase letters)
+            $code .= chr(rand(65, 90)); // uppercase letter
+            $code .= chr(rand(65, 90)); // uppercase letter
+
+            // generate the rest of the characters
+            $max = strlen($characters) - 1;
+            for ($i = 0; $i < $length - 3; $i++) {
+                $code .= $characters[rand(0, $max)];
+            }
+
+            return $code;
+        }
     }
 
     public function index(Request $request)
@@ -31,7 +56,6 @@ class UserController extends BaseController
         $users = User::with('roles')->get();
         $roles = Role::where('id', '!=', '1')->get();
         $rolez = Role::get();
-
 
         // $users = User::whereHas('roles', function($query) {
         //     $query->where('name', 'owner');
@@ -85,14 +109,9 @@ class UserController extends BaseController
             $result3 = [];
         }
 
-
         if ($request->ajax()) {
             // $users = User::with('roles');
             // return DataTables::of($users)->make(true);
-
-
-
-
 
             if (!empty($request->filter_role)) {
                 // $data = DB::connection('mysql15')->table('player')
@@ -100,11 +119,10 @@ class UserController extends BaseController
                 //     $count_data = count($data);
 
                 $filter_role = $request->filter_role;
-                $users = User::whereHas('roles', function($query) use ($filter_role) {
+                $users = User::whereHas('roles', function ($query) use ($filter_role) {
                     $query->where('name', $filter_role);
                 })->with('roles')->get();
                 $count_data = count($users);
-
             } else {
                 // $data = DB::connection('mysql15')->table('player')->select('id', 'player_id', 'game_id', 'uid', 'nickname', 'platform', 'cheat_attempt', 'apple', 'google', 'block', 'status', 'diamond', 'coin', 'star', 'lives', 'level_progress', 'vn_progress', 'booster', 'powerup', 'player_avatar', 'player_frame', 'created_at', 'updated_at')->where('block', '>', 0)->get();
                 // $count_data = count($data);
@@ -141,9 +159,11 @@ class UserController extends BaseController
         $scene      = 'User';
         $activity   = 'Create - ' . $request->create_email;
         $ip         = $request->ip();
+        $api_url    = $_ENV['API_URL'];
         // ---
         $name       = $request->create_name;
         $email      = $request->create_email;
+        $code       = generateCode();
         $password   = Hash::make($request->create_password);
         $role       = $request->create_role;
         $image      = $request->file('create_img_profile');
@@ -160,6 +180,7 @@ class UserController extends BaseController
         //     // ---
         //     'name'      => $name,
         //     'email'     => $email,
+        //     'code'      => $code,
         //     'password'  => $password,
         //     'role'      => $role,
         //     'image'     => $image_name,
@@ -190,6 +211,34 @@ class UserController extends BaseController
         // check image
         if ($image !== null || $image != '') {
             $image->move(public_path('assets/img'), $image_name);
+        }
+
+        // check email profile
+        $profile_check = Profile::where('eml', $email)->first();
+        if ($profile_check) {
+            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        // create profile
+        $profile_create = Profile::create([
+            'cod'   => $code,
+            'eml'   => $email,
+            'nme'   => $name,
+            'stt'   => $status,
+        ]);
+
+        if (!$profile_create) {
+            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        // store json file
+        $response_store_json = Http::post($api_url . 'profile/store/' . $code);
+
+        if (!$response_store_json) {
+            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
         }
 
         $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
