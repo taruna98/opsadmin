@@ -20,6 +20,9 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function 
         // Kretech Dashboard
         Route::get('dashboard', 'DashboardController@index')->name('kretech.dashboard');
 
+        // Kretech User
+        Route::get('user', 'UserController@index')->name('kretech.user');
+
         // Kretech Profile
         Route::get('profile', 'ProfileController@index')->name('kretech.profile');
 

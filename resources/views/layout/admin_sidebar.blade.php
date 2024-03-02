@@ -16,7 +16,7 @@
       @endif
     @endif
 
-    @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
+    @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']) && request()->segment(1) == '')
       <li class="nav-heading">ADMINISTRATOR</li>
       
       <li class="nav-item">
@@ -31,7 +31,7 @@
           <i class="bi bi-person-lines-fill"></i>
           <span>Activity Log</span>
         </a>
-      </li><!-- End Users Nav -->
+      </li><!-- End Activity Log Nav -->
     @endif
 
   </ul>
