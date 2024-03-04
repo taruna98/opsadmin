@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use RealRashid\SweetAlert\Facades\Alert;
 
-
 class DashboardController extends BaseController
 {
     public function __construct()

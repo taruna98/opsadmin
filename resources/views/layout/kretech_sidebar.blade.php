@@ -1,5 +1,5 @@
 @if(auth()->check() && auth()->user()->hasAnyRole(['owner', 'admin']))
-    <li class="nav-heading">HOME</li>
+    <li class="nav-heading">HOME KRETECH</li>
       
     <li class="nav-item">
         <a class="nav-link {{ (request()->segment(2) == 'dashboard') ? '' : 'collapsed' }}" href="{{ route('kretech.dashboard') }}">
@@ -11,7 +11,7 @@
     <li class="nav-heading">PAGE KRETECH</li>
 
     <li class="nav-item">
-        <a class="nav-link {{ (request()->segment(2) == 'user') ? '' : 'collapsed' }}" href="{{ route('user') }}">
+        <a class="nav-link {{ (request()->segment(2) == 'user') ? '' : 'collapsed' }}" href="{{ route('kretech.user') }}">
             <i class="bi bi-people"></i>
             <span>User</span>
         </a>
