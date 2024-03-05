@@ -127,7 +127,7 @@
         // detail member kretech
         $(document).on('click', '.btn-detail', function(e) {
             e.preventDefault();
-            window.location.href = '/user/detail/' + $(this).attr('id');
+            window.location.href = '/kretech/user/detail/' + $(this).attr('id');
         });
     </script>
 @endsection

@@ -46,13 +46,36 @@ class UserController extends BaseController
     {
         $title = 'Detail User';
 
-        // lanjut detail user
+        // get user from table users
+        $user = User::where('id', $id)->first();
+        
+        // verify user from table profile
+        $profile = DB::connection('mysql2')->table('profiles')->where('eml', $user->email)->first();
+        if ($profile == null) {
+            Alert::error('Failed', 'User Not Found')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
 
-        $user = User::with('roles')->findOrFail($id);
-        return $user;
-        return response()->json($user);
-        return view('Kretech::kretech_user', [
-            'title' => $title
+        // declare variable
+        $api_url = env('API_URL');
+        $code = $profile->cod;
+
+        // join data profile
+        $profile->nme = $user->name;
+        $profile->stt = $user->is_active;
+
+        // get data profile from api
+        $get_profile = Http::get($api_url . 'profile/' . $code);
+
+        // check response
+        if ($get_profile == '[]') {
+            Alert::error('Failed', 'Profile Not Found')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        return view('Kretech::kretech_user_detail', [
+            'title' => $title,
+            'user'  => response()->json($profile)
         ]);
     }
 }
