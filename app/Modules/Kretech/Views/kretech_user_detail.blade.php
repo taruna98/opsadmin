@@ -21,9 +21,9 @@
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
                         <img src="{{ URL::asset('assets/img/profile-img.jpg') }}" alt="Profile" class="rounded-circle">
-                        <h2>Kevin Anderson</h2>
-                        <h3>Web Designer</h3>
-                        <div class="social-links mt-2">
+                        <h4 class="my-1">{{ $user['profile']['nme'] }}</h4>
+                        <p class="my-1 text-muted"><i>{{ $user['profile']['eml'] }}</i></p>
+                        <div class="social-links mt-2 d-none">
                             <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
                             <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
                             <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
@@ -41,202 +41,114 @@
                         <ul class="nav nav-tabs nav-tabs-bordered">
 
                             <li class="nav-item">
-                                <button class="nav-link active" data-bs-toggle="tab"
-                                    data-bs-target="#profile-overview">Overview</button>
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#user-profile">Profile</button>
                             </li>
 
                             <li class="nav-item">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit
-                                    Profile</button>
-                            </li>
-
-                            <li class="nav-item d-none">
-                                <button class="nav-link" data-bs-toggle="tab"
-                                    data-bs-target="#profile-settings">Settings</button>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#user-portfolio">Portfolio</button>
                             </li>
 
                             <li class="nav-item">
-                                <button class="nav-link" data-bs-toggle="tab"
-                                    data-bs-target="#profile-change-password">Change Password</button>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#user-article">Article</button>
                             </li>
 
                         </ul>
                         <div class="tab-content pt-2">
 
-                            <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                            <div class="tab-pane fade show active user-profile" id="user-profile">
                                 <h5 class="card-title">About</h5>
-                                <p class="small fst-italic">Sunt est soluta temporibus accusantium neque nam maiores cumque
-                                    temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae
-                                    quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</p>
+                                <p class="small fst-italic">{{ $user['profile']['mds'] }}</p>
 
-                                <h5 class="card-title">Profile Details</h5>
+                                <h5 class="card-title">Details</h5>
 
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label ">Full Name</div>
-                                    <div class="col-lg-9 col-md-8">Kevin Anderson</div>
+                                <div class="row my-1">
+                                    <div class="col-lg-3 col-md-4 label ">ID</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold">{{ $user['profile']['id'] }}</div>
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Email</div>
-                                    <div class="col-lg-9 col-md-8">k.anderson@example.com</div>
+                                <div class="row my-1">
+                                    <div class="col-lg-3 col-md-4 label">Code</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold">{{ $user['profile']['cod'] }}</div>
+                                </div>
+                                
+                                <div class="row my-1">
+                                    <div class="col-lg-3 col-md-4 label">Proffesion</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $user['profile']['hsb']) }}</div>
+                                </div>
+
+                                <div class="row my-1">
+                                    <div class="col-lg-3 col-md-4 label">Tools</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $user['profile']['mtl']) }}</div>
+                                </div>
+
+                                <div class="row my-1">
+                                    <div class="col-lg-3 col-md-4 label">Skill</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $user['profile']['msk']) }}</div>
+                                </div>
+
+                                <div class="row my-1">
+                                    <div class="col-lg-3 col-md-4 label">Register At</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold">{{ $user['profile']['created_at'] }}</div>
+                                </div>
+
+                                <div class="row my-1">
+                                    <div class="col-lg-3 col-md-4 label">Status</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold"><span class="badge bg-{{ ($user['profile']['stt'] == 1) ? 'success' : 'danger' }}">{{ ($user['profile']['stt'] == 1) ? 'Active' : 'Not Active' }}</span></div>
                                 </div>
 
                             </div>
 
-                            <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                            <div class="tab-pane fade user-portfolio pt-3" id="user-portfolio">
 
-                                <!-- Profile Edit Form -->
-                                <form>
-                                    <div class="row mb-3">
-                                        <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile
-                                            Image</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <img src="{{ URL::asset('assets/img/profile-img.jpg') }}" alt="Profile">
-                                            <div class="pt-2">
-                                                <a href="#" class="btn btn-primary btn-sm"
-                                                    title="Upload new profile image"><i class="bi bi-upload"></i></a>
-                                                <a href="#" class="btn btn-danger btn-sm"
-                                                    title="Remove my profile image"><i class="bi bi-trash"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="fullName" type="text" class="form-control" id="fullName"
-                                                value="Kevin Anderson">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Email" class="col-md-4 col-lg-3 col-form-label">Email</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="email" type="email" class="form-control" id="Email"
-                                                value="k.anderson@example.com">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Facebook" class="col-md-4 col-lg-3 col-form-label">Facebook
-                                            Profile</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="facebook" type="text" class="form-control" id="Facebook"
-                                                value="https://facebook.com/#">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram
-                                            Profile</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="instagram" type="text" class="form-control" id="Instagram"
-                                                value="https://instagram.com/#">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Linkedin" class="col-md-4 col-lg-3 col-form-label">Linkedin
-                                            Profile</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="linkedin" type="text" class="form-control" id="Linkedin"
-                                                value="https://linkedin.com/#">
-                                        </div>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    </div>
-                                </form><!-- End Profile Edit Form -->
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Title</th>
+                                            <th scope="col">Category</th>
+                                            <th scope="col">Created At</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($user['portfolio'] as $port)
+                                            <tr>
+                                                <th scope="row">{{ $loop->iteration }}</th>
+                                                <td>{{ ucfirst($port['ttl']) }}</td>
+                                                <td>{{ ucfirst($port['ctg']) }}</td>
+                                                <td>{{ $port['cat'] }}</td>
+                                                <td><button type="button" class="btn btn-primary btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal-port-detail{{ $port['id'] }}"><i class="bi bi-eye text-white"></i></button>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
 
                             </div>
 
-                            <div class="tab-pane fade pt-3" id="profile-settings">
-
-                                <!-- Settings Form -->
-                                <form>
-
-                                    <div class="row mb-3">
-                                        <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Email
-                                            Notifications</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="changesMade" checked>
-                                                <label class="form-check-label" for="changesMade">
-                                                    Changes made to your account
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="newProducts" checked>
-                                                <label class="form-check-label" for="newProducts">
-                                                    Information on new products and services
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="proOffers">
-                                                <label class="form-check-label" for="proOffers">
-                                                    Marketing and promo offers
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="securityNotify"
-                                                    checked disabled>
-                                                <label class="form-check-label" for="securityNotify">
-                                                    Security alerts
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    </div>
-                                </form><!-- End settings Form -->
-
-                            </div>
-
-                            <div class="tab-pane fade pt-3" id="profile-change-password">
-                                <!-- Change Password Form -->
-                                <form>
-
-                                    <div class="row mb-3">
-                                        <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Current
-                                            Password</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="password" type="password" class="form-control"
-                                                id="currentPassword">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="newPassword" class="col-md-4 col-lg-3 col-form-label">New
-                                            Password</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="newpassword" type="password" class="form-control"
-                                                id="newPassword">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="renewPassword" class="col-md-4 col-lg-3 col-form-label">Re-enter New
-                                            Password</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="renewpassword" type="password" class="form-control"
-                                                id="renewPassword">
-                                        </div>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary">Change Password</button>
-                                    </div>
-                                </form><!-- End Change Password Form -->
+                            <div class="tab-pane fade user-article pt-3" id="user-article">
+                                
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Title</th>
+                                            <th scope="col">Category</th>
+                                            <th scope="col">Created At</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($user['article'] as $artc)
+                                            <tr>
+                                                <th scope="row">{{ $loop->iteration }}</th>
+                                                <td>{{ (strlen($artc['ttl']) > 16) ? substr($artc['ttl'], 0, 16) . '...' : $artc['ttl'] }}</td>
+                                                <td>{{ ucfirst($artc['ctg']) }}</td>
+                                                <td>{{ substr($artc['cat'], 0, 10) }}</td>
+                                                <td><button type="button" class="btn btn-primary btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal-artc-detail{{ $artc['id'] }}"><i class="bi bi-eye text-white"></i></button>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
 
                             </div>
 
@@ -247,6 +159,86 @@
 
             </div>
         </div>
+
+        {{-- modal portfolio detail --}}
+        @foreach ($user['portfolio'] as $port)
+            <div class="modal fade" id="modal-port-detail{{ $port['id'] }}" tabindex="-1" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold">{{ $port['id'] }} - {{ strToUpper($port['ttl']) }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Category
+                                    <span>{{ $port['ctg'] }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Client
+                                    <span>{{ $port['cln'] }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Link
+                                    <span><a href="" target="_blank">{{ $port['lnk'] }}</a></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Created At
+                                    <span>{{ $port['cat'] }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Status
+                                    <span class="badge bg-{{ ($port['stt'] == '1') ? 'success' : 'danger' }}">{{ ($port['stt'] == '1') ? 'Active' : 'Not Active' }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+        {{-- modal article detail --}}
+        @foreach ($user['article'] as $artc)
+            <div class="modal fade" id="modal-artc-detail{{ $artc['id'] }}" tabindex="-1" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold">{{ $artc['id'] }} - {{ strToUpper($artc['ttl']) }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Category
+                                    <span>{{ $artc['ctg'] }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Created At
+                                    <span>{{ $artc['cat'] }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Status
+                                    <span class="badge bg-{{ ($artc['stt'] == '1') ? 'success' : 'danger' }}">{{ ($artc['stt'] == '1') ? 'Active' : 'Not Active' }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-start align-items-center">
+                                    Description
+                                </li>
+                                <li class="list-group-item d-flex align-items-center">
+                                    <span>{!! $artc['dsc'] !!}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+        
     </section>
 
     <script>

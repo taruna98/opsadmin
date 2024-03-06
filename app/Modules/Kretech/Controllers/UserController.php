@@ -65,7 +65,7 @@ class UserController extends BaseController
         $profile->stt = $user->is_active;
 
         // get data profile from api
-        $get_profile = Http::get($api_url . 'profile/' . $code);
+        $get_profile = Http::get($api_url . 'profile/' . $code)->json();
 
         // check response
         if ($get_profile == '[]') {
@@ -75,7 +75,7 @@ class UserController extends BaseController
 
         return view('Kretech::kretech_user_detail', [
             'title' => $title,
-            'user'  => response()->json($profile)
+            'user'  => $get_profile
         ]);
     }
 }
