@@ -61,37 +61,37 @@
 
                                 <h5 class="card-title">Details</h5>
 
-                                <div class="row my-1">
-                                    <div class="col-lg-3 col-md-4 label ">ID</div>
+                                <div class="row my-2">
+                                    <div class="col-lg-3 col-md-4 label">ID</div>
                                     <div class="col-lg-9 col-md-8 fw-bold">{{ $user['profile']['id'] }}</div>
                                 </div>
 
-                                <div class="row my-1">
+                                <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Code</div>
                                     <div class="col-lg-9 col-md-8 fw-bold">{{ $user['profile']['cod'] }}</div>
                                 </div>
                                 
-                                <div class="row my-1">
+                                <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Proffesion</div>
                                     <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $user['profile']['hsb']) }}</div>
                                 </div>
 
-                                <div class="row my-1">
+                                <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Tools</div>
                                     <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $user['profile']['mtl']) }}</div>
                                 </div>
 
-                                <div class="row my-1">
+                                <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Skill</div>
                                     <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $user['profile']['msk']) }}</div>
                                 </div>
 
-                                <div class="row my-1">
+                                <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Register At</div>
                                     <div class="col-lg-9 col-md-8 fw-bold">{{ $user['profile']['created_at'] }}</div>
                                 </div>
 
-                                <div class="row my-1">
+                                <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Status</div>
                                     <div class="col-lg-9 col-md-8 fw-bold"><span class="badge bg-{{ ($user['profile']['stt'] == 1) ? 'success' : 'danger' }}">{{ ($user['profile']['stt'] == 1) ? 'Active' : 'Not Active' }}</span></div>
                                 </div>
