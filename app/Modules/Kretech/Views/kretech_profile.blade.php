@@ -65,7 +65,7 @@
                                 </div>
                                 
                                 <div class="row my-2">
-                                    <div class="col-lg-3 col-md-4 label">Proffesion</div>
+                                    <div class="col-lg-3 col-md-4 label">Profession</div>
                                     <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $profile['profile']['hsb']) }}</div>
                                 </div>
 
@@ -96,12 +96,12 @@
                                 <!-- Profile Edit Form -->
                                 <form>
                                     <div class="row mb-3">
-                                        <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile
-                                            Image</label>
+                                        <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
                                         <div class="col-md-8 col-lg-9">
                                             <img src="{{ URL::asset('assets/img/profile-img.jpg') }}" alt="Profile">
+                                            <input class="d-none" type="file" class="form-control pb-3 mt-2" accept=".png" id="profile-image">
                                             <div class="pt-2">
-                                                <a href="#" class="btn btn-primary btn-sm"
+                                                <a type="button" class="btn btn-profile-image btn-primary btn-sm"
                                                     title="Upload new profile image"><i class="bi bi-upload"></i></a>
                                                 <a href="#" class="btn btn-danger btn-sm"
                                                     title="Remove my profile image"><i class="bi bi-trash"></i></a>
@@ -119,33 +119,36 @@
                                     <div class="row mb-3">
                                         <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
+                                            <textarea name="about" class="form-control" id="about" style="height: 120px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="proffesion" class="col-md-4 col-lg-3 col-form-label">Proffesion</label>
+                                        <label for="profession" class="col-md-4 col-lg-3 col-form-label">Profession</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="proffesion" type="email" class="form-control" id="proffesion" value="select2">
+                                            <input name="profession" type="email" class="form-control" id="profession" value="ex: profession 1, profession 2">
+                                            <small class="text-danger fst-italic">* please separate profession by comma ','</small>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="tools" class="col-md-4 col-lg-3 col-form-label">Tools</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="tools" type="text" class="form-control" id="tools" value="select2">
+                                            <input name="tools" type="text" class="form-control" id="tools" value="ex: tools 1, tools 2">
+                                            <small class="text-danger fst-italic">* please separate tools by comma ','</small>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="skill" class="col-md-4 col-lg-3 col-form-label">Skill</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="skill" type="text" class="form-control" id="skill" value="select2">
+                                            <input name="skill" type="text" class="form-control" id="skill" value="ex: skill 1, skill 2">
+                                            <small class="text-danger fst-italic">* please separate skill by comma ','</small>
                                         </div>
                                     </div>
 
                                     <div class="text-end">
-                                        <button type="submit" class="btn btn-primary">Change Profile</button>
+                                        <button type="submit" class="btn btn-primary">Edit</button>
                                     </div>
                                 </form><!-- End Profile Edit Form -->
 
@@ -183,7 +186,7 @@
                                     </div>
 
                                     <div class="text-end">
-                                        <button type="submit" class="btn btn-primary">Change Password</button>
+                                        <button type="submit" class="btn btn-primary">Change</button>
                                     </div>
                                 </form><!-- End Change Password Form -->
 
@@ -197,4 +200,21 @@
             </div>
         </div>
     </section>
+
+    <script>
+        $(document).ready(function() {
+            // Ketika tombol di-klik, klikkan juga input file
+            $(".btn-profile-image").on('click', function() {
+                $("#profile-image").click();
+            });
+
+            // Jika pengguna memilih file, tampilkan nama file yang dipilih
+            $("#profile-image").change(function() {
+                if (this.files.length > 0) {
+                    // Di sini Anda dapat menambahkan logika untuk menampilkan nama file yang dipilih
+                    // Misalnya: alert(this.files[0].name);
+                }
+            });
+        });
+    </script>
 @endsection
