@@ -98,13 +98,12 @@
                                     <div class="row mb-3">
                                         <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <img src="{{ URL::asset('assets/img/profile-img.jpg') }}" alt="Profile">
+                                            <img class="rounded" src="{{ URL::asset('assets/img/profile-img.jpg') }}" alt="Profile"> <br>
                                             <input class="d-none" type="file" class="form-control pb-3 mt-2" accept=".png" id="profile-image">
+                                            <small class="text-danger fst-italic">* dimensions must 120 x 120 in PNG (max size: 500KB)</small>
                                             <div class="pt-2">
-                                                <a type="button" class="btn btn-profile-image btn-primary btn-sm"
-                                                    title="Upload new profile image"><i class="bi bi-upload"></i></a>
-                                                <a href="#" class="btn btn-danger btn-sm"
-                                                    title="Remove my profile image"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-upload-profile-image btn-primary btn-sm"><i class="bi bi-upload"></i></a>
+                                                <a type="button" class="btn btn-delete-profile-image btn-danger btn-sm"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -112,21 +111,21 @@
                                     <div class="row mb-3">
                                         <label for="name" class="col-md-4 col-lg-3 col-form-label">Name</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="name" type="text" class="form-control" id="name" value="Kevin Anderson">
+                                            <input name="name" type="text" class="form-control" id="name" value="{{ ucwords($profile['profile']['nme']) }}">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <textarea name="about" class="form-control" id="about" style="height: 120px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
+                                            <textarea name="about" class="form-control" id="about" style="height: 120px">{{ $profile['profile']['mds'] }}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="profession" class="col-md-4 col-lg-3 col-form-label">Profession</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="profession" type="email" class="form-control" id="profession" value="ex: profession 1, profession 2">
+                                            <input name="profession" type="email" class="form-control" id="profession" value="{{ str_replace('|', ', ', $profile['profile']['hsb']) }}">
                                             <small class="text-danger fst-italic">* please separate profession by comma ','</small>
                                         </div>
                                     </div>
@@ -134,7 +133,7 @@
                                     <div class="row mb-3">
                                         <label for="tools" class="col-md-4 col-lg-3 col-form-label">Tools</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="tools" type="text" class="form-control" id="tools" value="ex: tools 1, tools 2">
+                                            <input name="tools" type="text" class="form-control" id="tools" value="{{ str_replace('|', ', ', $profile['profile']['mtl']) }}">
                                             <small class="text-danger fst-italic">* please separate tools by comma ','</small>
                                         </div>
                                     </div>
@@ -142,7 +141,7 @@
                                     <div class="row mb-3">
                                         <label for="skill" class="col-md-4 col-lg-3 col-form-label">Skill</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="skill" type="text" class="form-control" id="skill" value="ex: skill 1, skill 2">
+                                            <input name="skill" type="text" class="form-control" id="skill" value="{{ str_replace('|', ', ', $profile['profile']['msk']) }}">
                                             <small class="text-danger fst-italic">* please separate skill by comma ','</small>
                                         </div>
                                     </div>
@@ -204,7 +203,7 @@
     <script>
         $(document).ready(function() {
             // Ketika tombol di-klik, klikkan juga input file
-            $(".btn-profile-image").on('click', function() {
+            $(".btn-upload-profile-image").on('click', function() {
                 $("#profile-image").click();
             });
 
