@@ -20,7 +20,7 @@
 
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-                        <img src="{{ URL::asset('assets/img/profile-img.jpg') }}" alt="Profile" class="rounded-circle">
+                        <img src="{{ URL::asset('assets/img/' . $img_profile . '.jpg') }}" alt="Profile" class="rounded-circle">
                         <h4 class="my-1">{{ $user['profile']['nme'] }}</h4>
                         <p class="my-1 text-muted"><i>{{ $user['profile']['eml'] }}</i></p>
                         <div class="social-links mt-2 d-none">

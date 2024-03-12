@@ -493,7 +493,7 @@
                     $('#edit_email').val(data.email);
                     $('#edit_role').val(data.roles[0].name);
                     $('#edit_img_profile_preview').attr('src', window.location.origin +
-                        '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
+                        '/assets/img/admin_img_profile_' + data.email.split('@')[0] + '.jpg');
                     $('#edit_status').val(data.is_active);
                     $('#userEditModal').modal('show');
                     $('.edit-form').attr('action', routeUrl);
@@ -513,7 +513,7 @@
                 success: function(data) {
                     $('#detail_id').text(data.id);
                     $('#detail_img_profile').attr('src', window.location.origin +
-                        '/assets/img/admin_img_' + data.email.split('@')[0] + '.jpg');
+                        '/assets/img/admin_img_profile_' + data.email.split('@')[0] + '.jpg');
                     $('#detail_name').text(data.name);
                     $('#detail_email').text(data.email);
                     $('#detail_role').text(data.roles[0].name);

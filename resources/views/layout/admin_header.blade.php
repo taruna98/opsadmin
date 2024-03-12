@@ -1,3 +1,14 @@
+<?php
+  // get profile image
+  $role = Auth::user()->roles->pluck('name')[0];
+  if ($role == 'admin' || $role == 'owner') {
+      $img_profile = 'admin_img_profile_' . strstr(Auth::user()->email, '@', true);
+  } else if ($role == 'kretech member') {
+      $profile = DB::connection('mysql2')->table('profiles')->where('eml', Auth::user()->email)->first();
+      $img_profile = 'kretech_img_profile_' . $profile->cod;
+  }
+?>
+
 <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
@@ -168,14 +179,14 @@
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="{{ URL::asset('assets/img/profile-img.jpg') }}" alt="Profile" class="rounded-circle">
+            <img src="{{ URL::asset('assets/img/' . $img_profile . '.jpg') }}" alt="Profile" class="rounded-circle">
             <span class="d-none d-md-block dropdown-toggle ps-2"> {{ ucwords(explode(' ', auth()->user()->name)[0]) }}</span>
           </a><!-- End Profile Iamge Icon -->
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
             <li class="dropdown-header">
               <h6>{{ ucwords(auth()->user()->name) }}</h6>
-              <span>Web Designer</span>
+              <span>{{ auth()->user()->email }}</span>
             </li>
             <li>
               <hr class="dropdown-divider">

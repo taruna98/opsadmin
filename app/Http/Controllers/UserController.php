@@ -167,7 +167,7 @@ class UserController extends BaseController
         $password   = Hash::make($request->create_password);
         $role       = $request->create_role;
         $image      = $request->file('create_img_profile');
-        $image_name = isset($image) ? 'admin_img_' . strstr($email, '@', true) . '.' . $image->extension() : '';
+        $image_name = isset($image) ? 'admin_img_profile_' . strstr($email, '@', true) . '.' . $image->extension() : '';
         $status     = $request->create_status;
 
         // // temp variable
@@ -281,7 +281,7 @@ class UserController extends BaseController
         $password   = ($request->edit_password == null) ? $user->password : Hash::make($request->edit_password);
         $role       = $request->edit_role;
         $image      = $request->file('edit_img_profile');
-        $image_name = isset($image) ? 'admin_img_' . strstr($email, '@', true) . '.' . $image->extension() : '';
+        $image_name = isset($image) ? 'admin_img_profile_' . strstr($email, '@', true) . '.' . $image->extension() : '';
         $status     = $request->edit_status;
 
         // // temp variable

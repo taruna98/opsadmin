@@ -17,7 +17,7 @@
 
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-                        <img src="{{ URL::asset('assets/img/profile-img.jpg') }}" alt="Profile" class="rounded-circle">
+                        <img src="{{ URL::asset('assets/img/kretech_img_profile_' . $profile['profile']['cod'] . '.jpg') }}" alt="Profile" class="rounded-circle">
                         <h4 class="my-1">{{ ucwords($profile['profile']['nme']) }}</h4>
                         <p class="my-1 text-muted"><i>{{ $profile['profile']['eml'] }}</i></p>
                         <div class="social-links mt-2 d-none">
@@ -92,18 +92,35 @@
                             </div>
 
                             <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
-
+                                @if ($errors->any())
+                                    <div>
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li class="bg-danger my-1 rounded"><span class="text-white px-1">{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
                                 <!-- Profile Edit Form -->
-                                <form>
+                                <form role="form" method="post" action="{{ route('kretech.profile.store') }}" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="row mb-3 d-none">
+                                        <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <input name="updatefor" type="text" class="form-control" value="profile">
+                                        </div>
+                                    </div>
+
                                     <div class="row mb-3">
                                         <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <img class="rounded" src="{{ URL::asset('assets/img/profile-img.jpg') }}" alt="Profile"> <br>
-                                            <input class="d-none" type="file" class="form-control pb-3 mt-2" accept=".png" id="profile-image">
-                                            <small class="text-danger fst-italic">* dimensions must 120 x 120 in PNG (max size: 500KB)</small>
+                                            <img class="rounded" src="{{ URL::asset('assets/img/kretech_img_profile_' . $profile['profile']['cod'] . '.jpg') }}" id="profile_image_preview" alt="Profile"> <br>
+                                            <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgProfile(event)" name="profile_image" id="profile_image">
+                                            <small id="profile_image_warning" class="text-danger fst-italic">* dimensions must 120 x 120 in PNG (max size: 500KB)</small>
+                                            <small id="profile_image_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
-                                                <a type="button" class="btn btn-upload-profile-image btn-primary btn-sm"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-delete-profile-image btn-danger btn-sm"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_profile_image"><i class="bi bi-upload"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm" id="btn_delete_profile_image"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -125,7 +142,7 @@
                                     <div class="row mb-3">
                                         <label for="profession" class="col-md-4 col-lg-3 col-form-label">Profession</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="profession" type="email" class="form-control" id="profession" value="{{ str_replace('|', ', ', $profile['profile']['hsb']) }}">
+                                            <input name="profession" type="text" class="form-control" id="profession" value="{{ str_replace('|', ', ', $profile['profile']['hsb']) }}">
                                             <small class="text-danger fst-italic">* please separate profession by comma ','</small>
                                         </div>
                                     </div>
@@ -201,18 +218,49 @@
     </section>
 
     <script>
+        var _URL = window.URL || window.webkitURL;
+
+        // profile image
+        var loadImgProfile = function(event) {
+            var output = document.getElementById('profile_image_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
         $(document).ready(function() {
-            // Ketika tombol di-klik, klikkan juga input file
-            $(".btn-upload-profile-image").on('click', function() {
-                $("#profile-image").click();
+            var profileImagePreview = $("#profile_image_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_profile_image").on('click', function() {
+                $("#profile_image").click();
             });
 
-            // Jika pengguna memilih file, tampilkan nama file yang dipilih
-            $("#profile-image").change(function() {
-                if (this.files.length > 0) {
-                    // Di sini Anda dapat menambahkan logika untuk menampilkan nama file yang dipilih
-                    // Misalnya: alert(this.files[0].name);
-                }
+            // Handle image change event using event delegation
+            $(document).on('change', '#profile_image', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 120 && this.height == 120) {
+                            $("#profile_image_response").text("");
+                        } else {
+                            $("#profile_image_warning").text("");
+                            $("#profile_image_response").text("* image dimensions not valid");
+                            document.getElementById("profile_image").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#profile_image_warning").text("");
+                        $("#profile_image_response").text("* image over size");
+                        document.getElementById("profile_image").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
             });
         });
     </script>

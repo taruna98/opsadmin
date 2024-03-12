@@ -56,6 +56,9 @@ class UserController extends BaseController
             return redirect()->back();
         }
 
+        // get profile image
+        $img_profile = 'kretech_img_profile_' . $profile->cod;
+
         // declare variable
         $api_url = env('API_URL');
         $code = $profile->cod;
@@ -74,8 +77,9 @@ class UserController extends BaseController
         }
 
         return view('Kretech::kretech_user_detail', [
-            'title' => $title,
-            'user'  => $get_profile
+            'title'         => $title,
+            'user'          => $get_profile,
+            'img_profile'   => $img_profile
         ]);
     }
 }
