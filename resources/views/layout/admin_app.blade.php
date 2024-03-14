@@ -44,6 +44,9 @@
     <!-- DataTables JS -->
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
+    <!-- Sweetalert 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
     <!-- =======================================================
   * Template Name: NiceAdmin
   * Updated: Jan 09 2024 with Bootstrap v5.3.2

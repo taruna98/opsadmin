@@ -179,7 +179,7 @@
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="{{ URL::asset('assets/img/' . $img_profile . '.jpg') }}" alt="Profile" class="rounded-circle">
+            <img src="{{ URL::asset('assets/img/' . $img_profile . '.jpg') }}" alt="Profile" class="rounded-circle img-profile-nav">
             <span class="d-none d-md-block dropdown-toggle ps-2"> {{ ucwords(explode(' ', auth()->user()->name)[0]) }}</span>
           </a><!-- End Profile Iamge Icon -->
 

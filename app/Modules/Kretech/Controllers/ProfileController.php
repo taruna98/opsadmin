@@ -9,7 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
 use Response;
@@ -57,6 +60,43 @@ class ProfileController extends BaseController
 
   public function store(Request $request)
   {
+    // auth
+    $auth = Auth::user();
+
+    // request ajax delete image profile
+    if ($request->ajax()) {
+
+      // get profile
+      $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
+
+      // get field
+      $user_id    = $auth->id;
+      $module     = 'Kretech';
+      $scene      = 'Content/Profile';
+      $activity   = 'Edit - ' . $auth->email . ' - Delete Image Profile';
+      $ip         = $request->ip();
+      // ---
+      $code       = $profile->cod;
+      $src_img    = asset('assets/img/img_profile_default.jpg');
+
+      // delete image profile
+      $path_image_default = public_path('assets/img/img_profile_default.jpg');
+      $path_image_profile = public_path('assets/img/kretech_img_profile_' . $code . '.jpg');
+  
+      if (!File::copy($path_image_default, $path_image_profile)) {
+        return response()->json(['message' => 'Avatar Anda gagal dihapus!'], 500);
+      }
+
+      // save log activity
+      $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+      if (!$save_log_activity) {
+          Alert::error('Failed', 'Update Profile')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          return redirect()->back();
+      }
+
+      return response()->json(['message' => 'success', 'src' => $src_img], 200);
+    }
+
     if ($request->updatefor == 'profile') {
       $validator = Validator::make($request->all(), [
         'name'          => 'required',
@@ -70,9 +110,6 @@ class ProfileController extends BaseController
       if ($validator->fails()) {
         return redirect()->back()->withErrors($validator)->withInput();
       }
-
-      // auth
-      $auth = Auth::user();
 
       // get profile
       $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
@@ -110,11 +147,6 @@ class ProfileController extends BaseController
         Alert::error('Failed', 'Update User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
         return redirect()->back();
       }
-
-
-
-      // $2y$10$UoNMt0lJJUo4MaC9VX9wnegWqDVIrVbeEIJVmpbn3Rsc34NEDbrb6
-
 
       // get data profile from api
       $get_profile = Http::get($api_url . 'profile/' . $code)->json();
@@ -156,7 +188,51 @@ class ProfileController extends BaseController
       Alert::success('Success', 'Update Profile')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
       return redirect()->back();
     } else if ($request->updatefor == 'password') {
-      // 
+      $validator = Validator::make($request->all(), [
+        'current_password'  => 'required',
+        'new_password'      => 'required',
+        'new_password_2'    => 'required'
+      ]);
+  
+      if ($validator->fails()) {
+        return redirect()->back()->withErrors($validator)->withInput();
+      }
+
+      if ($request->new_password != $request->new_password_2) {
+        Alert::error('Failed', 'Wrong New Password')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+        return redirect()->back();
+      }
+
+      if (!Hash::check($request->current_password, $auth->password)) {
+        Alert::error('Failed', 'Wrong Old Password')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+        return redirect()->back();
+      }
+
+      // get field
+      $user_id    = $auth->id;
+      $module     = 'Kretech';
+      $scene      = 'Content/Password';
+      $activity   = 'Edit - ' . $auth->email;
+      $ip         = $request->ip();
+
+      // change password
+      $auth->password = Hash::make($request->new_password);
+      $change_password = $auth->save();
+
+      if (!$change_password) {
+        Alert::error('Failed', 'Change Password')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+        return redirect()->back();
+      }
+
+      // save log activity
+      $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+      if (!$save_log_activity) {
+          Alert::error('Failed', 'Change Password')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          return redirect()->back();
+      }
+
+      Alert::success('Success', 'Change Password')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+      return redirect()->back();
     }
   }
 }

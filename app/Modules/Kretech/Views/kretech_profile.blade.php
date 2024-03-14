@@ -17,7 +17,7 @@
 
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-                        <img src="{{ URL::asset('assets/img/kretech_img_profile_' . $profile['profile']['cod'] . '.jpg') }}" alt="Profile" class="rounded-circle">
+                        <img src="{{ URL::asset('assets/img/kretech_img_profile_' . $profile['profile']['cod'] . '.jpg') }}" alt="Profile" class="rounded-circle img-profile">
                         <h4 class="my-1">{{ ucwords($profile['profile']['nme']) }}</h4>
                         <p class="my-1 text-muted"><i>{{ $profile['profile']['eml'] }}</i></p>
                         <div class="social-links mt-2 d-none">
@@ -171,33 +171,52 @@
                             </div>
 
                             <div class="tab-pane fade profile-change-password pt-3" id="profile-change-password">
+                                @if ($errors->any())
+                                    <div>
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li class="bg-danger my-1 rounded"><span class="text-white px-1">{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
                                 <!-- Change Password Form -->
-                                <form>
-
-                                    <div class="row mb-3">
-                                        <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Current
-                                            Password</label>
+                                <form role="form" method="post" action="{{ route('kretech.profile.store') }}" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="row mb-3 d-none">
+                                        <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="password" type="password" class="form-control"
-                                                id="currentPassword">
+                                            <input name="updatefor" type="text" class="form-control" value="password">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="newPassword" class="col-md-4 col-lg-3 col-form-label">New
-                                            Password</label>
+                                        <label for="current_password" class="col-md-4 col-lg-3 col-form-label">Current Password</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="newpassword" type="password" class="form-control"
-                                                id="newPassword">
+                                            <div class="input-group">
+                                                <input name="current_password" type="password" class="form-control" id="current_password">
+                                                <button class="btn btn-outline-secondary btn-toggle-password" type="button" data-target="current_password"><i class="bi bi-eye"></i></button>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="renewPassword" class="col-md-4 col-lg-3 col-form-label">Re-enter New
-                                            Password</label>
+                                        <label for="new_password" class="col-md-4 col-lg-3 col-form-label">New Password</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="renewpassword" type="password" class="form-control"
-                                                id="renewPassword">
+                                            <div class="input-group">
+                                                <input name="new_password" type="password" class="form-control" id="new_password">
+                                                <button class="btn btn-outline-secondary btn-toggle-password" type="button" data-target="new_password"><i class="bi bi-eye"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="new_password_2" class="col-md-4 col-lg-3 col-form-label">Re-enter New Password</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <div class="input-group">
+                                                <input name="new_password_2" type="password" class="form-control" id="new_password_2">
+                                                <button class="btn btn-outline-secondary btn-toggle-password" type="button" data-target="new_password_2"><i class="bi bi-eye"></i></button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -261,6 +280,69 @@
                 };
 
                 img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // delete profile image
+        $(document).ready(function() {
+            $('#btn_delete_profile_image').click(function(event) {
+                event.preventDefault();
+                
+                Swal.fire({
+                    title: 'Yakin?',
+                    text: 'Anda akan menghapus avatar Anda!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('kretech.profile.store') }}",
+                            type: 'POST',
+                            data: {_token: '{{ csrf_token() }}'},
+                            success: function(response) {
+                                // console.log(response);
+
+                                // early change image
+                                $('.img-profile-nav').attr('src', response.src);
+                                $('.img-profile').attr('src', response.src);
+                                $('#profile_image_preview').attr('src', response.src);
+
+                                Swal.fire({
+                                    title: 'Yeay!',
+                                    text: 'Avatar Anda berhasil dihapus!',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    // showConfirmButton: false
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                // console.log(xhr.statusText + '|' + xhr.responseJSON.message + ' | ' + status + ' | ' + error);
+                                Swal.fire({
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        // button toggle see password
+        $(document).ready(function() {
+            $('.btn-toggle-password').click(function() {
+                var targetInputId = $(this).data('target');
+                var passwordInput = $('#' + targetInputId);
+                var type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+                passwordInput.attr('type', type);
+                $(this).find('i').toggleClass('bi-eye bi-eye-slash');
             });
         });
     </script>
