@@ -35,8 +35,8 @@ class ProfileController extends BaseController
     // verify user from table profile
     $profile = DB::connection('mysql2')->table('profiles')->where('eml', $user->email)->first();
     if ($profile == null) {
-        Alert::error('Failed', 'Profile Not Found')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
-        return redirect()->back();
+      Alert::error('Failed', 'Profile Not Found')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+      return redirect()->back();
     }
     
     // declare variable
@@ -52,9 +52,20 @@ class ProfileController extends BaseController
       return redirect()->back();
     }
 
+    // check image profile update
+    $check_image_profile = LogActivity::select('activity')->where('user_id', $id)->where('scene', 'Content/Profile')->where('activity', 'like', '% Image Profile')->orderBy('created_at', 'desc')->first();
+    if ($check_image_profile) {
+      $check_image_profile = explode('-', $check_image_profile->activity)[2];
+      $check_image_profile = explode(' ', $check_image_profile)[1];
+      $delete_image = ($check_image_profile == 'Delete') ? 1 : 0;
+    } else {
+      $delete_image = 0;
+    }
+
     return view('Kretech::kretech_profile', [
-      'title'   => $title,
-      'profile' => $get_profile
+      'title'         => $title,
+      'profile'       => $get_profile,
+      'delete_image'  => $delete_image
     ]);
   }
 
@@ -137,7 +148,18 @@ class ProfileController extends BaseController
 
       // check profile image
       if ($image !== null || $image != '') {
+        // save profile image
         $image->move(public_path('assets/img'), $image_name);
+        
+        // var log activity
+        $activity   = 'Edit - ' . $auth->email . ' - Change Image Profile';
+        
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Update Profile')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
       }
 
       // update name in table user
@@ -156,13 +178,6 @@ class ProfileController extends BaseController
         Alert::error('Failed', 'Profile Not Found')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
         return redirect()->back();
       }
-      
-      // setup json
-      $get_profile['profile']['nme'] = $name;
-      $get_profile['profile']['mds'] = $about;
-      $get_profile['profile']['hsb'] = $profession;
-      $get_profile['profile']['mtl'] = $tools;
-      $get_profile['profile']['msk'] = $skill;
 
       // update json
       $update_profile_json = Http::post($api_url . 'profile/update/' . $code, [

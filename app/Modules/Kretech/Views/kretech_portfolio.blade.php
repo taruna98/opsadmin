@@ -19,52 +19,15 @@
                         <h5 class="card-title">Portfolio List</h5>
 
                         <!-- Portfolio List -->
-                        <table class="table table-hover">
+                        <table class="table table-striped table-hover" id="table-kretech-portfolio">
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Position</th>
-                                    <th scope="col">Age</th>
-                                    <th scope="col">Start Date</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Category</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Brandon Jacob</td>
-                                    <td>Designer</td>
-                                    <td>28</td>
-                                    <td>2016-05-25</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">2</th>
-                                    <td>Bridie Kessler</td>
-                                    <td>Developer</td>
-                                    <td>35</td>
-                                    <td>2014-12-05</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">3</th>
-                                    <td>Ashleigh Langosh</td>
-                                    <td>Finance</td>
-                                    <td>45</td>
-                                    <td>2011-08-12</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">4</th>
-                                    <td>Angus Grady</td>
-                                    <td>HR</td>
-                                    <td>34</td>
-                                    <td>2012-06-11</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">5</th>
-                                    <td>Raheem Lehner</td>
-                                    <td>Dynamic Division Officer</td>
-                                    <td>47</td>
-                                    <td>2011-04-19</td>
-                                </tr>
                             </tbody>
                         </table>
                         <!-- End Portfolio List -->
@@ -74,4 +37,38 @@
             </div>
         </div>
     </section>
+
+    <script>
+        // table kretech portfolio
+        $(document).ready(function() {
+            $('#table-kretech-portfolio').DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                ajax: {
+                    url: "{{ route('kretech.portfolio') }}",
+                    type: 'GET',
+                    success: function(response) {
+                        console.log(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                },
+                columns: [{
+                        data: 'id',
+                        name: 'id',
+                    },
+                    {
+                        data: 'cod',
+                        name: 'cod'
+                    },
+                    {
+                        data: 'eml',
+                        name: 'eml'
+                    }
+                ]
+            });
+        });
+    </script>
 @endsection

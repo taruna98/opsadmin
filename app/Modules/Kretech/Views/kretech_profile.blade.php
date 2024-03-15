@@ -120,7 +120,7 @@
                                             <small id="profile_image_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
                                                 <a type="button" class="btn btn-primary btn-sm" id="btn_upload_profile_image"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm" id="btn_delete_profile_image"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image == 1) ? 'd-none' : '' }}" id="btn_delete_profile_image"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -310,6 +310,7 @@
                                 $('.img-profile-nav').attr('src', response.src);
                                 $('.img-profile').attr('src', response.src);
                                 $('#profile_image_preview').attr('src', response.src);
+                                $('#btn_delete_profile_image').addClass('d-none');
 
                                 Swal.fire({
                                     title: 'Yeay!',
