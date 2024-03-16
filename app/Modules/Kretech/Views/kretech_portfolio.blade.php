@@ -64,7 +64,7 @@
 
         <!-- Create Portfolio Modal -->
         <div class="modal fade" id="portfolioCreateModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Portfolio Create</h5>
@@ -89,6 +89,16 @@
                                 <div class="invalid-feedback">Please enter your title.</div>
                             </div>
                             <div class="col-md-6">
+                                <label for="create_link" class="form-label">Link</label>
+                                <input type="text" class="form-control" name="create_link" id="create_link" value="{{ old('create_link') }}" required>
+                                <div class="invalid-feedback">Please enter your link.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="create_client" class="form-label">Client</label>
+                                <input type="text" class="form-control" name="create_client" id="create_client" value="{{ old('create_client') }}" required>
+                                <div class="invalid-feedback">Please enter your client.</div>
+                            </div>
+                            <div class="col-md-4">
                                 <label for="create_category" class="form-label">Select Category</label>
                                 <select class="form-select" name="create_category" id="create_category" required>
                                     <option selected value="art">Art</option>
@@ -98,23 +108,41 @@
                                 </select>
                                 <div class="invalid-feedback">Please select category.</div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="create_client" class="form-label">Client</label>
-                                <input type="text" class="form-control" name="create_client" id="create_client" value="{{ old('create_client') }}" required>
-                                <div class="invalid-feedback">Please enter your client.</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="create_description" class="form-label">Description</label>
-                                <input type="text" class="form-control" name="create_description" id="create_description" value="{{ old('create_description') }}" required>
-                                <div class="invalid-feedback">Please enter your description.</div>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="create_status" class="form-label">Select Status</label>
                                 <select class="form-select" name="create_status" id="create_status" required>
                                     <option selected value="1">Active</option>
                                     <option value="0">Not Active</option>
                                 </select>
                                 <div class="invalid-feedback">Please select status.</div>
+                            </div>
+                            <div class="col-md-12 content-input">
+                                <label for="create_content" class="form-label me-2">Content</label>
+                                <button class="btn btn-plus-content btn-primary btn-sm my-2" type="button"><i class="bi bi-plus"></i></button>
+                                <button class="btn btn-minus-content btn-danger btn-sm my-2" type="button"><i class="bi bi-dash"></i></button>
+                                <div class="row row-content-1">
+                                    <div class="col-md-4">
+                                        <label for="create_content_title_1" class="form-label">Title</label>
+                                        <input type="text" class="form-control" name="create_content_title_1" id="create_content_title_1" value="{{ old('create_content_title_1') }}" required>
+                                        <div class="invalid-feedback">Please enter your content title.</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="create_content_description_1" class="form-label">Description</label>
+                                        <input type="text" class="form-control" name="create_content_description_1" id="create_content_description_1" value="{{ old('create_content_description_1') }}" required>
+                                        <div class="invalid-feedback">Please enter your content description.</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="create_content_image_1" class="form-label">Image</label> <br>
+                                        <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_item_default.jpg') }}" id="create_content_image_1_preview" alt="Profile"> <br>
+                                        <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContent1(event)" name="create_content_image_1" id="create_content_image_1">
+                                        <small id="create_content_image_1_warning" class="text-danger fst-italic">* dimensions must 960 x 540 in PNG (max size: 500KB)</small>
+                                        <small id="create_content_image_1_response" class="text-danger fst-italic"></small>
+                                        <div class="pt-2">
+                                            <a type="button" class="btn btn-primary btn-sm" id="btn_upload_create_content_image_1"><i class="bi bi-upload"></i></a>
+                                            <a type="button" class="btn btn-danger btn-sm" id="btn_delete_create_content_image_1"><i class="bi bi-trash"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-12 d-flex justify-content-end">
                                 <button class="btn btn-primary btn-sm my-2" type="submit">Create</button>
@@ -206,6 +234,50 @@
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText);
+                }
+            });
+        });
+
+        // button plus or minus row content
+        $(document).ready(function() {
+            var counter = 1;
+            $('.btn-plus-content').click(function() {
+                counter++;
+                var newRow = $('.row-content-1').first().clone();
+                newRow.attr('class', 'row row-content-' + counter);
+                newRow.find('input').each(function() {
+                    var oldId = $(this).attr('id');
+                    var newId = oldId.replace(/_\d+$/, '_' + counter);
+                    $(this).attr('id', newId).attr('name', newId).val('');
+                });
+                newRow.find('label').each(function() {
+                    var oldFor = $(this).attr('for');
+                    var newFor = oldFor.replace(/_\d+$/, '_' + counter);
+                    $(this).attr('for', newFor);
+                });
+                newRow.find('img').attr('id', 'create_content_image_' + counter + '_preview');
+                newRow.find('small').each(function() {
+                    var oldId = $(this).attr('id');
+                    var newId = oldId.replace(/_\d+$/, '_' + counter);
+                    $(this).attr('id', newId);
+                });
+                newRow.find('.btn-primary').attr('id', 'btn_upload_create_content_image_' + counter);
+                newRow.find('.btn-danger').attr('id', 'btn_delete_create_content_image_' + counter);
+                newRow.appendTo('.content-input');
+            });
+            $('.btn-minus-content').click(function() {
+                var allRowContent = [];
+                $('*[class*="row-content-"]').each(function() {
+                    var classes = $(this).attr('class').split(' ');
+                    classes.forEach(function(className) {
+                        if (className.startsWith('row-content-')) {
+                            allRowContent.push(className);
+                        }
+                    });
+                });
+                var lastRowContent = allRowContent[allRowContent.length - 1];
+                if (lastRowContent != 'row-content-1') {
+                    $('.' + lastRowContent).remove();
                 }
             });
         });
