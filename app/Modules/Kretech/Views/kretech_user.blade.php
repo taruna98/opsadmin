@@ -106,8 +106,7 @@
                         data: 'id',
                         name: 'id',
                         render: function(data, type, row, meta) {
-                            var html = '<button class="btn-detail btn btn-info btn-sm mx-1" id="' +
-                                data + '"><i class="bi bi-eye text-white"></i></button>';
+                            var html = '<button class="btn-detail btn btn-info btn-sm mx-1" id="' + data + '"><i class="bi bi-eye text-white"></i></button>';
                             return html;
                         }
                     }
