@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
 use Response;
 use Yajra\DataTables\DataTables;
@@ -63,13 +64,18 @@ class PortfolioController extends BaseController
     public function store(Request $request)
     {
         return $request;
+        // return $request->file('create_content_image_1');
 
-        $request->validate([
-            'create_name'           => 'required|max:50',
-            'create_email'          => 'required|email',
-            'create_password'       => 'required',
-            'create_img_profile'    => 'required|image|mimes:jpg|max:2048'
+        $validator = Validator::make($request->all(), [
+            'create_title'          => 'required',
+            'create_link'           => 'required',
+            'create_client'         => 'required',
+            // 'create_img_profile'    => 'required|image|mimes:jpg|max:2048'
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
         // get params
         $user_id    = Auth::user()->id;

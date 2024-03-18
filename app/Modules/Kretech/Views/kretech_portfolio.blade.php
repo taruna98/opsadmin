@@ -117,32 +117,33 @@
                                 <div class="invalid-feedback">Please select status.</div>
                             </div>
                             <div class="col-md-12 content-input">
-                                <label for="create_content" class="form-label me-2">Content</label>
+                                <label for="create_content" class="form-label me-2">Content <small class="text-danger">(max 5)</small></label>
                                 <button class="btn btn-plus-content btn-primary btn-sm my-2" type="button"><i class="bi bi-plus"></i></button>
                                 <button class="btn btn-minus-content btn-danger btn-sm my-2" type="button"><i class="bi bi-dash"></i></button>
-                                <div class="row row-content-1">
-                                    <div class="col-md-4">
-                                        <label for="create_content_title_1" class="form-label">Title</label>
-                                        <input type="text" class="form-control" name="create_content_title_1" id="create_content_title_1" value="{{ old('create_content_title_1') }}" required>
-                                        <div class="invalid-feedback">Please enter your content title.</div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="create_content_description_1" class="form-label">Description</label>
-                                        <input type="text" class="form-control" name="create_content_description_1" id="create_content_description_1" value="{{ old('create_content_description_1') }}" required>
-                                        <div class="invalid-feedback">Please enter your content description.</div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="create_content_image_1" class="form-label">Image</label> <br>
-                                        <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_item_default.jpg') }}" id="create_content_image_1_preview" alt="Profile"> <br>
-                                        <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContent1(event)" name="create_content_image_1" id="create_content_image_1">
-                                        <small id="create_content_image_1_warning" class="text-danger fst-italic">* dimensions must 960 x 540 in PNG (max size: 500KB)</small>
-                                        <small id="create_content_image_1_response" class="text-danger fst-italic"></small>
-                                        <div class="pt-2">
-                                            <a type="button" class="btn btn-primary btn-sm" id="btn_upload_create_content_image_1"><i class="bi bi-upload"></i></a>
-                                            <a type="button" class="btn btn-danger btn-sm" id="btn_delete_create_content_image_1"><i class="bi bi-trash"></i></a>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <div class="row row-content-{{ $i }} {{ ($i == 1) ? '' : 'd-none' }}">
+                                        <div class="col-md-4">
+                                            <label for="create_content_title_{{ $i }}" class="form-label">Title</label>
+                                            <input type="text" class="form-control" name="create_content_title_{{ $i }}" id="create_content_title_{{ $i }}" value="{{ old('create_content_title_' . $i ) }}" {{ ($i == 1) ? 'required' : '' }}>
+                                            <div class="invalid-feedback">Please enter your content title.</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="create_content_description_{{ $i }}" class="form-label">Description</label>
+                                            <input type="text" class="form-control" name="create_content_description_{{ $i }}" id="create_content_description_{{ $i }}" value="{{ old('create_content_description_' . $i ) }}" {{ ($i == 1) ? 'required' : '' }}>
+                                            <div class="invalid-feedback">Please enter your content description.</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="create_content_image_{{ $i }}" class="form-label">Image</label> <br>
+                                            <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_item_default.jpg') }}" id="create_content_image_{{ $i }}_preview" alt="Profile"> <br>
+                                            <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContent{{ $i }}(event)" name="create_content_image_{{ $i }}" id="create_content_image_{{ $i }}">
+                                            <small id="create_content_image_{{ $i }}_warning" class="text-danger fst-italic">* dimensions must 960 x 540 in PNG (max size: 500KB)</small>
+                                            <small id="create_content_image_{{ $i }}_response" class="text-danger fst-italic"></small>
+                                            <div class="pt-2">
+                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_create_content_image_{{ $i }}"><i class="bi bi-upload"></i></a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endfor
                             </div>
                             <div class="col-md-12 d-flex justify-content-end">
                                 <button class="btn btn-primary btn-sm my-2" type="submit">Create</button>
@@ -157,6 +158,226 @@
     </section>
 
     <script>
+        // create content image 1
+        var loadImgContent1 = function(event) {
+            var output = document.getElementById('create_content_image_1_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#create_content_image_1_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_create_content_image_1").on('click', function() {
+                $("#create_content_image_1").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#create_content_image_1', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#create_content_image_1_response").text("");
+                        } else {
+                            $("#create_content_image_1_warning").text("");
+                            $("#create_content_image_1_response").text("* image dimensions not valid");
+                            document.getElementById("create_content_image_1").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#create_content_image_1_warning").text("");
+                        $("#create_content_image_1_response").text("* image over size");
+                        document.getElementById("create_content_image_1").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // create content image 2
+        var loadImgContent2 = function(event) {
+            var output = document.getElementById('create_content_image_2_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#create_content_image_2_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_create_content_image_2").on('click', function() {
+                $("#create_content_image_2").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#create_content_image_2', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#create_content_image_2_response").text("");
+                        } else {
+                            $("#create_content_image_2_warning").text("");
+                            $("#create_content_image_2_response").text("* image dimensions not valid");
+                            document.getElementById("create_content_image_2").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#create_content_image_2_warning").text("");
+                        $("#create_content_image_2_response").text("* image over size");
+                        document.getElementById("create_content_image_2").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // create content image 3
+        var loadImgContent3 = function(event) {
+            var output = document.getElementById('create_content_image_3_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#create_content_image_3_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_create_content_image_3").on('click', function() {
+                $("#create_content_image_3").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#create_content_image_3', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#create_content_image_3_response").text("");
+                        } else {
+                            $("#create_content_image_3_warning").text("");
+                            $("#create_content_image_3_response").text("* image dimensions not valid");
+                            document.getElementById("create_content_image_3").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#create_content_image_3_warning").text("");
+                        $("#create_content_image_3_response").text("* image over size");
+                        document.getElementById("create_content_image_3").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // create content image 4
+        var loadImgContent4 = function(event) {
+            var output = document.getElementById('create_content_image_4_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#create_content_image_4_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_create_content_image_4").on('click', function() {
+                $("#create_content_image_4").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#create_content_image_4', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#create_content_image_4_response").text("");
+                        } else {
+                            $("#create_content_image_4_warning").text("");
+                            $("#create_content_image_4_response").text("* image dimensions not valid");
+                            document.getElementById("create_content_image_4").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#create_content_image_4_warning").text("");
+                        $("#create_content_image_4_response").text("* image over size");
+                        document.getElementById("create_content_image_4").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // create content image 5
+        var loadImgContent5 = function(event) {
+            var output = document.getElementById('create_content_image_5_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#create_content_image_5_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_create_content_image_5").on('click', function() {
+                $("#create_content_image_5").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#create_content_image_5', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#create_content_image_5_response").text("");
+                        } else {
+                            $("#create_content_image_5_warning").text("");
+                            $("#create_content_image_5_response").text("* image dimensions not valid");
+                            document.getElementById("create_content_image_5").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#create_content_image_5_warning").text("");
+                        $("#create_content_image_5_response").text("* image over size");
+                        document.getElementById("create_content_image_5").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+        
         // table kretech portfolio
         $(document).ready(function() {
             $.ajax({
@@ -237,49 +458,66 @@
                 }
             });
         });
-
+ 
         // button plus or minus row content
         $(document).ready(function() {
-            var counter = 1;
+            var currentRow = 1;
             $('.btn-plus-content').click(function() {
-                counter++;
-                var newRow = $('.row-content-1').first().clone();
-                newRow.attr('class', 'row row-content-' + counter);
-                newRow.find('input').each(function() {
-                    var oldId = $(this).attr('id');
-                    var newId = oldId.replace(/_\d+$/, '_' + counter);
-                    $(this).attr('id', newId).attr('name', newId).val('');
-                });
-                newRow.find('label').each(function() {
-                    var oldFor = $(this).attr('for');
-                    var newFor = oldFor.replace(/_\d+$/, '_' + counter);
-                    $(this).attr('for', newFor);
-                });
-                newRow.find('img').attr('id', 'create_content_image_' + counter + '_preview');
-                newRow.find('small').each(function() {
-                    var oldId = $(this).attr('id');
-                    var newId = oldId.replace(/_\d+$/, '_' + counter);
-                    $(this).attr('id', newId);
-                });
-                newRow.find('.btn-primary').attr('id', 'btn_upload_create_content_image_' + counter);
-                newRow.find('.btn-danger').attr('id', 'btn_delete_create_content_image_' + counter);
-                newRow.appendTo('.content-input');
+                if (currentRow < 5) {
+                    $('.row-content-' + (currentRow + 1)).removeClass('d-none');
+                    $('#create_content_title_' + (currentRow + 1)).prop("required", true);
+                    $('#create_content_description_' + (currentRow + 1)).prop("required", true);
+                    currentRow++;
+                }
             });
             $('.btn-minus-content').click(function() {
-                var allRowContent = [];
-                $('*[class*="row-content-"]').each(function() {
-                    var classes = $(this).attr('class').split(' ');
-                    classes.forEach(function(className) {
-                        if (className.startsWith('row-content-')) {
-                            allRowContent.push(className);
-                        }
-                    });
-                });
-                var lastRowContent = allRowContent[allRowContent.length - 1];
-                if (lastRowContent != 'row-content-1') {
-                    $('.' + lastRowContent).remove();
+                if (currentRow > 1) {
+                    $('.row-content-' + currentRow).addClass('d-none'); 
+                    $('#create_content_title_' + (currentRow)).prop('required', false);
+                    $('#create_content_description_' + (currentRow)).prop('required', false);
+                    currentRow--;
                 }
             });
         });
+        // $(document).ready(function() {
+        //     var counter = $('.row-content').length || 1;
+        //     $('.btn-plus-content').click(function() {
+        //         if (counter < 5) {
+        //             counter++;
+        //             var newRow = $('.row-content-1').first().clone();
+        //             newRow.attr('class', 'row row-content-' + counter);
+        //             newRow.find('input').each(function() {
+        //                 var oldId = $(this).attr('id');
+        //                 var newId = oldId.replace(/_\d+$/, '_' + counter);
+        //                 $(this).attr('id', newId).attr('name', newId).val('');
+        //             });
+        //             newRow.find('.input-img').each(function() {
+        //                 var oldId = $(this).attr('id');
+        //                 var newId = oldId.replace(/_\d+$/, '_' + counter);
+        //                 $(this).attr('id', newId).attr('name', newId).val('').attr('onchange', 'loadImgContent' + counter + '(event)');
+        //             });
+        //             newRow.find('label').each(function() {
+        //                 var oldFor = $(this).attr('for');
+        //                 var newFor = oldFor.replace(/_\d+$/, '_' + counter);
+        //                 $(this).attr('for', newFor);
+        //             });
+        //             newRow.find('img').attr('id', 'create_content_image_' + counter + '_preview');
+        //             newRow.find('small').each(function() {
+        //                 var oldId = $(this).attr('id');
+        //                 var newId = oldId.replace(/_\d+$/, '_' + counter);
+        //                 $(this).attr('id', newId);
+        //             });
+        //             newRow.find('.btn-primary').attr('id', 'btn_upload_create_content_image_' + counter);
+        //             newRow.find('.btn-danger').attr('id', 'btn_delete_create_content_image_' + counter);
+        //             newRow.appendTo('.content-input');
+        //         }
+        //     });
+        //     $('.btn-minus-content').click(function() {
+        //         if (counter > 1) {
+        //             $('.row-content-' + counter).remove();
+        //             counter--;
+        //         }
+        //     });
+        // });
     </script>
 @endsection

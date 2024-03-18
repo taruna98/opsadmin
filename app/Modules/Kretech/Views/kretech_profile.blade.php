@@ -237,8 +237,6 @@
     </section>
 
     <script>
-        var _URL = window.URL || window.webkitURL;
-
         // profile image
         var loadImgProfile = function(event) {
             var output = document.getElementById('profile_image_preview');
@@ -252,7 +250,7 @@
                 $("#profile_image").click();
             });
 
-            // Handle image change event using event delegation
+            // handle image change event using event delegation
             $(document).on('change', '#profile_image', function(e) {
                 var file = e.target.files[0];
                 var img = new Image();
