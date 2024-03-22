@@ -83,6 +83,8 @@
                         <form class="row g-3 needs-validation" role="form" method="POST"
                         action="{{ route('kretech.portfolio.store') }}" enctype="multipart/form-data" novalidate>
                             @csrf
+                            {{-- hidden input --}}
+                            <input type="hidden" class="d-none" name="create_id" value="{{ $set_id }}" required>
                             <div class="col-md-6">
                                 <label for="create_title" class="form-label">Title</label>
                                 <input type="text" class="form-control" name="create_title" id="create_title" value="{{ old('create_title') }}" required>
@@ -134,7 +136,7 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label for="create_content_image_{{ $i }}" class="form-label">Image</label> <br>
-                                            <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_item_default.jpg') }}" id="create_content_image_{{ $i }}_preview" alt="Profile"> <br>
+                                            <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="create_content_image_{{ $i }}_preview" alt="Profile"> <br>
                                             <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContent{{ $i }}(event)" name="create_content_image_{{ $i }}" id="create_content_image_{{ $i }}">
                                             <small id="create_content_image_{{ $i }}_warning" class="text-danger fst-italic">* dimensions must 960 x 540 in PNG (max size: 500KB)</small>
                                             <small id="create_content_image_{{ $i }}_response" class="text-danger fst-italic"></small>
@@ -158,6 +160,87 @@
     </section>
 
     <script>
+        // table kretech portfolio
+        $(document).ready(function() {
+            $.ajax({
+                url: "{{ route('kretech.portfolio') }}",
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    // console.log(response);
+                    $('#table-kretech-portfolio').DataTable({
+                        data: response,
+                        columns: [
+                            {
+                                data: 'id',
+                                name: 'id',
+                                render: function(data, type, row, meta) {
+                                    return meta.row + meta.settings._iDisplayStart + 1;
+                                }
+                            },
+                            {
+                                data: 'ttl',
+                                name: 'ttl',
+                                render: function(data, type, row, meta) {
+                                    return data.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+                                        return letter.toUpperCase();
+                                    });
+                                }
+                            },
+                            {
+                                data: 'ctg',
+                                name: 'ctg',
+                                render: function(data, type, row, meta) {
+                                    return data.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+                                        return letter.toUpperCase();
+                                    });
+                                }
+                            },
+                            {
+                                data: 'stt',
+                                name: 'stt',
+                                render: function(data, type, row, meta) {
+                                    if (data == 1) {
+                                        return '<span class="badge rounded-pill bg-success">Active</span>';
+                                    } else {
+                                        return '<span class="badge rounded-pill bg-danger">Not Active</span>';
+                                    }
+                                }
+                            },
+                            {
+                                data: 'cat',
+                                name: 'cat',
+                                render: function(data, type, row, meta) {
+                                    return data.substring(0, 10);
+                                }
+                            },
+                            {
+                                data: 'id',
+                                name: 'id',
+                                render: function(data, type, row, meta) {
+                                    var html = '<button class="btn-edit btn btn-primary btn-sm mx-1" id="' + data + '"><i class="bi bi-eye text-white"></i></button>';
+                                    html += '<button class="btn-detail btn btn-info btn-sm mx-1" id="' + data + '"><i class="bi bi-eye text-white"></i></button>';
+                                    return html;
+                                }
+                            }
+                        ],
+                        columnDefs: [{
+                            'orderable': false,
+                            'targets': [0, 3, 5]
+                        }],
+                        lengthMenu: [
+                            [5, 10, 25, 50, -1],
+                            [5, 10, 25, 50, "All"]
+                        ],
+                        pageLength: 5
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
         // create content image 1
         var loadImgContent1 = function(event) {
             var output = document.getElementById('create_content_image_1_preview');
@@ -375,87 +458,6 @@
                 };
 
                 img.src = URL.createObjectURL(file);
-            });
-        });
-        
-        // table kretech portfolio
-        $(document).ready(function() {
-            $.ajax({
-                url: "{{ route('kretech.portfolio') }}",
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    // console.log(response);
-                    $('#table-kretech-portfolio').DataTable({
-                        data: response,
-                        columns: [
-                            {
-                                data: 'id',
-                                name: 'id',
-                                render: function(data, type, row, meta) {
-                                    return meta.row + meta.settings._iDisplayStart + 1;
-                                }
-                            },
-                            {
-                                data: 'ttl',
-                                name: 'ttl',
-                                render: function(data, type, row, meta) {
-                                    return data.toLowerCase().replace(/\b[a-z]/g, function(letter) {
-                                        return letter.toUpperCase();
-                                    });
-                                }
-                            },
-                            {
-                                data: 'ctg',
-                                name: 'ctg',
-                                render: function(data, type, row, meta) {
-                                    return data.toLowerCase().replace(/\b[a-z]/g, function(letter) {
-                                        return letter.toUpperCase();
-                                    });
-                                }
-                            },
-                            {
-                                data: 'stt',
-                                name: 'stt',
-                                render: function(data, type, row, meta) {
-                                    if (data == 1) {
-                                        return '<span class="badge rounded-pill bg-success">Active</span>';
-                                    } else {
-                                        return '<span class="badge rounded-pill bg-danger">Not Active</span>';
-                                    }
-                                }
-                            },
-                            {
-                                data: 'cat',
-                                name: 'cat',
-                                render: function(data, type, row, meta) {
-                                    return data.substring(0, 10);
-                                }
-                            },
-                            {
-                                data: 'id',
-                                name: 'id',
-                                render: function(data, type, row, meta) {
-                                    var html = '<button class="btn-edit btn btn-primary btn-sm mx-1" id="' + data + '"><i class="bi bi-eye text-white"></i></button>';
-                                    html += '<button class="btn-detail btn btn-info btn-sm mx-1" id="' + data + '"><i class="bi bi-eye text-white"></i></button>';
-                                    return html;
-                                }
-                            }
-                        ],
-                        columnDefs: [{
-                            'orderable': false,
-                            'targets': [0, 3, 5]
-                        }],
-                        lengthMenu: [
-                            [5, 10, 25, 50, -1],
-                            [5, 10, 25, 50, "All"]
-                        ],
-                        pageLength: 5
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error(xhr.responseText);
-                }
             });
         });
  

@@ -69,7 +69,7 @@ class ProfileController extends BaseController
     ]);
   }
 
-  public function store(Request $request)
+  public function update(Request $request)
   {
     // auth
     $auth = Auth::user();

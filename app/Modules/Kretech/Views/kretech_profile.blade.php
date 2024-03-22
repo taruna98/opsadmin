@@ -102,7 +102,7 @@
                                     </div>
                                 @endif
                                 <!-- Profile Edit Form -->
-                                <form role="form" method="post" action="{{ route('kretech.profile.store') }}" enctype="multipart/form-data">
+                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}" enctype="multipart/form-data">
                                     @csrf
                                     <div class="row mb-3 d-none">
                                         <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>

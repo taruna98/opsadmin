@@ -10,6 +10,7 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -56,122 +57,220 @@ class PortfolioController extends BaseController
             return response()->json($get_portfolio);
         }
 
+        // get last id portfolio
+        $last_id = null;
+        foreach ($get_portfolio as $portfolio) {
+            if ($last_id === null || $portfolio['id'] > $last_id) {
+                $last_id = $portfolio['id'];
+            }
+        }
+        // set id for create portfolio last id + 1
+        $set_id = str_pad((int)$last_id + 1, strlen($last_id), '0', STR_PAD_LEFT);
+
         return view('Kretech::kretech_portfolio', [
-            'title' => $title
+            'title'     => $title,
+            'set_id'    => $set_id
         ]);
     }
 
     public function store(Request $request)
     {
-        return $request;
-        // return $request->file('create_content_image_1');
+        // auth
+        $auth = Auth::user();
 
         $validator = Validator::make($request->all(), [
-            'create_title'          => 'required',
-            'create_link'           => 'required',
-            'create_client'         => 'required',
-            // 'create_img_profile'    => 'required|image|mimes:jpg|max:2048'
+            'create_title'              => 'required',
+            'create_link'               => 'required',
+            'create_client'             => 'required',
+            'create_content_image_1'    => 'image|mimes:jpg|max:2048',
+            'create_content_image_2'    => 'image|mimes:jpg|max:2048',
+            'create_content_image_3'    => 'image|mimes:jpg|max:2048',
+            'create_content_image_4'    => 'image|mimes:jpg|max:2048',
+            'create_content_image_5'    => 'image|mimes:jpg|max:2048'
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // get profile
+        $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
+
         // get params
-        $user_id    = Auth::user()->id;
-        $module     = 'Admin';
-        $scene      = 'User';
-        $activity   = 'Create - ' . $request->create_email;
-        $ip         = $request->ip();
-        $api_url    = $_ENV['API_URL'];
+        $user_id                = Auth::user()->id;
+        $module                 = 'Kretech';
+        $scene                  = 'Portfolio';
+        $activity               = 'Create - ' . $request->create_id;
+        $ip                     = $request->ip();
+        $api_url                = env('API_URL');
         // ---
-        $name       = $request->create_name;
-        $email      = $request->create_email;
-        $code       = generateCode();
-        $password   = Hash::make($request->create_password);
-        $role       = $request->create_role;
-        $image      = $request->file('create_img_profile');
-        $image_name = isset($image) ? 'admin_img_profile_' . strstr($email, '@', true) . '.' . $image->extension() : '';
-        $status     = $request->create_status;
+        $email                  = $profile->eml;
+        $code                   = $profile->cod;
+        $id                     = $request->create_id;
+        $title                  = $request->create_title;
+        $category               = $request->create_category;
+        $client                 = $request->create_client;
+        $link                   = $request->create_link;
+        $content_titles         = [
+            $request->create_content_title_1,
+            $request->create_content_title_2,
+            $request->create_content_title_3,
+            $request->create_content_title_4,
+            $request->create_content_title_5
+        ];
+        $content_title          = implode('|', array_filter($content_titles, function($value) {
+            return $value !== null;
+        }));
+        $content_descs          = [
+            $request->create_content_description_1,
+            $request->create_content_description_2,
+            $request->create_content_description_3,
+            $request->create_content_description_4,
+            $request->create_content_description_5
+        ];
+        $content_desc           = implode('|', array_filter($content_descs, function($value) {
+            return $value !== null;
+        }));
+        $status                 = $request->create_status;
+        $created_at             = Date('Y-m-d H:i:s');
+        $updated_at             = Date('Y-m-d H:i:s');
+        $content_image_1        = $request->file('create_content_image_1');
+        $content_image_1_name   = isset($content_image_1) ? 'kretech_img_content_portfolio_' . $id . '_item_1' . '.' . $content_image_1->extension() : '';
+        $content_image_2        = $request->file('create_content_image_2');
+        $content_image_2_name   = isset($content_image_2) ? 'kretech_img_content_portfolio_' . $id . '_item_2' . '.' . $content_image_2->extension() : '';
+        $content_image_3        = $request->file('create_content_image_3');
+        $content_image_3_name   = isset($content_image_3) ? 'kretech_img_content_portfolio_' . $id . '_item_3' . '.' . $content_image_3->extension() : '';
+        $content_image_4        = $request->file('create_content_image_4');
+        $content_image_4_name   = isset($content_image_4) ? 'kretech_img_content_portfolio_' . $id . '_item_4' . '.' . $content_image_4->extension() : '';
+        $content_image_5        = $request->file('create_content_image_5');
+        $content_image_5_name   = isset($content_image_5) ? 'kretech_img_content_portfolio_' . $id . '_item_5' . '.' . $content_image_5->extension() : '';
+        $content_image_default  = public_path('assets/img/kretech_img_content_portfolio_default.jpg');
 
         // // temp variable
         // $temp = [
-        //     'user_id'   => $user_id,
-        //     'module'    => $module,
-        //     'scene'     => $scene,
-        //     'activity'  => $activity,
-        //     'ip'        => $ip,
+        //     'user_id'           => $user_id,
+        //     'module'            => $module,
+        //     'scene'             => $scene,
+        //     'activity'          => $activity,
+        //     'ip'                => $ip,
         //     // ---
-        //     'name'      => $name,
-        //     'email'     => $email,
-        //     'code'      => $code,
-        //     'password'  => $password,
-        //     'role'      => $role,
-        //     'image'     => $image_name,
-        //     'status'    => $status
+        //     'email'             => $email,
+        //     'code'              => $code,
+        //     'id'                => $id,
+        //     'title'             => $title,
+        //     'category'          => $category,
+        //     'client'            => $client,
+        //     'link'              => $link,
+        //     'content_title'     => $content_title,
+        //     'content_desc'      => $content_desc,
+        //     'status'            => $status,
+        //     'created_at'        => $created_at,
+        //     'updated_at'        => $updated_at,
+        //     'content_image_1'   => $content_image_1_name,
+        //     'content_image_2'   => $content_image_2_name,
+        //     'content_image_3'   => $content_image_3_name,
+        //     'content_image_4'   => $content_image_4_name,
+        //     'content_image_5'   => $content_image_5_name
         // ];
 
-        // check email user
-        $user_check = User::where('email', $email)->first();
-        if ($user_check) {
-            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
-            return redirect()->back();
+        // check content image 1
+        if ($content_image_1 !== null || $content_image_1 != '') {
+            $content_image_1->move(public_path('assets/img'), $content_image_1_name);
+        } else if ($request->create_content_title_1 != null && $content_image_1 === null) {
+            $content_image_set_1 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_1.jpg');
+            if (!copy($content_image_default, $content_image_set_1)) {
+                Alert::error('Failed', 'Set Portfolio Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
         }
 
-        // create user
-        $user_create = User::create([
-            'name'  => $name,
-            'email' => $email,
-            'password' => $password,
-            'is_active' => $status,
+        // check content image 2
+        if ($content_image_2 !== null || $content_image_2 != '') {
+            $content_image_2->move(public_path('assets/img'), $content_image_2_name);
+        } else if ($request->create_content_title_2 != null && $content_image_2 === null) {
+            $content_image_set_2 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_2.jpg');
+            if (!copy($content_image_default, $content_image_set_2)) {
+                Alert::error('Failed', 'Set Portfolio Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+        }
+
+        // check content image 3
+        if ($content_image_3 !== null || $content_image_3 != '') {
+            $content_image_3->move(public_path('assets/img'), $content_image_3_name);
+        } else if ($request->create_content_title_3 != null && $content_image_3 === null) {
+            $content_image_set_3 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_3.jpg');
+            if (!copy($content_image_default, $content_image_set_3)) {
+                Alert::error('Failed', 'Set Portfolio Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+        }
+
+        // check content image 4
+        if ($content_image_4 !== null || $content_image_4 != '') {
+            $content_image_4->move(public_path('assets/img'), $content_image_4_name);
+        } else if ($request->create_content_title_4 != null && $content_image_4 === null) {
+            $content_image_set_4 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_4.jpg');
+            if (!copy($content_image_default, $content_image_set_4)) {
+                Alert::error('Failed', 'Set Portfolio Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+        }
+
+        // check content image 5
+        if ($content_image_5 !== null || $content_image_5 != '') {
+            $content_image_5->move(public_path('assets/img'), $content_image_5_name);
+        } else if ($request->create_content_title_5 != null && $content_image_5 === null) {
+            $content_image_set_5 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_5.jpg');
+            if (!copy($content_image_default, $content_image_set_5)) {
+                Alert::error('Failed', 'Set Portfolio Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+        }
+
+        // $source_dir = public_path('assets/img');
+        // $destination_dir = public_path('assets/img');
+        // $files = File::files($source_dir);
+        // foreach ($files as $file) {
+        //     $copy_image = File::copy($file, $destination_dir . '/' . $file->getFilename());
+        //     if ($copy_image) {
+        //         $new_image_name = 'kretech_img_content_portfolio_' . $id . '_item_1.jpg';
+        //         $rename_image = File::move($destination_dir . '/' . $file->getFilename(), $destination_dir . '/' . $new_image_name);
+        //         if (!$rename_image) {
+        //             Alert::error('Failed', 'Set Portfolio Item Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+        //             return redirect()->back();
+        //         }
+        //     } else {
+        //         Alert::error('Failed', 'Set Portfolio Item Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+        //         return redirect()->back();
+        //     }
+        // }
+
+        // store portfolio json
+        $store_portfolio_json = Http::post($api_url . 'profile/portfolio/store/' . $code, [
+            'id'            => $id,
+            'title'         => $title,
+            'category'      => $category,
+            'client'        => $client,
+            'link'          => $link,
+            'content_title' => $content_title,
+            'content_desc'  => $content_desc,
+            'status'        => $status,
         ]);
-        $user_create->assignRole($role);
 
-        if (!$user_create) {
-            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+        if ($store_portfolio_json != 'success store portfolio') {
+            Alert::error('Failed', 'Create Portfolio')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
             return redirect()->back();
         }
 
-        // check image
-        if ($image !== null || $image != '') {
-            $image->move(public_path('assets/img'), $image_name);
-        }
-
-        // check email profile
-        $profile_check = Profile::where('eml', $email)->first();
-        if ($profile_check) {
-            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
-            return redirect()->back();
-        }
-
-        // create profile
-        $profile_create = Profile::create([
-            'cod'   => $code,
-            'eml'   => $email,
-            'nme'   => $name,
-            'stt'   => $status,
-        ]);
-
-        if (!$profile_create) {
-            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
-            return redirect()->back();
-        }
-
-        // store json file
-        $response_store_json = Http::post($api_url . 'profile/store/' . $code);
-
-        if (!$response_store_json) {
-            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
-            return redirect()->back();
-        }
-
+        // save log activity
         $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
         if (!$save_log_activity) {
-            Alert::error('Failed', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            Alert::error('Failed', 'Create Portfolio')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
             return redirect()->back();
         }
 
-        Alert::success('Success', 'Create User')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+        Alert::success('Success', 'Create Portfolio')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
         return redirect()->back();
     }
 }
