@@ -181,7 +181,7 @@
                                     </div>
                                 @endif
                                 <!-- Change Password Form -->
-                                <form role="form" method="post" action="{{ route('kretech.profile.store') }}" enctype="multipart/form-data">
+                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}" enctype="multipart/form-data">
                                     @csrf
                                     <div class="row mb-3 d-none">
                                         <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>
@@ -298,7 +298,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('kretech.profile.store') }}",
+                            url: "{{ route('kretech.profile.update') }}",
                             type: 'POST',
                             data: {_token: '{{ csrf_token() }}'},
                             success: function(response) {
