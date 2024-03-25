@@ -273,4 +273,39 @@ class PortfolioController extends BaseController
         Alert::success('Success', 'Create Portfolio')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
         return redirect()->back();
     }
+
+    public function edit($id)
+    {
+        $user_id = Auth::user()->id;
+
+        // get user from table users
+        $user = User::where('id', $user_id)->first();
+            
+        // verify user from table profile
+        $profile = DB::connection('mysql2')->table('profiles')->where('eml', $user->email)->first();
+        if ($profile == null) {
+            return response('portfolio not found', 404);
+        }
+        
+        // declare variable
+        $api_url = env('API_URL');
+        $code = $profile->cod;
+        
+        // get data portfolio from api
+        $get_portfolio = Http::get($api_url . 'profile/' . $code)->json()['portfolio'];
+
+        // check response
+        if ($get_portfolio == '[]') {
+            return response('portfolio not found', 404);
+        }
+
+        // get portfolio by id 
+        foreach ($get_portfolio as $portfolio) {
+            if ($portfolio['id'] == $id) {
+                $portfolios = $portfolio;
+            }
+        }
+
+        return response()->json($portfolios);
+    }
 }

@@ -31,6 +31,7 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function 
         // Kretech Portfolio
         Route::get('portfolio', 'PortfolioController@index')->name('kretech.portfolio');
         Route::post('portfolio/store', 'PortfolioController@store')->name('kretech.portfolio.store');
+        Route::get('portfolio/edit/{id}', 'PortfolioController@edit')->name('kretech.portfolio.edit');
 
         // Kretech Article
         Route::get('article', 'ArticleController@index')->name('kretech.article');

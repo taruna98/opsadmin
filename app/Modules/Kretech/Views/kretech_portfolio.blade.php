@@ -157,6 +157,107 @@
         </div>
         <!-- End Create Portfolio Modal-->
 
+        <!-- Edit Portfolio Modal -->
+        <div class="modal fade" id="portfolioEditModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Portfolio Edit</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="m-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li class="m-0 p-0">{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        <form class="row g-3 edit-form needs-validation" role="form" method="POST"
+                            enctype="multipart/form-data" novalidate>
+                            @csrf
+                            @if ($errors->has('login'))
+                                <div class="alert alert-danger" role="alert">
+                                    {{ $errors->first('login') }}
+                                </div>
+                            @endif
+                            {{-- hidden input --}}
+                            <input type="hidden" class="form-control" name="edit_id" id="edit_id" required>
+                            <div class="col-md-6">
+                                <label for="edit_title" class="form-label">Title</label>
+                                <input type="text" class="form-control" name="edit_title" id="edit_title" required>
+                                <div class="invalid-feedback">Please enter your title.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_link" class="form-label">Link</label>
+                                <input type="text" class="form-control" name="edit_link" id="edit_link" required>
+                                <div class="invalid-feedback">Please enter your link.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_client" class="form-label">Client</label>
+                                <input type="text" class="form-control" name="edit_client" id="edit_client" required>
+                                <div class="invalid-feedback">Please enter your client.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_category" class="form-label">Select Category</label>
+                                <select class="form-select" name="edit_category" id="edit_category" required>
+                                    <option value="art">Art</option>
+                                    <option value="article">Article</option>
+                                    <option value="coding">Coding</option>
+                                    <option value="visual design">Visual Design</option>
+                                </select>
+                                <div class="invalid-feedback">Please select category.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_status" class="form-label">Select Status</label>
+                                <select class="form-select" name="edit_status" id="edit_status" required>
+                                    <option value="1">Active</option>
+                                    <option value="0">Not Active</option>
+                                </select>
+                                <div class="invalid-feedback">Please select status.</div>
+                            </div>
+                            <div class="col-md-12 content-input">
+                                <label for="edit_content" class="form-label me-2">Content <small class="text-danger">(max 5)</small></label>
+                                <button class="btn btn-plus-content btn-primary btn-sm my-2" type="button"><i class="bi bi-plus"></i></button>
+                                <button class="btn btn-minus-content btn-danger btn-sm my-2" type="button"><i class="bi bi-dash"></i></button>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <div class="row row-content-{{ $i }} {{ ($i == 1) ? '' : 'd-none' }}">
+                                        <div class="col-md-4">
+                                            <label for="edit_content_title_{{ $i }}" class="form-label">Title</label>
+                                            <input type="text" class="form-control" name="edit_content_title_{{ $i }}" id="edit_content_title_{{ $i }}" value="{{ old('edit_content_title_' . $i ) }}" {{ ($i == 1) ? 'required' : '' }}>
+                                            <div class="invalid-feedback">Please enter your content title.</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="edit_content_description_{{ $i }}" class="form-label">Description</label>
+                                            <input type="text" class="form-control" name="edit_content_description_{{ $i }}" id="edit_content_description_{{ $i }}" value="{{ old('edit_content_description_' . $i ) }}" {{ ($i == 1) ? 'required' : '' }}>
+                                            <div class="invalid-feedback">Please enter your content description.</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="edit_content_image_{{ $i }}" class="form-label">Image</label> <br>
+                                            <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="edit_content_image_{{ $i }}_preview" alt="Profile"> <br>
+                                            <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContent{{ $i }}(event)" name="edit_content_image_{{ $i }}" id="edit_content_image_{{ $i }}">
+                                            <small id="edit_content_image_{{ $i }}_warning" class="text-danger fst-italic">* dimensions must 960 x 540 in PNG (max size: 500KB)</small>
+                                            <small id="edit_content_image_{{ $i }}_response" class="text-danger fst-italic"></small>
+                                            <div class="pt-2">
+                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_edit_content_image_{{ $i }}"><i class="bi bi-upload"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endfor
+                            </div>
+                            <div class="col-md-12 d-flex justify-content-end">
+                                {{-- <button type="button" class="btn btn-secondary btn-sm my-2 me-2" data-bs-dismiss="modal">Close</button> --}}
+                                <button class="btn btn-primary btn-sm my-2" type="submit">Edit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Edit Portfolio Modal-->
+
     </section>
 
     <script>
@@ -218,7 +319,7 @@
                                 data: 'id',
                                 name: 'id',
                                 render: function(data, type, row, meta) {
-                                    var html = '<button class="btn-edit btn btn-primary btn-sm mx-1" id="' + data + '"><i class="bi bi-eye text-white"></i></button>';
+                                    var html = '<button class="btn-edit btn btn-primary btn-sm mx-1" id="' + data + '"><i class="bi bi-pencil-square text-white"></i></button>';
                                     html += '<button class="btn-detail btn btn-info btn-sm mx-1" id="' + data + '"><i class="bi bi-eye text-white"></i></button>';
                                     return html;
                                 }
@@ -237,6 +338,44 @@
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText);
+                }
+            });
+        });
+
+        // edit modal
+        $(document).on('click', '.btn-edit', function() {
+            var userId = $(this).attr('id');
+            // var routeUrl = "{{ url('portfolio/update/:id') }}".replace(':id', userId);
+            $.ajax({
+                url: '/kretech/portfolio/edit/' + userId,
+                type: 'GET',
+                success: function(data) {
+                    console.log(data);
+                    $('#edit_id').val(data.id);
+                    $('#edit_title').val(data.ttl);
+                    $('#edit_link').val(data.lnk);
+                    $('#edit_client').val(data.cln);
+                    if (data.ctg == 'art') {
+                        $('#edit_category').val('art');
+                    } else if (data.ctg == 'article') {
+                        $('#edit_category').val('article');
+                    } else if (data.ctg == 'coding') {
+                        $('#edit_category').val('coding');
+                    } else if (data.ctg == 'visual design') {
+                        $('#edit_category').val('visual design');
+                    }
+                    if (data.stt == '1') {
+                        $('#edit_status').val('1');
+                    } else {
+                        $('#edit_status').val('0');
+                    }
+                    // $('#edit_img_profile_preview').attr('src', window.location.origin +
+                    //     '/assets/img/admin_img_profile_' + data.email.split('@')[0] + '.jpg');
+                    $('#portfolioEditModal').modal('show');
+                    // $('.edit-form').attr('action', routeUrl);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
                 }
             });
         });
