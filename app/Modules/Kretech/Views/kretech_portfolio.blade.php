@@ -137,7 +137,7 @@
                                         <div class="col-md-4">
                                             <label for="create_content_image_{{ $i }}" class="form-label">Image</label> <br>
                                             <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="create_content_image_{{ $i }}_preview" alt="Profile"> <br>
-                                            <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContent{{ $i }}(event)" name="create_content_image_{{ $i }}" id="create_content_image_{{ $i }}">
+                                            <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContentCreate{{ $i }}(event)" name="create_content_image_{{ $i }}" id="create_content_image_{{ $i }}">
                                             <small id="create_content_image_{{ $i }}_warning" class="text-danger fst-italic">* dimensions must 960 x 540 in PNG (max size: 500KB)</small>
                                             <small id="create_content_image_{{ $i }}_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
@@ -185,6 +185,7 @@
                             @endif
                             {{-- hidden input --}}
                             <input type="hidden" class="form-control" name="edit_id" id="edit_id" required>
+                            <input type="hidden" class="form-control" name="edit_created_at" id="edit_created_at" required>
                             <div class="col-md-6">
                                 <label for="edit_title" class="form-label">Title</label>
                                 <input type="text" class="form-control" name="edit_title" id="edit_title" required>
@@ -237,7 +238,7 @@
                                         <div class="col-md-4">
                                             <label for="edit_content_image_{{ $i }}" class="form-label">Image</label> <br>
                                             <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="edit_content_image_{{ $i }}_preview" alt="Profile"> <br>
-                                            <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContent{{ $i }}(event)" name="edit_content_image_{{ $i }}" id="edit_content_image_{{ $i }}">
+                                            <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContentEdit{{ $i }}(event)" name="edit_content_image_{{ $i }}" id="edit_content_image_{{ $i }}">
                                             <small id="edit_content_image_{{ $i }}_warning" class="text-danger fst-italic">* dimensions must 960 x 540 in PNG (max size: 500KB)</small>
                                             <small id="edit_content_image_{{ $i }}_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
@@ -345,13 +346,13 @@
         // edit modal
         $(document).on('click', '.btn-edit', function() {
             var userId = $(this).attr('id');
-            // var routeUrl = "{{ url('portfolio/update/:id') }}".replace(':id', userId);
+            var routeUrl = "{{ url('kretech/portfolio/update/:id') }}".replace(':id', userId);
             $.ajax({
                 url: '/kretech/portfolio/edit/' + userId,
                 type: 'GET',
                 success: function(data) {
-                    console.log(data);
                     $('#edit_id').val(data.id);
+                    $('#edit_created_at').val(data.cat);
                     $('#edit_title').val(data.ttl);
                     $('#edit_link').val(data.lnk);
                     $('#edit_client').val(data.cln);
@@ -369,10 +370,27 @@
                     } else {
                         $('#edit_status').val('0');
                     }
-                    // $('#edit_img_profile_preview').attr('src', window.location.origin +
-                    //     '/assets/img/admin_img_profile_' + data.email.split('@')[0] + '.jpg');
+                    for (let i = 0; i < 5; i++) {
+                        if ((i + 1) === 1) {
+                            $('.row-content-' + (i + 1)).removeClass('d-none');
+                            $('#edit_content_title_' + (i + 1)).prop('required', true);
+                            $('#edit_content_description_' + (i + 1)).prop('required', true);
+                        } else {
+                            $('.row-content-' + (i + 1)).addClass('d-none');
+                            $('#edit_content_title_' + (i + 1)).prop('required', false);
+                            $('#edit_content_description_' + (i + 1)).prop('required', false);
+                        }
+                    }
+                    for (let j = 0; j < data.sbt.split('|').length; j++) {
+                        $('.row-content-' + (j + 1)).removeClass('d-none');
+                        $('#edit_content_title_' + (j + 1)).prop('required', true);
+                        $('#edit_content_title_' + (j + 1)).val(data.sbt.split('|')[j]);
+                        $('#edit_content_description_' + (j + 1)).prop('required', true);
+                        $('#edit_content_description_' + (j + 1)).val(data.dsc.split('|')[j]);
+                        $('#edit_content_image_' + (j + 1) + '_preview').attr('src', window.location.origin + '/assets/img/kretech_img_content_portfolio_' + data.id + '_item_' + (j + 1) + '.jpg');
+                    }
                     $('#portfolioEditModal').modal('show');
-                    // $('.edit-form').attr('action', routeUrl);
+                    $('.edit-form').attr('action', routeUrl);
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
@@ -381,7 +399,7 @@
         });
 
         // create content image 1
-        var loadImgContent1 = function(event) {
+        var loadImgContentCreate1 = function(event) {
             var output = document.getElementById('create_content_image_1_preview');
             output.src = URL.createObjectURL(event.target.files[0]);
         };
@@ -423,9 +441,52 @@
                 img.src = URL.createObjectURL(file);
             });
         });
+        // edit content image 1
+        var loadImgContentEdit1 = function(event) {
+            var output = document.getElementById('edit_content_image_1_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#edit_content_image_1_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_edit_content_image_1").on('click', function() {
+                $("#edit_content_image_1").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#edit_content_image_1', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#edit_content_image_1_response").text("");
+                        } else {
+                            $("#edit_content_image_1_warning").text("");
+                            $("#edit_content_image_1_response").text("* image dimensions not valid");
+                            document.getElementById("edit_content_image_1").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#edit_content_image_1_warning").text("");
+                        $("#edit_content_image_1_response").text("* image over size");
+                        document.getElementById("edit_content_image_1").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
 
         // create content image 2
-        var loadImgContent2 = function(event) {
+        var loadImgContentCreate2 = function(event) {
             var output = document.getElementById('create_content_image_2_preview');
             output.src = URL.createObjectURL(event.target.files[0]);
         };
@@ -467,9 +528,52 @@
                 img.src = URL.createObjectURL(file);
             });
         });
+        // edit content image 2
+        var loadImgContentEdit2 = function(event) {
+            var output = document.getElementById('edit_content_image_2_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#edit_content_image_2_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_edit_content_image_2").on('click', function() {
+                $("#edit_content_image_2").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#edit_content_image_2', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#edit_content_image_2_response").text("");
+                        } else {
+                            $("#edit_content_image_2_warning").text("");
+                            $("#edit_content_image_2_response").text("* image dimensions not valid");
+                            document.getElementById("edit_content_image_2").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#edit_content_image_2_warning").text("");
+                        $("#edit_content_image_2_response").text("* image over size");
+                        document.getElementById("edit_content_image_2").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
 
         // create content image 3
-        var loadImgContent3 = function(event) {
+        var loadImgContentCreate3 = function(event) {
             var output = document.getElementById('create_content_image_3_preview');
             output.src = URL.createObjectURL(event.target.files[0]);
         };
@@ -511,9 +615,52 @@
                 img.src = URL.createObjectURL(file);
             });
         });
+        // edit content image 3
+        var loadImgContentEdit3 = function(event) {
+            var output = document.getElementById('edit_content_image_3_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#edit_content_image_3_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_edit_content_image_3").on('click', function() {
+                $("#edit_content_image_3").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#edit_content_image_3', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#edit_content_image_3_response").text("");
+                        } else {
+                            $("#edit_content_image_3_warning").text("");
+                            $("#edit_content_image_3_response").text("* image dimensions not valid");
+                            document.getElementById("edit_content_image_3").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#edit_content_image_3_warning").text("");
+                        $("#edit_content_image_3_response").text("* image over size");
+                        document.getElementById("edit_content_image_3").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
 
         // create content image 4
-        var loadImgContent4 = function(event) {
+        var loadImgContentCreate4 = function(event) {
             var output = document.getElementById('create_content_image_4_preview');
             output.src = URL.createObjectURL(event.target.files[0]);
         };
@@ -555,9 +702,52 @@
                 img.src = URL.createObjectURL(file);
             });
         });
+        // edit content image 4
+        var loadImgContentEdit4 = function(event) {
+            var output = document.getElementById('edit_content_image_4_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#edit_content_image_4_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_edit_content_image_4").on('click', function() {
+                $("#edit_content_image_4").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#edit_content_image_4', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#edit_content_image_4_response").text("");
+                        } else {
+                            $("#edit_content_image_4_warning").text("");
+                            $("#edit_content_image_4_response").text("* image dimensions not valid");
+                            document.getElementById("edit_content_image_4").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#edit_content_image_4_warning").text("");
+                        $("#edit_content_image_4_response").text("* image over size");
+                        document.getElementById("edit_content_image_4").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
 
         // create content image 5
-        var loadImgContent5 = function(event) {
+        var loadImgContentCreate5 = function(event) {
             var output = document.getElementById('create_content_image_5_preview');
             output.src = URL.createObjectURL(event.target.files[0]);
         };
@@ -599,6 +789,49 @@
                 img.src = URL.createObjectURL(file);
             });
         });
+        // edit content image 5
+        var loadImgContentEdit5 = function(event) {
+            var output = document.getElementById('edit_content_image_5_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#edit_content_image_5_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_edit_content_image_5").on('click', function() {
+                $("#edit_content_image_5").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#edit_content_image_5', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 960 && this.height == 540) {
+                            $("#edit_content_image_5_response").text("");
+                        } else {
+                            $("#edit_content_image_5_warning").text("");
+                            $("#edit_content_image_5_response").text("* image dimensions not valid");
+                            document.getElementById("edit_content_image_5").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#edit_content_image_5_warning").text("");
+                        $("#edit_content_image_5_response").text("* image over size");
+                        document.getElementById("edit_content_image_5").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
  
         // button plus or minus row content
         $(document).ready(function() {
@@ -606,8 +839,8 @@
             $('.btn-plus-content').click(function() {
                 if (currentRow < 5) {
                     $('.row-content-' + (currentRow + 1)).removeClass('d-none');
-                    $('#create_content_title_' + (currentRow + 1)).prop("required", true);
-                    $('#create_content_description_' + (currentRow + 1)).prop("required", true);
+                    $('#create_content_title_' + (currentRow + 1)).prop('required', true);
+                    $('#create_content_description_' + (currentRow + 1)).prop('required', true);
                     currentRow++;
                 }
             });

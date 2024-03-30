@@ -262,7 +262,7 @@ class UserController extends BaseController
         $request->validate([
             'edit_id'               => 'required',
             'edit_name'             => 'required|max:50',
-            'create_img_profile'    => 'image|mimes:jpg|max:2048'
+            'edit_img_profile'      => 'image|mimes:jpg|max:2048'
         ]);
 
         // get user
