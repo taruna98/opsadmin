@@ -259,6 +259,84 @@
         </div>
         <!-- End Edit Portfolio Modal-->
 
+        <!-- Detail Portfolio Modal -->
+        <div class="modal fade" id="portfolioDetailModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Portfolio Detail</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>ID</b>
+                                        <a class="text-decoration-none text-dark" id="detail_id">Id</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Title</b>
+                                        <a class="text-decoration-none text-dark" id="detail_title">Title</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Link</b>
+                                        <a class="text-decoration-none text-dark" id="detail_link">Link</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Client</b>
+                                        <a class="text-decoration-none text-dark" id="detail_client">Client</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Category</b>
+                                        <a class="text-decoration-none text-dark" id="detail_category">Category</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Status</b>
+                                        <a class="text-decoration-none text-dark" id="detail_status">Status</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Created At</b>
+                                        <a class="text-decoration-none text-dark" id="detail_created_at">Created At</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Updated At</b>
+                                        <a class="text-decoration-none text-dark" id="detail_updated_at">Updated At</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Content</b>
+                                        <div class="row row-content-1">
+                                            <div class="col-md-4">
+                                                <label for="edit_content_title_1" class="form-label">Title</label>
+                                                <input type="text" class="form-control" name="edit_content_title_{{ $i }}" id="edit_content_title_{{ $i }}" value="{{ old('edit_content_title_' . $i ) }}" {{ ($i == 1) ? 'required' : '' }}>
+                                                <div class="invalid-feedback">Please enter your content title.</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="edit_content_description_{{ $i }}" class="form-label">Description</label>
+                                                <input type="text" class="form-control" name="edit_content_description_{{ $i }}" id="edit_content_description_{{ $i }}" value="{{ old('edit_content_description_' . $i ) }}" {{ ($i == 1) ? 'required' : '' }}>
+                                                <div class="invalid-feedback">Please enter your content description.</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="edit_content_image_{{ $i }}" class="form-label">Image</label> <br>
+                                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="edit_content_image_{{ $i }}_preview" alt="Profile"> <br>
+                                                <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContentEdit{{ $i }}(event)" name="edit_content_image_{{ $i }}" id="edit_content_image_{{ $i }}">
+                                                <small id="edit_content_image_{{ $i }}_warning" class="text-danger fst-italic">* dimensions must 960 x 540 in PNG (max size: 500KB)</small>
+                                                <small id="edit_content_image_{{ $i }}_response" class="text-danger fst-italic"></small>
+                                                <div class="pt-2">
+                                                    <a type="button" class="btn btn-primary btn-sm" id="btn_upload_edit_content_image_{{ $i }}"><i class="bi bi-upload"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Detail Portfolio Modal-->
+
     </section>
 
     <script>
@@ -391,6 +469,22 @@
                     }
                     $('#portfolioEditModal').modal('show');
                     $('.edit-form').attr('action', routeUrl);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        });
+
+        // detail modal
+        $(document).on('click', '.btn-detail', function() {
+            var userId = $(this).attr('id');
+            $.ajax({
+                url: '/kretech/portfolio/detail/' + userId,
+                type: 'GET',
+                success: function(data) {
+                    console.log(data);
+                    $('#portfolioDetailModal').modal('show');
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
