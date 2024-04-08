@@ -109,24 +109,24 @@ class ArticleController extends BaseController
         $created_at             = Date('Y-m-d H:i:s');
         $updated_at             = Date('Y-m-d H:i:s');
 
-        // temp variable
-        $temp = [
-            'user_id'           => $user_id,
-            'module'            => $module,
-            'scene'             => $scene,
-            'activity'          => $activity,
-            'ip'                => $ip,
-            // ---
-            'email'             => $email,
-            'code'              => $code,
-            'id'                => $id,
-            'title'             => $title,
-            'category'          => $category,
-            'description'       => $description,
-            'status'            => $status,
-            'created_at'        => $created_at,
-            'updated_at'        => $updated_at
-        ];
+        // // temp variable
+        // $temp = [
+        //     'user_id'           => $user_id,
+        //     'module'            => $module,
+        //     'scene'             => $scene,
+        //     'activity'          => $activity,
+        //     'ip'                => $ip,
+        //     // ---
+        //     'email'             => $email,
+        //     'code'              => $code,
+        //     'id'                => $id,
+        //     'title'             => $title,
+        //     'category'          => $category,
+        //     'description'       => $description,
+        //     'status'            => $status,
+        //     'created_at'        => $created_at,
+        //     'updated_at'        => $updated_at
+        // ];
 
         // store article json
         $store_article_json = Http::post($api_url . 'profile/article/store/' . $code, [
@@ -173,5 +173,155 @@ class ArticleController extends BaseController
                 'url'       => $url
             ]);
         }
+    }
+
+    public function edit($id)
+    {
+        $user_id = Auth::user()->id;
+
+        // get user from table users
+        $user = User::where('id', $user_id)->first();
+            
+        // verify user from table profile
+        $profile = DB::connection('mysql2')->table('profiles')->where('eml', $user->email)->first();
+        if ($profile == null) {
+            return response('article not found', 404);
+        }
+        
+        // declare variable
+        $api_url = env('API_URL');
+        $code = $profile->cod;
+        
+        // get data article from api
+        $get_article = Http::get($api_url . 'profile/' . $code)->json()['article'];
+
+        // check response
+        if ($get_article == '[]') {
+            return response('article not found', 404);
+        }
+
+        // get article by id 
+        foreach ($get_article as $article) {
+            if ($article['id'] == $id) {
+                $articles = $article;
+            }
+        }
+
+        return response()->json($articles);
+    }
+
+    public function update(Request $request)
+    {
+        // auth
+        $auth = Auth::user();
+
+        $validator = Validator::make($request->all(), [
+            'edit_title'        => 'required',
+            'edit_description'  => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // get profile
+        $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
+
+        // get params
+        $user_id                = Auth::user()->id;
+        $module                 = 'Kretech';
+        $scene                  = 'Article';
+        $activity               = 'Edit - ' . $request->edit_id;
+        $ip                     = $request->ip();
+        $api_url                = env('API_URL');
+        // ---
+        $email                  = $profile->eml;
+        $code                   = $profile->cod;
+        $id                     = $request->edit_id;
+        $title                  = $request->edit_title;
+        $category               = $request->edit_category;
+        $description            = $request->edit_description;
+        $status                 = $request->edit_status;
+        $created_at             = $request->edit_created_at;
+        $updated_at             = Date('Y-m-d H:i:s');
+
+        // // temp variable
+        // $temp = [
+        //     'user_id'           => $user_id,
+        //     'module'            => $module,
+        //     'scene'             => $scene,
+        //     'activity'          => $activity,
+        //     'ip'                => $ip,
+        //     // ---
+        //     'email'             => $email,
+        //     'code'              => $code,
+        //     'id'                => $id,
+        //     'title'             => $title,
+        //     'category'          => $category,
+        //     'description'       => $description,
+        //     'status'            => $status,
+        //     'created_at'        => $created_at,
+        //     'updated_at'        => $updated_at
+        // ];
+        
+        // update article json
+        $update_article_json = Http::post($api_url . 'profile/article/update/' . $code, [
+            'id'            => $id,
+            'title'         => $title,
+            'category'      => $category,
+            'description'   => $description,
+            'status'        => $status,
+            'created_at'    => $created_at,
+        ]);
+
+        if ($update_article_json != 'success update article') {
+            Alert::error('Failed', 'Edit Article')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Edit Article')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        Alert::success('Success', 'Edit Article')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+        return redirect()->back();
+    }
+
+    public function detail($id)
+    {
+        $user_id = Auth::user()->id;
+
+        // get user from table users
+        $user = User::where('id', $user_id)->first();
+            
+        // verify user from table profile
+        $profile = DB::connection('mysql2')->table('profiles')->where('eml', $user->email)->first();
+        if ($profile == null) {
+            return response('article not found', 404);
+        }
+        
+        // declare variable
+        $api_url = env('API_URL');
+        $code = $profile->cod;
+        
+        // get data article from api
+        $get_article = Http::get($api_url . 'profile/' . $code)->json()['article'];
+
+        // check response
+        if ($get_article == '[]') {
+            return response('article not found', 404);
+        }
+
+        // get article by id 
+        foreach ($get_article as $article) {
+            if ($article['id'] == $id) {
+                $articles = $article;
+            }
+        }
+
+        return response()->json($articles);
     }
 }
