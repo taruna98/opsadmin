@@ -48,7 +48,7 @@ class PortfolioController extends BaseController
 
         // check response
         if ($get_portfolio == '[]') {
-          Alert::error('Failed', 'Profile Not Found')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          Alert::error('Failed', 'Portfolio Not Found')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
           return redirect()->back();
         }
 
