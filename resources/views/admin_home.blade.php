@@ -18,7 +18,7 @@
                 <div class="row">
 
                     <!-- Kretech Card -->
-                    <div class="col-xxl-4 col-md-6">
+                    <div class="col-12 col-md-6">
                         <div class="card info-card sales-card">
                             <a href="{{ route('kretech.dashboard') }}">
                                 <div class="card-body">

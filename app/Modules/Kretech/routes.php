@@ -41,6 +41,7 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function 
         Route::get('article/edit/{id}', 'ArticleController@edit')->name('kretech.article.edit');
         Route::post('article/update/{id}', 'ArticleController@update')->name('kretech.article.update');
         Route::get('article/detail/{id}', 'ArticleController@detail')->name('kretech.article.detail');
+        Route::post('article/upload_image', 'ArticleController@upload_image')->name('kretech.article.upload.image');
         
         // Kretech Activity
         Route::get('activity', 'ActivityController@index')->name('kretech.activity');

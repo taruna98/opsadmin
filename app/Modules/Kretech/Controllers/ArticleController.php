@@ -5,6 +5,7 @@ namespace Modules\Kretech\Controllers;
 use App\Models\User;
 use App\Models\LogActivity;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Collection;
@@ -71,5 +72,106 @@ class ArticleController extends BaseController
             'title'     => $title,
             'set_id'    => $set_id
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        // auth
+        $auth = Auth::user();
+
+        $validator = Validator::make($request->all(), [
+            'create_title'          => 'required',
+            'create_description'    => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // get profile
+        $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
+
+        // get params
+        $user_id                = Auth::user()->id;
+        $module                 = 'Kretech';
+        $scene                  = 'Article';
+        $activity               = 'Create - ' . $request->create_id;
+        $ip                     = $request->ip();
+        $api_url                = env('API_URL');
+        // ---
+        $email                  = $profile->eml;
+        $code                   = $profile->cod;
+        $id                     = $request->create_id;
+        $title                  = $request->create_title;
+        $category               = $request->create_category;
+        $description            = $request->create_description;
+        $status                 = $request->create_status;
+        $created_at             = Date('Y-m-d H:i:s');
+        $updated_at             = Date('Y-m-d H:i:s');
+
+        // temp variable
+        $temp = [
+            'user_id'           => $user_id,
+            'module'            => $module,
+            'scene'             => $scene,
+            'activity'          => $activity,
+            'ip'                => $ip,
+            // ---
+            'email'             => $email,
+            'code'              => $code,
+            'id'                => $id,
+            'title'             => $title,
+            'category'          => $category,
+            'description'       => $description,
+            'status'            => $status,
+            'created_at'        => $created_at,
+            'updated_at'        => $updated_at
+        ];
+
+        // store article json
+        $store_article_json = Http::post($api_url . 'profile/article/store/' . $code, [
+            'id'            => $id,
+            'title'         => $title,
+            'category'      => $category,
+            'description'   => $description,
+            'status'        => $status,
+        ]);
+
+        if ($store_article_json != 'success store article') {
+            Alert::error('Failed', 'Create Article')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Create Article')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        Alert::success('Success', 'Create Article')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+        return redirect()->back();
+    }
+
+    public function upload_image(Request $request): JsonResponse
+    {
+        $id = Auth::user()->id;
+
+        if ($request->hasFile('upload')) {
+            $originName = $request->file('upload')->getClientOriginalName();
+            $fileName = pathinfo($originName, PATHINFO_FILENAME);
+            $extension = $request->file('upload')->getClientOriginalExtension();
+            $fileName =  'kretech_img_content_article_' . $id . '_' . $fileName . '.' . $extension;
+      
+            $request->file('upload')->move(public_path('assets/img'), $fileName);
+      
+            $url = asset('assets/img/' . $fileName);
+  
+            return response()->json([
+                'fileName'  => $fileName,
+                'uploaded'  => 1,
+                'url'       => $url
+            ]);
+        }
     }
 }
