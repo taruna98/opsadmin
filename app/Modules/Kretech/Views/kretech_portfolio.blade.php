@@ -305,26 +305,84 @@
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between">
                                         <b>Content</b>
+                                    </li>
+                                    <li class="list-group-item content-item-1 d-none justify-content-between">
                                         <div class="row row-content-1">
                                             <div class="col-md-4">
-                                                <label for="edit_content_title_1" class="form-label">Title</label>
-                                                <input type="text" class="form-control" name="edit_content_title_{{ $i }}" id="edit_content_title_{{ $i }}" value="{{ old('edit_content_title_' . $i ) }}" {{ ($i == 1) ? 'required' : '' }}>
-                                                <div class="invalid-feedback">Please enter your content title.</div>
+                                                <label for="detail_content_title_1" class="form-label">Title</label>
+                                                <input type="text" class="form-control" id="detail_content_title_1" readonly>
                                             </div>
                                             <div class="col-md-4">
-                                                <label for="edit_content_description_{{ $i }}" class="form-label">Description</label>
-                                                <input type="text" class="form-control" name="edit_content_description_{{ $i }}" id="edit_content_description_{{ $i }}" value="{{ old('edit_content_description_' . $i ) }}" {{ ($i == 1) ? 'required' : '' }}>
-                                                <div class="invalid-feedback">Please enter your content description.</div>
+                                                <label for="detail_content_description_1" class="form-label">Description</label>
+                                                <input type="text" class="form-control" id="detail_content_description_1" readonly>
                                             </div>
                                             <div class="col-md-4">
-                                                <label for="edit_content_image_{{ $i }}" class="form-label">Image</label> <br>
-                                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="edit_content_image_{{ $i }}_preview" alt="Profile"> <br>
-                                                <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgContentEdit{{ $i }}(event)" name="edit_content_image_{{ $i }}" id="edit_content_image_{{ $i }}">
-                                                <small id="edit_content_image_{{ $i }}_warning" class="text-danger fst-italic">* dimensions must 960 x 540 in PNG (max size: 500KB)</small>
-                                                <small id="edit_content_image_{{ $i }}_response" class="text-danger fst-italic"></small>
-                                                <div class="pt-2">
-                                                    <a type="button" class="btn btn-primary btn-sm" id="btn_upload_edit_content_image_{{ $i }}"><i class="bi bi-upload"></i></a>
-                                                </div>
+                                                <label for="detail_content_image_1" class="form-label">Image</label> <br>
+                                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="detail_content_image_1_preview" alt="Profile">
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item content-item-2 d-none justify-content-between">
+                                        <div class="row row-content-2">
+                                            <div class="col-md-4">
+                                                <label for="detail_content_title_2" class="form-label">Title</label>
+                                                <input type="text" class="form-control" id="detail_content_title_2" readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="detail_content_description_2" class="form-label">Description</label>
+                                                <input type="text" class="form-control" id="detail_content_description_2" readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="detail_content_image_2" class="form-label">Image</label> <br>
+                                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="detail_content_image_2_preview" alt="Profile">
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item content-item-3 d-none justify-content-between">
+                                        <div class="row row-content-3">
+                                            <div class="col-md-4">
+                                                <label for="detail_content_title_3" class="form-label">Title</label>
+                                                <input type="text" class="form-control" id="detail_content_title_3" readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="detail_content_description_3" class="form-label">Description</label>
+                                                <input type="text" class="form-control" id="detail_content_description_3" readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="detail_content_image_3" class="form-label">Image</label> <br>
+                                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="detail_content_image_3_preview" alt="Profile">
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item content-item-4 d-none justify-content-between">
+                                        <div class="row row-content-4">
+                                            <div class="col-md-4">
+                                                <label for="detail_content_title_4" class="form-label">Title</label>
+                                                <input type="text" class="form-control" id="detail_content_title_4" readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="detail_content_description_4" class="form-label">Description</label>
+                                                <input type="text" class="form-control" id="detail_content_description_4" readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="detail_content_image_4" class="form-label">Image</label> <br>
+                                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="detail_content_image_4_preview" alt="Profile">
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item content-item-5 d-none justify-content-between">
+                                        <div class="row row-content-5">
+                                            <div class="col-md-4">
+                                                <label for="detail_content_title_5" class="form-label">Title</label>
+                                                <input type="text" class="form-control" id="detail_content_title_5" readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="detail_content_description_5" class="form-label">Description</label>
+                                                <input type="text" class="form-control" id="detail_content_description_5" readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="detail_content_image_5" class="form-label">Image</label> <br>
+                                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_portfolio_default.jpg') }}" id="detail_content_image_5_preview" alt="Profile">
                                             </div>
                                         </div>
                                     </li>
@@ -478,12 +536,48 @@
 
         // detail modal
         $(document).on('click', '.btn-detail', function() {
+            for (var i = 1; i <= 5; i++) {
+                if ($('.content-item-' + i).hasClass('d-flex')) {
+                    $('.content-item-' + i).removeClass('d-flex');
+                    $('.content-item-' + i).addClass('d-none');
+                }
+            }
+
             var userId = $(this).attr('id');
             $.ajax({
                 url: '/kretech/portfolio/detail/' + userId,
                 type: 'GET',
                 success: function(data) {
-                    console.log(data);
+                    $('#detail_id').text(data.id);
+                    $('#detail_title').text(data.ttl);
+                    $('#detail_link').text(data.lnk);
+                    $('#detail_client').text(data.cln);
+                    $('#detail_category').text(data.ctg);
+                    if (data.stt == '1') {
+                        $('#detail_status').html('<span class="badge rounded-pill bg-success">Active</span>');
+                    } else {
+                        $('#detail_status').html('<span class="badge rounded-pill bg-danger">Not Active</span>');
+                    }
+                    $('#detail_created_at').text(data.cat);
+                    $('#detail_updated_at').text(data.uat);
+                    $.each(data.sbt.split('|'), function(idx1, val1) {
+                        $('.content-item-' + (idx1 + 1)).removeClass('d-none');
+                        $('.content-item-' + (idx1 + 1)).addClass('d-flex');
+                        $('#detail_content_title_' + (idx1 + 1)).val(val1);
+                    });
+                    $.each(data.dsc.split('|'), function(idx2, val2) {
+                        $('#detail_content_description_' + (idx2 + 1)).val(val2);
+                        $('#detail_content_image_' + (idx2 + 1) + '_preview').removeAttr('src');
+                        $('#detail_content_image_' + (idx2 + 1) + '_preview').attr('src', window.location.origin + '/assets/img/' + 'kretech_img_content_portfolio_' + data.id + '_item_' + (idx2 + 1) + '.jpg');
+                        
+                        // check image src not found in directory
+                        var imgSrc = $('#detail_content_image_' + (idx2 + 1) + '_preview').attr('src');
+                        var img = new Image();
+                        $(img).on('error', function() {
+                            $('#detail_content_image_' + (idx2 + 1) + '_preview').attr('src', window.location.origin + '/assets/img/kretech_img_content_portfolio_default.jpg');
+                        });
+                        img.src = imgSrc;
+                    });
                     $('#portfolioDetailModal').modal('show');
                 },
                 error: function(xhr) {
