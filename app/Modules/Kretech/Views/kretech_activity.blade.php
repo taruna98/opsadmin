@@ -1,5 +1,18 @@
 @extends('layout.admin_app')
 @section('content')
+  <style>
+    .activity-search {
+      width: 25%;
+      margin: 0 0 2rem auto;
+    }
+    
+    @media (max-width: 767.98px) {
+      .activity-search {
+        width: 100%;
+      }
+    }
+  </style>
+
   <div class="pagetitle">
     <h1>Activity</h1>
     <nav>
@@ -19,6 +32,8 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Recent Activities</h5>
+
+            <input class="form-control activity-search" type="search" placeholder="Search Activity" aria-label="Search">
 
             <!-- List group with Activity -->
             <div class="list-group">
@@ -40,4 +55,16 @@
       </div><!-- End Side columns -->
     </div>
   </section>
+
+  <script>
+    // search activity
+    $(document).ready(function(){
+      $('.activity-search').on('keyup', function(){
+        var searchVal = $(this).val().toLowerCase();
+        $('.list-group-item').each(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(searchVal) !== -1);
+        });
+      });
+    });
+  </script>
 @endsection

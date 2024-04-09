@@ -121,7 +121,7 @@
                                     <div class="d-flex align-items-center">
                                         <div
                                             class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-cart"></i>
+                                            <i class="bi bi-file-earmark-text"></i>
                                         </div>
                                         <div class="ps-3">
                                             <h6>{{ count($data['portfolio']) }}</h6>
@@ -140,7 +140,7 @@
                                     <div class="d-flex align-items-center">
                                         <div
                                             class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-people"></i>
+                                            <i class="bi bi-file-earmark-richtext"></i>
                                         </div>
                                         <div class="ps-3">
                                             <h6>{{ count($data['article']) }}</h6>

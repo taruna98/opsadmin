@@ -26,7 +26,7 @@
                                     <div class="d-flex align-items-center">
                                         <div
                                             class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-cart"></i>
+                                            <i class="bi bi-kanban"></i>
                                         </div>
                                         <div class="ps-3">
                                             <h6>CMS</h6>
