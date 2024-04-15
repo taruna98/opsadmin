@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\LogActivity;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -103,6 +105,7 @@ class PortfolioController extends BaseController
         $activity               = 'Create - ' . $request->create_id;
         $ip                     = $request->ip();
         $api_url                = env('API_URL');
+        $destination_url        = env('API_URL') . 'data/upload_image.php';
         // ---
         $email                  = $profile->eml;
         $code                   = $profile->cod;
@@ -146,35 +149,53 @@ class PortfolioController extends BaseController
         $content_image_5_name   = isset($content_image_5) ? 'kretech_img_content_portfolio_' . $id . '_item_5' . '.' . $content_image_5->extension() : '';
         $content_image_default  = public_path('assets/img/kretech_img_content_portfolio_default.jpg');
 
-        // // temp variable
-        // $temp = [
-        //     'user_id'           => $user_id,
-        //     'module'            => $module,
-        //     'scene'             => $scene,
-        //     'activity'          => $activity,
-        //     'ip'                => $ip,
-        //     // ---
-        //     'email'             => $email,
-        //     'code'              => $code,
-        //     'id'                => $id,
-        //     'title'             => $title,
-        //     'category'          => $category,
-        //     'client'            => $client,
-        //     'link'              => $link,
-        //     'content_title'     => $content_title,
-        //     'content_desc'      => $content_desc,
-        //     'status'            => $status,
-        //     'created_at'        => $created_at,
-        //     'updated_at'        => $updated_at,
-        //     'content_image_1'   => $content_image_1_name,
-        //     'content_image_2'   => $content_image_2_name,
-        //     'content_image_3'   => $content_image_3_name,
-        //     'content_image_4'   => $content_image_4_name,
-        //     'content_image_5'   => $content_image_5_name
-        // ];
+        // temp variable
+        $temp = [
+            'user_id'           => $user_id,
+            'module'            => $module,
+            'scene'             => $scene,
+            'activity'          => $activity,
+            'ip'                => $ip,
+            // ---
+            'email'             => $email,
+            'code'              => $code,
+            'id'                => $id,
+            'title'             => $title,
+            'category'          => $category,
+            'client'            => $client,
+            'link'              => $link,
+            'content_title'     => $content_title,
+            'content_desc'      => $content_desc,
+            'status'            => $status,
+            'created_at'        => $created_at,
+            'updated_at'        => $updated_at,
+            'content_image_1'   => $content_image_1_name,
+            'content_image_2'   => $content_image_2_name,
+            'content_image_3'   => $content_image_3_name,
+            'content_image_4'   => $content_image_4_name,
+            'content_image_5'   => $content_image_5_name
+        ];
 
         // check content image 1
         if ($content_image_1 !== null || $content_image_1 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_1_upload = $request->file('create_content_image_1');
+            $content_image_1_name_upload   = isset($content_image_1_upload) ? $code . '-port-' . $id . '-1' . '.' . $content_image_1_upload->extension() : '';
+            $content_image_1_upload_path = $content_image_1_upload->path();
+            $data = array(
+                'portfolio_file_1' => new \CURLFile($content_image_1_upload_path, $content_image_1_upload->getClientMimeType(), $content_image_1_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 1')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_1->move(public_path('assets/img'), $content_image_1_name);
         } else if ($request->create_content_title_1 != null && $content_image_1 === null) {
             $content_image_set_1 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_1.jpg');
@@ -186,6 +207,24 @@ class PortfolioController extends BaseController
 
         // check content image 2
         if ($content_image_2 !== null || $content_image_2 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_2_upload = $request->file('create_content_image_2');
+            $content_image_2_name_upload   = isset($content_image_2_upload) ? $code . '-port-' . $id . '-2' . '.' . $content_image_2_upload->extension() : '';
+            $content_image_2_upload_path = $content_image_2_upload->path();
+            $data = array(
+                'portfolio_file_2' => new \CURLFile($content_image_2_upload_path, $content_image_2_upload->getClientMimeType(), $content_image_2_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 2')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_2->move(public_path('assets/img'), $content_image_2_name);
         } else if ($request->create_content_title_2 != null && $content_image_2 === null) {
             $content_image_set_2 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_2.jpg');
@@ -197,6 +236,24 @@ class PortfolioController extends BaseController
 
         // check content image 3
         if ($content_image_3 !== null || $content_image_3 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_3_upload = $request->file('create_content_image_3');
+            $content_image_3_name_upload   = isset($content_image_3_upload) ? $code . '-port-' . $id . '-3' . '.' . $content_image_3_upload->extension() : '';
+            $content_image_3_upload_path = $content_image_3_upload->path();
+            $data = array(
+                'portfolio_file_3' => new \CURLFile($content_image_3_upload_path, $content_image_3_upload->getClientMimeType(), $content_image_3_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 3')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_3->move(public_path('assets/img'), $content_image_3_name);
         } else if ($request->create_content_title_3 != null && $content_image_3 === null) {
             $content_image_set_3 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_3.jpg');
@@ -208,6 +265,24 @@ class PortfolioController extends BaseController
 
         // check content image 4
         if ($content_image_4 !== null || $content_image_4 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_4_upload = $request->file('create_content_image_4');
+            $content_image_4_name_upload   = isset($content_image_4_upload) ? $code . '-port-' . $id . '-4' . '.' . $content_image_4_upload->extension() : '';
+            $content_image_4_upload_path = $content_image_4_upload->path();
+            $data = array(
+                'portfolio_file_4' => new \CURLFile($content_image_4_upload_path, $content_image_4_upload->getClientMimeType(), $content_image_4_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 4')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_4->move(public_path('assets/img'), $content_image_4_name);
         } else if ($request->create_content_title_4 != null && $content_image_4 === null) {
             $content_image_set_4 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_4.jpg');
@@ -219,6 +294,24 @@ class PortfolioController extends BaseController
 
         // check content image 5
         if ($content_image_5 !== null || $content_image_5 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_5_upload = $request->file('create_content_image_5');
+            $content_image_5_name_upload   = isset($content_image_5_upload) ? $code . '-port-' . $id . '-5' . '.' . $content_image_5_upload->extension() : '';
+            $content_image_5_upload_path = $content_image_5_upload->path();
+            $data = array(
+                'portfolio_file_5' => new \CURLFile($content_image_5_upload_path, $content_image_5_upload->getClientMimeType(), $content_image_5_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 5')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_5->move(public_path('assets/img'), $content_image_5_name);
         } else if ($request->create_content_title_5 != null && $content_image_5 === null) {
             $content_image_set_5 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_5.jpg');
@@ -339,6 +432,7 @@ class PortfolioController extends BaseController
         $activity               = 'Edit - ' . $request->edit_id;
         $ip                     = $request->ip();
         $api_url                = env('API_URL');
+        $destination_url        = env('API_URL') . 'data/upload_image.php';
         // ---
         $email                  = $profile->eml;
         $code                   = $profile->cod;
@@ -411,6 +505,24 @@ class PortfolioController extends BaseController
 
         // check content image 1
         if ($content_image_1 !== null || $content_image_1 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_1_upload = $request->file('edit_content_image_1');
+            $content_image_1_name_upload   = isset($content_image_1_upload) ? $code . '-port-' . $id . '-1' . '.' . $content_image_1_upload->extension() : '';
+            $content_image_1_upload_path = $content_image_1_upload->path();
+            $data = array(
+                'portfolio_file_1' => new \CURLFile($content_image_1_upload_path, $content_image_1_upload->getClientMimeType(), $content_image_1_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 1')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_1->move(public_path('assets/img'), $content_image_1_name);
         } else if ($request->create_content_title_1 != null && $content_image_1 === null) {
             $content_image_set_1 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_1.jpg');
@@ -422,6 +534,24 @@ class PortfolioController extends BaseController
 
         // check content image 2
         if ($content_image_2 !== null || $content_image_2 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_2_upload = $request->file('edit_content_image_2');
+            $content_image_2_name_upload   = isset($content_image_2_upload) ? $code . '-port-' . $id . '-2' . '.' . $content_image_2_upload->extension() : '';
+            $content_image_2_upload_path = $content_image_2_upload->path();
+            $data = array(
+                'portfolio_file_2' => new \CURLFile($content_image_2_upload_path, $content_image_2_upload->getClientMimeType(), $content_image_2_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 2')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_2->move(public_path('assets/img'), $content_image_2_name);
         } else if ($request->create_content_title_2 != null && $content_image_2 === null) {
             $content_image_set_2 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_2.jpg');
@@ -433,6 +563,24 @@ class PortfolioController extends BaseController
 
         // check content image 3
         if ($content_image_3 !== null || $content_image_3 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_3_upload = $request->file('edit_content_image_3');
+            $content_image_3_name_upload   = isset($content_image_3_upload) ? $code . '-port-' . $id . '-3' . '.' . $content_image_3_upload->extension() : '';
+            $content_image_3_upload_path = $content_image_3_upload->path();
+            $data = array(
+                'portfolio_file_3' => new \CURLFile($content_image_3_upload_path, $content_image_3_upload->getClientMimeType(), $content_image_3_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 3')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_3->move(public_path('assets/img'), $content_image_3_name);
         } else if ($request->create_content_title_3 != null && $content_image_3 === null) {
             $content_image_set_3 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_3.jpg');
@@ -444,6 +592,24 @@ class PortfolioController extends BaseController
 
         // check content image 4
         if ($content_image_4 !== null || $content_image_4 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_4_upload = $request->file('edit_content_image_4');
+            $content_image_4_name_upload   = isset($content_image_4_upload) ? $code . '-port-' . $id . '-4' . '.' . $content_image_4_upload->extension() : '';
+            $content_image_4_upload_path = $content_image_4_upload->path();
+            $data = array(
+                'portfolio_file_4' => new \CURLFile($content_image_4_upload_path, $content_image_4_upload->getClientMimeType(), $content_image_4_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 4')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_4->move(public_path('assets/img'), $content_image_4_name);
         } else if ($request->create_content_title_4 != null && $content_image_4 === null) {
             $content_image_set_4 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_4.jpg');
@@ -455,6 +621,24 @@ class PortfolioController extends BaseController
 
         // check content image 5
         if ($content_image_5 !== null || $content_image_5 != '') {
+            /** CURL portfolio image */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $content_image_5_upload = $request->file('edit_content_image_5');
+            $content_image_5_name_upload   = isset($content_image_5_upload) ? $code . '-port-' . $id . '-5' . '.' . $content_image_5_upload->extension() : '';
+            $content_image_5_upload_path = $content_image_5_upload->path();
+            $data = array(
+                'portfolio_file_5' => new \CURLFile($content_image_5_upload_path, $content_image_5_upload->getClientMimeType(), $content_image_5_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Image Item 5')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
             $content_image_5->move(public_path('assets/img'), $content_image_5_name);
         } else if ($request->create_content_title_5 != null && $content_image_5 === null) {
             $content_image_set_5 = public_path('assets/img/kretech_img_content_portfolio_' . $id . '_item_5.jpg');
