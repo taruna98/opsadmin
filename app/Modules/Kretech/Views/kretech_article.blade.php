@@ -85,12 +85,12 @@
                             @csrf
                             {{-- hidden input --}}
                             <input type="hidden" class="d-none" name="create_id" value="{{ $set_id }}" required>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="create_title" class="form-label">Title</label>
                                 <input type="text" class="form-control" name="create_title" id="create_title" value="{{ old('create_title') }}" required>
                                 <div class="invalid-feedback">Please enter your title.</div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="create_category" class="form-label">Select Category</label>
                                 <select class="form-select" name="create_category" id="create_category" required>
                                     <option selected value="art">Art</option>
@@ -100,13 +100,23 @@
                                 </select>
                                 <div class="invalid-feedback">Please select category.</div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="create_status" class="form-label">Select Status</label>
                                 <select class="form-select" name="create_status" id="create_status" required>
                                     <option selected value="1">Active</option>
                                     <option value="0">Not Active</option>
                                 </select>
                                 <div class="invalid-feedback">Please select status.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_image_1" class="form-label">Image Thumbnail</label> <br>
+                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_article_thumbnail_default.jpg') }}" id="create_image_1_preview" alt="Article"> <br>
+                                <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgArticleCreate1(event)" name="create_image_1" id="create_image_1">
+                                <small id="create_image_1_warning" class="text-danger fst-italic">* dimensions must 760 x 480 in PNG (max size: 500KB)</small>
+                                <small id="create_image_1_response" class="text-danger fst-italic"></small>
+                                <div class="pt-2">
+                                    <a type="button" class="btn btn-primary btn-sm" id="btn_upload_create_image_1"><i class="bi bi-upload"></i></a>
+                                </div>
                             </div>
                             <div class="col-md-12">
                                 <label for="create_description" class="form-label">Description</label>
@@ -151,12 +161,12 @@
                             {{-- hidden input --}}
                             <input type="hidden" class="form-control" name="edit_id" id="edit_id" required>
                             <input type="hidden" class="form-control" name="edit_created_at" id="edit_created_at" required>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="edit_title" class="form-label">Title</label>
                                 <input type="text" class="form-control" name="edit_title" id="edit_title" required>
                                 <div class="invalid-feedback">Please enter your title.</div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="edit_category" class="form-label">Select Category</label>
                                 <select class="form-select" name="edit_category" id="edit_category" required>
                                     <option value="art">Art</option>
@@ -166,13 +176,23 @@
                                 </select>
                                 <div class="invalid-feedback">Please select category.</div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="edit_status" class="form-label">Select Status</label>
                                 <select class="form-select" name="edit_status" id="edit_status" required>
                                     <option value="1">Active</option>
                                     <option value="0">Not Active</option>
                                 </select>
                                 <div class="invalid-feedback">Please select status.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_image_1" class="form-label">Image Thumbnail</label> <br>
+                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_content_article_thumbnail_default.jpg') }}" id="edit_image_1_preview" alt="Article"> <br>
+                                <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgArticleEdit1(event)" name="edit_image_1" id="edit_image_1">
+                                <small id="edit_image_1_warning" class="text-danger fst-italic">* dimensions must 760 x 480 in PNG (max size: 500KB)</small>
+                                <small id="edit_image_1_response" class="text-danger fst-italic"></small>
+                                <div class="pt-2">
+                                    <a type="button" class="btn btn-primary btn-sm" id="btn_upload_edit_image_1"><i class="bi bi-upload"></i></a>
+                                </div>
                             </div>
                             <div class="col-md-12">
                                 <label for="edit_description" class="form-label">Description</label>
@@ -201,6 +221,10 @@
                         <div class="row g-3">
                             <div class="col-md-12">
                                 <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Image Thumbnail</b>
+                                        <img class="rounded w-50" src="" id="detail_image_1_preview" alt="Article">
+                                    </li>
                                     <li class="list-group-item d-flex justify-content-between">
                                         <b>ID</b>
                                         <a class="text-decoration-none text-dark" id="detail_id">Id</a>
@@ -513,6 +537,7 @@
                     .catch(error => {
                         console.error(error);
                     });
+                    $('#edit_image_1_preview').attr('src', window.location.origin + '/assets/img/kretech_img_article_' + data.id + '_thumbnail.jpg');
                     $('#articleEditModal').modal('show');
                     $('.edit-form').attr('action', routeUrl);
                 },
@@ -529,6 +554,15 @@
                 url: '/kretech/article/detail/' + userId,
                 type: 'GET',
                 success: function(data) {
+                    $('#detail_image_1_preview').removeAttr('src');
+                    $('#detail_image_1_preview').attr('src', window.location.origin + '/assets/img/' + 'kretech_img_article_' + data.id + '_thumbnail.jpg');
+                    // check image src not found in directory
+                    var imgSrc = $('#detail_image_1_preview').attr('src');
+                    var img = new Image();
+                    $(img).on('error', function() {
+                        $('#detail_image_1_preview').attr('src', window.location.origin + '/assets/img/kretech_img_content_portfolio_default.jpg');
+                    });
+                    img.src = imgSrc;
                     $('#detail_id').text(data.id);
                     $('#detail_title').text(data.ttl);
                     $('#detail_category').text(data.ctg);
@@ -545,6 +579,93 @@
                 error: function(xhr) {
                     console.log(xhr.responseText);
                 }
+            });
+        });
+
+        // create article image thumbnail
+        var loadImgArticleCreate1 = function(event) {
+            var output = document.getElementById('create_image_1_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#create_image_1_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_create_image_1").on('click', function() {
+                $("#create_image_1").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#create_image_1', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 760 && this.height == 480) {
+                            $("#create_image_1_response").text("");
+                        } else {
+                            $("#create_image_1_warning").text("");
+                            $("#create_image_1_response").text("* image dimensions not valid");
+                            document.getElementById("create_image_1").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#create_image_1_warning").text("");
+                        $("#create_image_1_response").text("* image over size");
+                        document.getElementById("create_image_1").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+        // edit article image thumbnail
+        var loadImgArticleEdit1 = function(event) {
+            var output = document.getElementById('edit_image_1_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#edit_image_1_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_edit_image_1").on('click', function() {
+                $("#edit_image_1").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#edit_image_1', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 760 && this.height == 480) {
+                            $("#edit_image_1_response").text("");
+                        } else {
+                            $("#edit_image_1_warning").text("");
+                            $("#edit_image_1_response").text("* image dimensions not valid");
+                            document.getElementById("edit_image_1").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#edit_image_1_warning").text("");
+                        $("#edit_image_1_response").text("* image over size");
+                        document.getElementById("edit_image_1").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
             });
         });
 
