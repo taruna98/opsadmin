@@ -243,6 +243,7 @@
                                             <small id="edit_content_image_{{ $i }}_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
                                                 <a type="button" class="btn btn-primary btn-sm" id="btn_upload_edit_content_image_{{ $i }}"><i class="bi bi-upload"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm" id="btn_delete_edit_content_item_{{ $i }}"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -672,6 +673,17 @@
                 img.src = URL.createObjectURL(file);
             });
         });
+        // delete content item 2
+        $(document).ready(function() {
+            $("#btn_delete_edit_content_item_1").on('click', function() {
+                Swal.fire({
+                    title: 'Info',
+                    text: 'Item ini tidak dapat dihapus!',
+                    icon: 'warning',
+                    timer: 3000
+                });
+            });
+        });
 
         // create content image 2
         var loadImgContentCreate2 = function(event) {
@@ -757,6 +769,36 @@
                 };
 
                 img.src = URL.createObjectURL(file);
+            });
+        });
+        // delete content item 2
+        $(document).ready(function() {
+            $("#btn_delete_edit_content_item_2").on('click', function() {
+                Swal.fire({
+                    title: 'Item ini akan dihapus dan tidak dapat dipulihkan!',
+                    text: 'Anda juga akan menghapus title, description dan image',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya, Hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('.row-content-2').addClass('d-none');
+                        $('#edit_content_title_2').prop('required', false);
+                        $('#edit_content_title_2').val('');
+                        $('#edit_content_description_2').prop('required', false);
+                        $('#edit_content_description_2').val('');
+                        $('#edit_content_image_2_preview').attr('src', window.location.protocol + "//" + window.location.host + '/assets/img/kretech_img_content_portfolio_default.jpg');
+                        Swal.fire({
+                            title: 'Deleted !',
+                            text: 'Item ini telah dihapus',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                });
             });
         });
 
@@ -846,6 +888,36 @@
                 img.src = URL.createObjectURL(file);
             });
         });
+        // delete content item 3
+        $(document).ready(function() {
+            $("#btn_delete_edit_content_item_3").on('click', function() {
+                Swal.fire({
+                    title: 'Item ini akan dihapus dan tidak dapat dipulihkan!',
+                    text: 'Anda juga akan menghapus title, description dan image',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya, Hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('.row-content-3').addClass('d-none');
+                        $('#edit_content_title_3').prop('required', false);
+                        $('#edit_content_title_3').val('');
+                        $('#edit_content_description_3').prop('required', false);
+                        $('#edit_content_description_3').val('');
+                        $('#edit_content_image_3_preview').attr('src', window.location.protocol + "//" + window.location.host + '/assets/img/kretech_img_content_portfolio_default.jpg');
+                        Swal.fire({
+                            title: 'Deleted !',
+                            text: 'Item ini telah dihapus',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                });
+            });
+        });
 
         // create content image 4
         var loadImgContentCreate4 = function(event) {
@@ -933,6 +1005,36 @@
                 img.src = URL.createObjectURL(file);
             });
         });
+        // delete content item 4
+        $(document).ready(function() {
+            $("#btn_delete_edit_content_item_4").on('click', function() {
+                Swal.fire({
+                    title: 'Item ini akan dihapus dan tidak dapat dipulihkan!',
+                    text: 'Anda juga akan menghapus title, description dan image',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya, Hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('.row-content-4').addClass('d-none');
+                        $('#edit_content_title_4').prop('required', false);
+                        $('#edit_content_title_4').val('');
+                        $('#edit_content_description_4').prop('required', false);
+                        $('#edit_content_description_4').val('');
+                        $('#edit_content_image_4_preview').attr('src', window.location.protocol + "//" + window.location.host + '/assets/img/kretech_img_content_portfolio_default.jpg');
+                        Swal.fire({
+                            title: 'Deleted !',
+                            text: 'Item ini telah dihapus',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                });
+            });
+        });
 
         // create content image 5
         var loadImgContentCreate5 = function(event) {
@@ -1018,6 +1120,36 @@
                 };
 
                 img.src = URL.createObjectURL(file);
+            });
+        });
+        // delete content item 5
+        $(document).ready(function() {
+            $("#btn_delete_edit_content_item_5").on('click', function() {
+                Swal.fire({
+                    title: 'Item ini akan dihapus dan tidak dapat dipulihkan!',
+                    text: 'Anda juga akan menghapus title, description dan image',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya, Hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('.row-content-5').addClass('d-none');
+                        $('#edit_content_title_5').prop('required', false);
+                        $('#edit_content_title_5').val('');
+                        $('#edit_content_description_5').prop('required', false);
+                        $('#edit_content_description_5').val('');
+                        $('#edit_content_image_5_preview').attr('src', window.location.protocol + "//" + window.location.host + '/assets/img/kretech_img_content_portfolio_default.jpg');
+                        Swal.fire({
+                            title: 'Deleted !',
+                            text: 'Item ini telah dihapus',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                });
             });
         });
  
