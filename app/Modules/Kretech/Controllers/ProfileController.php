@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\LogActivity;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -81,14 +82,41 @@ class ProfileController extends BaseController
       $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
 
       // get field
-      $user_id    = $auth->id;
-      $module     = 'Kretech';
-      $scene      = 'Content/Profile';
-      $activity   = 'Edit - ' . $auth->email . ' - Delete Image Profile';
-      $ip         = $request->ip();
+      $user_id          = $auth->id;
+      $module           = 'Kretech';
+      $scene            = 'Content/Profile';
+      $activity         = 'Edit - ' . $auth->email . ' - Delete Image Profile';
+      $ip               = $request->ip();
+      $destination_url  = env('API_URL') . 'data/upload_image.php';
       // ---
-      $code       = $profile->cod;
-      $src_img    = asset('assets/img/img_profile_default.jpg');
+      $code             = $profile->cod;
+      $src_img          = asset('assets/img/img_profile_default.jpg');
+
+      /** CURL profile image */
+      $curl = curl_init();
+      // Set destination URL
+      curl_setopt($curl, CURLOPT_URL, $destination_url);
+      curl_setopt($curl, CURLOPT_POST, true);
+      $profile_default = public_path('assets\img\img_profile_default.jpg');
+      $profile_upload = new UploadedFile(
+          $profile_default,
+          'img_profile_default.jpg',
+          mime_content_type($profile_default),
+          filesize($profile_default),
+          false
+      );
+      $profile_name_upload = isset($profile_upload) ? $code . '-img-profile' . '.' . $profile_upload->extension() : '';
+      $profile_upload_path = $profile_upload->path();
+      $data = array(
+          'profile_file_1' => new \CURLFile($profile_upload_path, $profile_upload->getClientMimeType(), $profile_name_upload)
+      );
+      curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+      $result = curl_exec($curl);
+      /** CURL photo break */
+      if ($result === false) {
+          Alert::error('Failed', 'Set Profile Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          return redirect()->back();
+      }
 
       // delete image profile
       $path_image_default = public_path('assets/img/img_profile_default.jpg');
@@ -126,30 +154,67 @@ class ProfileController extends BaseController
       $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
 
       // get field
-      $user_id    = $auth->id;
-      $module     = 'Kretech';
-      $scene      = 'Content/Profile';
-      $activity   = 'Edit - ' . $auth->email;
-      $ip         = $request->ip();
-      $api_url    = env('API_URL');
+      $user_id            = $auth->id;
+      $module             = 'Kretech';
+      $scene              = 'Content/Profile';
+      $activity           = 'Edit - ' . $auth->email;
+      $ip                 = $request->ip();
+      $api_url            = env('API_URL');
+      $destination_url    = env('API_URL') . 'data/upload_image.php';
       // ---
-      $email      = $profile->eml;
-      $code       = $profile->cod;
-      $name       = $request->name;
-      $about      = $request->about;
-      $profession = $request->profession;
-      $tools      = $request->tools;
-      $skill      = $request->skill;
-      $image      = $request->file('profile_image');
-      $image_name = isset($image) ? 'kretech_img_profile_' . $code . '.' . $image->extension() : '';
+      $email              = $profile->eml;
+      $code               = $profile->cod;
+      $name               = $request->name;
+      $about              = $request->about;
+      $profession         = $request->profession;
+      $tools              = $request->tools;
+      $skill              = $request->skill;
+      $profile_image      = $request->file('profile_image');
+      $profile_image_name = isset($profile_image) ? 'kretech_img_profile_' . $code . '.' . $profile_image->extension() : '';
+      
+      // temp variable
+      $temp = [
+        'user_id'       => $user_id,
+        'module'        => $module,
+        'scene'         => $scene,
+        'activity'      => $activity,
+        'ip'            => $ip,
+        // ---
+        'email'         => $email,
+        'code'          => $code,
+        'name'          => $name,
+        'about'         => $about,
+        'profession'    => $profession,
+        'tools'         => $tools,
+        'skill'         => $skill,
+        'profile_image' => $profile_image_name
+      ];
 
-      // // temp variable
-      // $temp = $email . ' ~ ' . $code . ' ~ ' . $name . ' ~ ' . $about . ' ~ ' . $profession . ' ~ ' . $tools . ' ~ ' . $skill;
+      // return $temp;
 
       // check profile image
-      if ($image !== null || $image != '') {
+      if ($profile_image !== null || $profile_image != '') {
+        /** CURL profile image */
+        $curl = curl_init();
+        // Set destination URL
+        curl_setopt($curl, CURLOPT_URL, $destination_url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        $profile_image_upload = $request->file('profile_image');
+        $profile_image_name_upload = isset($profile_image_upload) ? $code . '-img-profile.' . $profile_image_upload->extension() : '';
+        $profile_image_upload_path = $profile_image_upload->path();
+        $data = array(
+          'profile_file_1' => new \CURLFile($profile_image_upload_path, $profile_image_upload->getClientMimeType(), $profile_image_name_upload)
+        );
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($curl);
+        /** CURL photo break */
+        if ($result === false) {
+          Alert::error('Failed', 'Set Profile Image')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          return redirect()->back();
+        }
+
         // save profile image
-        $image->move(public_path('assets/img'), $image_name);
+        $profile_image->move(public_path('assets/img'), $profile_image_name);
         
         // var log activity
         $activity   = 'Edit - ' . $auth->email . ' - Change Image Profile';

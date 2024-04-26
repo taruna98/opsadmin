@@ -50,6 +50,10 @@
                                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
                             </li>
 
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-background">Change Background</button>
+                            </li>
+
                         </ul>
                         <div class="tab-content pt-2">
 
@@ -112,7 +116,7 @@
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
+                                        <label for="profile_image" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
                                         <div class="col-md-8 col-lg-9">
                                             <img class="rounded" src="{{ URL::asset('assets/img/kretech_img_profile_' . $profile['profile']['cod'] . '.jpg') }}" id="profile_image_preview" alt="Profile"> <br>
                                             <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgProfile(event)" name="profile_image" id="profile_image">
@@ -227,6 +231,75 @@
 
                             </div>
 
+                            <div class="tab-pane fade profile-change-background pt-3" id="profile-change-background">
+                                @if ($errors->any())
+                                    <div>
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li class="bg-danger my-1 rounded"><span class="text-white px-1">{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                                <!-- Change Background Form -->
+                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="row mb-3 d-none">
+                                        <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <input name="updatefor" type="text" class="form-control" value="background">
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="background_home_for" class="col-md-4 col-lg-3 col-form-label">Background Home</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <img class="rounded img-fluid" src="{{ URL::asset('assets/img/kretech_img_profile_bg_home_' . $profile['profile']['cod'] . '.jpg') }}" id="background_home_preview" alt="BackgroundHome"> <br>
+                                            <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgBgHome(event)" name="background_home" id="background_home">
+                                            <small id="background_home_warning" class="text-danger fst-italic">* dimensions must 2880 x 1984 in JPG (max size: 500KB)</small>
+                                            <small id="background_home_response" class="text-danger fst-italic"></small>
+                                            <div class="pt-2">
+                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_home"><i class="bi bi-upload"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image == 1) ? 'd-none' : '' }}" id="btn_delete_background_home"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="background_service_for" class="col-md-4 col-lg-3 col-form-label">Background Service</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <img class="rounded img-fluid" src="{{ URL::asset('assets/img/kretech_img_profile_bg_service_' . $profile['profile']['cod'] . '.jpg') }}" id="background_service_preview" alt="BackgroundService"> <br>
+                                            <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgBgService(event)" name="background_service" id="background_service">
+                                            <small id="background_service_warning" class="text-danger fst-italic">* dimensions must 2880 x 1984 in JPG (max size: 500KB)</small>
+                                            <small id="background_service_response" class="text-danger fst-italic"></small>
+                                            <div class="pt-2">
+                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_service"><i class="bi bi-upload"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image == 1) ? 'd-none' : '' }}" id="btn_delete_background_service"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="background_article_for" class="col-md-4 col-lg-3 col-form-label">Background Article</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <img class="rounded img-fluid" src="{{ URL::asset('assets/img/kretech_img_profile_bg_article_' . $profile['profile']['cod'] . '.jpg') }}" id="background_article_preview" alt="BackgroundArticle"> <br>
+                                            <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgBgArticle(event)" name="background_article" id="background_article">
+                                            <small id="background_article_warning" class="text-danger fst-italic">* dimensions must 1440 x 790 in JPG (max size: 500KB)</small>
+                                            <small id="background_article_response" class="text-danger fst-italic"></small>
+                                            <div class="pt-2">
+                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_article"><i class="bi bi-upload"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image == 1) ? 'd-none' : '' }}" id="btn_delete_background_article"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-primary">Edit</button>
+                                    </div>
+                                </form><!-- End Profile Edit Form -->
+
+                            </div>
+
                         </div><!-- End Bordered Tabs -->
 
                     </div>
@@ -237,6 +310,138 @@
     </section>
 
     <script>
+        // background home image
+        var loadImgBgHome = function(event) {
+            var output = document.getElementById('background_home_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#background_home_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_background_home").on('click', function() {
+                $("#background_home").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#background_home', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 2880 && this.height == 1984) {
+                            $("#background_home_response").text("");
+                        } else {
+                            $("#background_home_warning").text("");
+                            $("#background_home_response").text("* image dimensions not valid");
+                            document.getElementById("background_home").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#background_home_warning").text("");
+                        $("#background_home_response").text("* image over size");
+                        document.getElementById("background_home").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // background service image
+        var loadImgBgService = function(event) {
+            var output = document.getElementById('background_service_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#background_service_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_background_service").on('click', function() {
+                $("#background_service").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#background_service', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 2880 && this.height == 1984) {
+                            $("#background_service_response").text("");
+                        } else {
+                            $("#background_service_warning").text("");
+                            $("#background_service_response").text("* image dimensions not valid");
+                            document.getElementById("background_service").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#background_service_warning").text("");
+                        $("#background_service_response").text("* image over size");
+                        document.getElementById("background_service").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // background article image
+        var loadImgBgArticle = function(event) {
+            var output = document.getElementById('background_article_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var profileImagePreview = $("#background_article_preview")[0];
+            var profileImageSrc = profileImagePreview.getAttribute('src');
+
+            $("#btn_upload_background_article").on('click', function() {
+                $("#background_article").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#background_article', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 1440 && this.height == 790) {
+                            $("#background_article_response").text("");
+                        } else {
+                            $("#background_article_warning").text("");
+                            $("#background_article_response").text("* image dimensions not valid");
+                            document.getElementById("background_article").value = "";
+                            profileImagePreview.src = profileImageSrc;
+                        }
+                    } else {
+                        $("#background_article_warning").text("");
+                        $("#background_article_response").text("* image over size");
+                        document.getElementById("background_article").value = "";
+                        profileImagePreview.src = profileImageSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+
         // profile image
         var loadImgProfile = function(event) {
             var output = document.getElementById('profile_image_preview');
