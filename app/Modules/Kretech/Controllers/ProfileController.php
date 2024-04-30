@@ -54,19 +54,30 @@ class ProfileController extends BaseController
     }
 
     // check image profile update
-    $check_image_profile = LogActivity::select('activity')->where('user_id', $id)->where('scene', 'Content/Profile')->where('activity', 'like', '% Image Profile')->orderBy('created_at', 'desc')->first();
+    $check_image_profile = LogActivity::select('activity')->where('user_id', $id)->where('scene', 'Content/Profile/Profile')->where('activity', 'like', '% Image Profile')->orderBy('created_at', 'desc')->first();
     if ($check_image_profile) {
       $check_image_profile = explode('-', $check_image_profile->activity)[2];
       $check_image_profile = explode(' ', $check_image_profile)[1];
-      $delete_image = ($check_image_profile == 'Delete') ? 1 : 0;
+      $delete_image_profile = ($check_image_profile == 'Delete') ? 1 : 0;
     } else {
-      $delete_image = 0;
+      $delete_image_profile = 0;
+    }
+
+    // check background home update
+    $check_background_home = LogActivity::select('activity')->where('user_id', $id)->where('scene', 'Content/Profile/Background')->where('activity', 'like', '% Background Home')->orderBy('created_at', 'desc')->first();
+    if ($check_background_home) {
+      $check_background_home = explode('-', $check_background_home->activity)[2];
+      $check_background_home = explode(' ', $check_background_home)[1];
+      $delete_background_home = ($check_background_home == 'Delete') ? 1 : 0;
+    } else {
+      $delete_background_home = 0;
     }
 
     return view('Kretech::kretech_profile', [
-      'title'         => $title,
-      'profile'       => $get_profile,
-      'delete_image'  => $delete_image
+      'title'                   => $title,
+      'profile'                 => $get_profile,
+      'delete_image_profile'    => $delete_image_profile,
+      'delete_background_home'  => $delete_background_home
     ]);
   }
 
@@ -82,58 +93,108 @@ class ProfileController extends BaseController
       $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
 
       // get field
-      $user_id          = $auth->id;
-      $module           = 'Kretech';
-      $scene            = 'Content/Profile';
-      $activity         = 'Edit - ' . $auth->email . ' - Delete Image Profile';
-      $ip               = $request->ip();
-      $destination_url  = env('API_URL') . 'data/upload_image.php';
+      $user_id                  = $auth->id;
+      $module                   = 'Kretech';
+      $ip                       = $request->ip();
+      $destination_url          = env('API_URL') . 'data/upload_image.php';
       // ---
-      $code             = $profile->cod;
-      $src_img          = asset('assets/img/img_profile_default.jpg');
+      $code                     = $profile->cod;
+      $src_profile_img_def      = asset('assets/img/img_profile_default.jpg');
+      $src_background_home_def  = asset('assets/img/kretech_img_profile_bg_home_default.jpg');
 
-      /** CURL profile image */
-      $curl = curl_init();
-      // Set destination URL
-      curl_setopt($curl, CURLOPT_URL, $destination_url);
-      curl_setopt($curl, CURLOPT_POST, true);
-      $profile_default = public_path('assets\img\img_profile_default.jpg');
-      $profile_upload = new UploadedFile(
-          $profile_default,
-          'img_profile_default.jpg',
-          mime_content_type($profile_default),
-          filesize($profile_default),
-          false
-      );
-      $profile_name_upload = isset($profile_upload) ? $code . '-img-profile' . '.' . $profile_upload->extension() : '';
-      $profile_upload_path = $profile_upload->path();
-      $data = array(
-          'profile_file_1' => new \CURLFile($profile_upload_path, $profile_upload->getClientMimeType(), $profile_name_upload)
-      );
-      curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-      $result = curl_exec($curl);
-      /** CURL photo break */
-      if ($result === false) {
-          Alert::error('Failed', 'Set Profile Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
-          return redirect()->back();
+      if ($request->input('action') == 'delete_profile_image') {
+        $scene    = 'Content/Profile/Profile';
+        $activity = 'Edit - ' . $auth->email . ' - Delete Image Profile';
+
+        /** CURL profile image */
+        $curl = curl_init();
+        // Set destination URL
+        curl_setopt($curl, CURLOPT_URL, $destination_url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        $profile_default = public_path('assets\img\img_profile_default.jpg');
+        $profile_upload = new UploadedFile(
+            $profile_default,
+            'img_profile_default.jpg',
+            mime_content_type($profile_default),
+            filesize($profile_default),
+            false
+        );
+        $profile_name_upload = isset($profile_upload) ? $code . '-img-profile' . '.' . $profile_upload->extension() : '';
+        $profile_upload_path = $profile_upload->path();
+        $data = array(
+            'profile_file_1' => new \CURLFile($profile_upload_path, $profile_upload->getClientMimeType(), $profile_name_upload)
+        );
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($curl);
+        /** CURL photo break */
+        if ($result === false) {
+            Alert::error('Failed', 'Set Profile Image Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        // delete image profile
+        $path_image_default = public_path('assets/img/img_profile_default.jpg');
+        $path_image_profile = public_path('assets/img/kretech_img_profile_' . $code . '.jpg');
+    
+        if (!File::copy($path_image_default, $path_image_profile)) {
+          return response()->json(['message' => 'Avatar Anda gagal dihapus!'], 500);
+        }
+
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Update Profile')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        return response()->json(['message' => 'success', 'src' => $src_profile_img_def], 200);
+      } else if ($request->input('action') == 'delete_background_home') {
+        $scene    = 'Content/Profile/Background';
+        $activity = 'Edit - ' . $auth->email . ' - Delete Background Home';
+
+        /** CURL background home */
+        $curl = curl_init();
+        // Set destination URL
+        curl_setopt($curl, CURLOPT_URL, $destination_url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        $background_home_default = public_path('assets\img\kretech_img_profile_bg_home_default.jpg');
+        $background_home_upload = new UploadedFile(
+            $background_home_default,
+            'kretech_img_profile_bg_home_default.jpg',
+            mime_content_type($background_home_default),
+            filesize($background_home_default),
+            false
+        );
+        $background_home_name_upload = isset($background_home_upload) ? $code . '-bg-home' . '.' . $background_home_upload->extension() : '';
+        $background_home_upload_path = $background_home_upload->path();
+        $data = array(
+            'background_home_file_1' => new \CURLFile($background_home_upload_path, $background_home_upload->getClientMimeType(), $background_home_name_upload)
+        );
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($curl);
+        /** CURL photo break */
+        if ($result === false) {
+            Alert::error('Failed', 'Set Background Home Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        // delete background home
+        $path_image_default = public_path('assets/img/kretech_img_profile_bg_home_default.jpg');
+        $path_image_profile = public_path('assets/img/kretech_img_profile_bg_home_' . $code . '.jpg');
+    
+        if (!File::copy($path_image_default, $path_image_profile)) {
+          return response()->json(['message' => 'Background Home Anda gagal dihapus!'], 500);
+        }
+
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Update Background Home')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        return response()->json(['message' => 'success', 'src' => $src_background_home_def], 200);
       }
-
-      // delete image profile
-      $path_image_default = public_path('assets/img/img_profile_default.jpg');
-      $path_image_profile = public_path('assets/img/kretech_img_profile_' . $code . '.jpg');
-  
-      if (!File::copy($path_image_default, $path_image_profile)) {
-        return response()->json(['message' => 'Avatar Anda gagal dihapus!'], 500);
-      }
-
-      // save log activity
-      $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
-      if (!$save_log_activity) {
-          Alert::error('Failed', 'Update Profile')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
-          return redirect()->back();
-      }
-
-      return response()->json(['message' => 'success', 'src' => $src_img], 200);
     }
 
     if ($request->updatefor == 'profile') {
@@ -156,7 +217,7 @@ class ProfileController extends BaseController
       // get field
       $user_id            = $auth->id;
       $module             = 'Kretech';
-      $scene              = 'Content/Profile';
+      $scene              = 'Content/Profile/Profile';
       $activity           = 'Edit - ' . $auth->email;
       $ip                 = $request->ip();
       $api_url            = env('API_URL');
@@ -291,7 +352,7 @@ class ProfileController extends BaseController
       // get field
       $user_id    = $auth->id;
       $module     = 'Kretech';
-      $scene      = 'Content/Password';
+      $scene      = 'Content/Profile/Password';
       $activity   = 'Edit - ' . $auth->email;
       $ip         = $request->ip();
 
@@ -313,6 +374,82 @@ class ProfileController extends BaseController
 
       Alert::success('Success', 'Change Password')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
       return redirect()->back();
+    } else if ($request->updatefor == 'background') {
+      $validator = Validator::make($request->all(), [
+        // 'background_home' => 'required|image|mimes:jpg|max:2048',
+      ]);
+  
+      if ($validator->fails()) {
+        return redirect()->back()->withErrors($validator)->withInput();
+      }
+
+      // get profile
+      $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
+
+      // get field
+      $user_id              = $auth->id;
+      $module               = 'Kretech';
+      $scene                = 'Content/Profile/Background';
+      $ip                   = $request->ip();
+      $api_url              = env('API_URL');
+      $destination_url      = env('API_URL') . 'data/upload_image.php';
+      // ---
+      $email                = $profile->eml;
+      $code                 = $profile->cod;
+      $background_home      = $request->file('background_home');
+      $background_home_name = isset($background_home) ? 'kretech_img_profile_bg_home_' . $code . '.' . $background_home->extension() : '';
+      
+      // temp variable
+      $temp = [
+        'user_id'         => $user_id,
+        'module'          => $module,
+        'scene'           => $scene,
+        'ip'              => $ip,
+        'api_url'         => $api_url,
+        'destination_url' => $destination_url,
+        // ---
+        'email'           => $email,
+        'code'            => $code,
+        'background_home' => $background_home_name
+      ];
+
+      // check background home
+      if ($background_home !== null || $background_home != '') {
+        /** CURL background home */
+        $curl = curl_init();
+        // Set destination URL
+        curl_setopt($curl, CURLOPT_URL, $destination_url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        $background_home_upload = $request->file('background_home');
+        $background_home_name_upload = isset($background_home_upload) ? $code . '-bg-home.' . $background_home_upload->extension() : '';
+        $background_home_upload_path = $background_home_upload->path();
+        $data = array(
+          'background_home_file_1' => new \CURLFile($background_home_upload_path, $background_home_upload->getClientMimeType(), $background_home_name_upload)
+        );
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($curl);
+        /** CURL photo break */
+        if ($result === false) {
+          Alert::error('Failed', 'Set Background Home')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          return redirect()->back();
+        }
+
+        // save background home
+        $background_home->move(public_path('assets/img'), $background_home_name);
+        
+        // var log activity
+        $activity   = 'Edit - ' . $auth->email . ' - Change Background Home';
+        
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Update Background Home')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        Alert::success('Success', 'Update Background Home')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+        return redirect()->back();
+      }
     }
   }
 }

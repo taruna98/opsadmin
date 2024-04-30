@@ -124,7 +124,7 @@
                                             <small id="profile_image_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
                                                 <a type="button" class="btn btn-primary btn-sm" id="btn_upload_profile_image"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image == 1) ? 'd-none' : '' }}" id="btn_delete_profile_image"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image_profile == 1) ? 'd-none' : '' }}" id="btn_delete_profile_image"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -260,7 +260,7 @@
                                             <small id="background_home_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
                                                 <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_home"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image == 1) ? 'd-none' : '' }}" id="btn_delete_background_home"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_background_home == 1) ? 'd-none' : '' }}" id="btn_delete_background_home"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -274,7 +274,7 @@
                                             <small id="background_service_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
                                                 <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_service"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image == 1) ? 'd-none' : '' }}" id="btn_delete_background_service"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image_profile == 1) ? 'd-none' : '' }}" id="btn_delete_background_service"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -288,7 +288,7 @@
                                             <small id="background_article_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
                                                 <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_article"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image == 1) ? 'd-none' : '' }}" id="btn_delete_background_article"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image_profile == 1) ? 'd-none' : '' }}" id="btn_delete_background_article"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -351,6 +351,60 @@
                 };
 
                 img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // delete background home image
+        $(document).ready(function() {
+            $('#btn_delete_background_home').click(function(event) {
+                event.preventDefault();
+                
+                Swal.fire({
+                    title: 'Yakin?',
+                    text: 'Anda akan menghapus background home Anda!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('kretech.profile.update') }}",
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'delete_background_home'
+                            },
+                            success: function(response) {
+                                // console.log(response);
+
+                                // early change image
+                                $('#background_home_preview').attr('src', response.src);
+                                $('#btn_delete_background_home').addClass('d-none');
+
+                                Swal.fire({
+                                    title: 'Yeay!',
+                                    text: 'Background Home Anda berhasil dihapus!',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    // showConfirmButton: false
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                // console.log(xhr.statusText + '|' + xhr.responseJSON.message + ' | ' + status + ' | ' + error);
+                                Swal.fire({
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    }
+                });
             });
         });
 
@@ -505,7 +559,10 @@
                         $.ajax({
                             url: "{{ route('kretech.profile.update') }}",
                             type: 'POST',
-                            data: {_token: '{{ csrf_token() }}'},
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'delete_profile_image'
+                            },
                             success: function(response) {
                                 // console.log(response);
 
