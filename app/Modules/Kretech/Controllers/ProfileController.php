@@ -73,11 +73,33 @@ class ProfileController extends BaseController
       $delete_background_home = 0;
     }
 
+    // check background service update
+    $check_background_service = LogActivity::select('activity')->where('user_id', $id)->where('scene', 'Content/Profile/Background')->where('activity', 'like', '% Background Service')->orderBy('created_at', 'desc')->first();
+    if ($check_background_service) {
+      $check_background_service = explode('-', $check_background_service->activity)[2];
+      $check_background_service = explode(' ', $check_background_service)[1];
+      $delete_background_service = ($check_background_service == 'Delete') ? 1 : 0;
+    } else {
+      $delete_background_service = 0;
+    }
+
+    // check background article update
+    $check_background_article = LogActivity::select('activity')->where('user_id', $id)->where('scene', 'Content/Profile/Background')->where('activity', 'like', '% Background Article')->orderBy('created_at', 'desc')->first();
+    if ($check_background_article) {
+      $check_background_article = explode('-', $check_background_article->activity)[2];
+      $check_background_article = explode(' ', $check_background_article)[1];
+      $delete_background_article = ($check_background_article == 'Delete') ? 1 : 0;
+    } else {
+      $delete_background_article = 0;
+    }
+
     return view('Kretech::kretech_profile', [
-      'title'                   => $title,
-      'profile'                 => $get_profile,
-      'delete_image_profile'    => $delete_image_profile,
-      'delete_background_home'  => $delete_background_home
+      'title'                     => $title,
+      'profile'                   => $get_profile,
+      'delete_image_profile'      => $delete_image_profile,
+      'delete_background_home'    => $delete_background_home,
+      'delete_background_service' => $delete_background_service,
+      'delete_background_article' => $delete_background_article
     ]);
   }
 
@@ -86,21 +108,23 @@ class ProfileController extends BaseController
     // auth
     $auth = Auth::user();
 
-    // request ajax delete image profile
+    // request ajax delete image
     if ($request->ajax()) {
 
       // get profile
       $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
 
       // get field
-      $user_id                  = $auth->id;
-      $module                   = 'Kretech';
-      $ip                       = $request->ip();
-      $destination_url          = env('API_URL') . 'data/upload_image.php';
+      $user_id                    = $auth->id;
+      $module                     = 'Kretech';
+      $ip                         = $request->ip();
+      $destination_url            = env('API_URL') . 'data/upload_image.php';
       // ---
-      $code                     = $profile->cod;
-      $src_profile_img_def      = asset('assets/img/img_profile_default.jpg');
-      $src_background_home_def  = asset('assets/img/kretech_img_profile_bg_home_default.jpg');
+      $code                       = $profile->cod;
+      $src_profile_img_def        = asset('assets/img/img_profile_default.jpg');
+      $src_background_home_def    = asset('assets/img/kretech_img_profile_bg_home_default.jpg');
+      $src_background_service_def = asset('assets/img/kretech_img_profile_bg_service_default.jpg');
+      $src_background_article_def = asset('assets/img/kretech_img_profile_bg_article_default.jpg');
 
       if ($request->input('action') == 'delete_profile_image') {
         $scene    = 'Content/Profile/Profile';
@@ -194,6 +218,98 @@ class ProfileController extends BaseController
         }
 
         return response()->json(['message' => 'success', 'src' => $src_background_home_def], 200);
+      } else if ($request->input('action') == 'delete_background_service') {
+        $scene    = 'Content/Profile/Background';
+        $activity = 'Edit - ' . $auth->email . ' - Delete Background Service';
+
+        /** CURL background service */
+        $curl = curl_init();
+        // Set destination URL
+        curl_setopt($curl, CURLOPT_URL, $destination_url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        $background_service_default = public_path('assets\img\kretech_img_profile_bg_service_default.jpg');
+        $background_service_upload = new UploadedFile(
+            $background_service_default,
+            'kretech_img_profile_bg_service_default.jpg',
+            mime_content_type($background_service_default),
+            filesize($background_service_default),
+            false
+        );
+        $background_service_name_upload = isset($background_service_upload) ? $code . '-bg-service' . '.' . $background_service_upload->extension() : '';
+        $background_service_upload_path = $background_service_upload->path();
+        $data = array(
+            'background_service_file_1' => new \CURLFile($background_service_upload_path, $background_service_upload->getClientMimeType(), $background_service_name_upload)
+        );
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($curl);
+        /** CURL photo break */
+        if ($result === false) {
+            Alert::error('Failed', 'Set Background Service Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        // delete background service
+        $path_image_default = public_path('assets/img/kretech_img_profile_bg_service_default.jpg');
+        $path_image_profile = public_path('assets/img/kretech_img_profile_bg_service_' . $code . '.jpg');
+    
+        if (!File::copy($path_image_default, $path_image_profile)) {
+          return response()->json(['message' => 'Background Service Anda gagal dihapus!'], 500);
+        }
+
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Update Background Service')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        return response()->json(['message' => 'success', 'src' => $src_background_service_def], 200);
+      } else if ($request->input('action') == 'delete_background_article') {
+        $scene    = 'Content/Profile/Background';
+        $activity = 'Edit - ' . $auth->email . ' - Delete Background Article';
+
+        /** CURL background article */
+        $curl = curl_init();
+        // Set destination URL
+        curl_setopt($curl, CURLOPT_URL, $destination_url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        $background_article_default = public_path('assets\img\kretech_img_profile_bg_article_default.jpg');
+        $background_article_upload = new UploadedFile(
+            $background_article_default,
+            'kretech_img_profile_bg_article_default.jpg',
+            mime_content_type($background_article_default),
+            filesize($background_article_default),
+            false
+        );
+        $background_article_name_upload = isset($background_article_upload) ? $code . '-bg-article' . '.' . $background_article_upload->extension() : '';
+        $background_article_upload_path = $background_article_upload->path();
+        $data = array(
+            'background_article_file_1' => new \CURLFile($background_article_upload_path, $background_article_upload->getClientMimeType(), $background_article_name_upload)
+        );
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($curl);
+        /** CURL photo break */
+        if ($result === false) {
+            Alert::error('Failed', 'Set Background Article Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        // delete background article
+        $path_image_default = public_path('assets/img/kretech_img_profile_bg_article_default.jpg');
+        $path_image_profile = public_path('assets/img/kretech_img_profile_bg_article_' . $code . '.jpg');
+    
+        if (!File::copy($path_image_default, $path_image_profile)) {
+          return response()->json(['message' => 'Background Article Anda gagal dihapus!'], 500);
+        }
+
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Update Background Article')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        return response()->json(['message' => 'success', 'src' => $src_background_article_def], 200);
       }
     }
 
@@ -387,30 +503,36 @@ class ProfileController extends BaseController
       $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
 
       // get field
-      $user_id              = $auth->id;
-      $module               = 'Kretech';
-      $scene                = 'Content/Profile/Background';
-      $ip                   = $request->ip();
-      $api_url              = env('API_URL');
-      $destination_url      = env('API_URL') . 'data/upload_image.php';
+      $user_id                  = $auth->id;
+      $module                   = 'Kretech';
+      $scene                    = 'Content/Profile/Background';
+      $ip                       = $request->ip();
+      $api_url                  = env('API_URL');
+      $destination_url          = env('API_URL') . 'data/upload_image.php';
       // ---
-      $email                = $profile->eml;
-      $code                 = $profile->cod;
-      $background_home      = $request->file('background_home');
-      $background_home_name = isset($background_home) ? 'kretech_img_profile_bg_home_' . $code . '.' . $background_home->extension() : '';
+      $email                    = $profile->eml;
+      $code                     = $profile->cod;
+      $background_home          = $request->file('background_home');
+      $background_home_name     = isset($background_home) ? 'kretech_img_profile_bg_home_' . $code . '.' . $background_home->extension() : '';
+      $background_service       = $request->file('background_service');
+      $background_service_name  = isset($background_service) ? 'kretech_img_profile_bg_service_' . $code . '.' . $background_service->extension() : '';
+      $background_article       = $request->file('background_article');
+      $background_article_name  = isset($background_article) ? 'kretech_img_profile_bg_article_' . $code . '.' . $background_article->extension() : '';
       
       // temp variable
       $temp = [
-        'user_id'         => $user_id,
-        'module'          => $module,
-        'scene'           => $scene,
-        'ip'              => $ip,
-        'api_url'         => $api_url,
-        'destination_url' => $destination_url,
+        'user_id'             => $user_id,
+        'module'              => $module,
+        'scene'               => $scene,
+        'ip'                  => $ip,
+        'api_url'             => $api_url,
+        'destination_url'     => $destination_url,
         // ---
-        'email'           => $email,
-        'code'            => $code,
-        'background_home' => $background_home_name
+        'email'               => $email,
+        'code'                => $code,
+        'background_home'     => $background_home_name,
+        'background_service'  => $background_service_name,
+        'background_article'  => $background_article_name
       ];
 
       // check background home
@@ -448,6 +570,76 @@ class ProfileController extends BaseController
         }
 
         Alert::success('Success', 'Update Background Home')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+        return redirect()->back();
+      } else if ($background_service !== null || $background_service != '') {
+        /** CURL background service */
+        $curl = curl_init();
+        // Set destination URL
+        curl_setopt($curl, CURLOPT_URL, $destination_url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        $background_service_upload = $request->file('background_service');
+        $background_service_name_upload = isset($background_service_upload) ? $code . '-bg-service.' . $background_service_upload->extension() : '';
+        $background_service_upload_path = $background_service_upload->path();
+        $data = array(
+          'background_service_file_1' => new \CURLFile($background_service_upload_path, $background_service_upload->getClientMimeType(), $background_service_name_upload)
+        );
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($curl);
+        /** CURL photo break */
+        if ($result === false) {
+          Alert::error('Failed', 'Set Background Service')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          return redirect()->back();
+        }
+
+        // save background service
+        $background_service->move(public_path('assets/img'), $background_service_name);
+        
+        // var log activity
+        $activity   = 'Edit - ' . $auth->email . ' - Change Background Service';
+        
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Update Background Service')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        Alert::success('Success', 'Update Background Service')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+        return redirect()->back();
+      } else if ($background_article !== null || $background_article != '') {
+        /** CURL background article */
+        $curl = curl_init();
+        // Set destination URL
+        curl_setopt($curl, CURLOPT_URL, $destination_url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        $background_article_upload = $request->file('background_article');
+        $background_article_name_upload = isset($background_article_upload) ? $code . '-bg-article.' . $background_article_upload->extension() : '';
+        $background_article_upload_path = $background_article_upload->path();
+        $data = array(
+          'background_article_file_1' => new \CURLFile($background_article_upload_path, $background_article_upload->getClientMimeType(), $background_article_name_upload)
+        );
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($curl);
+        /** CURL photo break */
+        if ($result === false) {
+          Alert::error('Failed', 'Set Background Article')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          return redirect()->back();
+        }
+
+        // save background article
+        $background_article->move(public_path('assets/img'), $background_article_name);
+        
+        // var log activity
+        $activity   = 'Edit - ' . $auth->email . ' - Change Background Article';
+        
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Update Background Article')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        Alert::success('Success', 'Update Background Article')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
         return redirect()->back();
       }
     }

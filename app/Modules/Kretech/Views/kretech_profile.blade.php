@@ -270,11 +270,11 @@
                                         <div class="col-md-8 col-lg-9">
                                             <img class="rounded img-fluid" src="{{ URL::asset('assets/img/kretech_img_profile_bg_service_' . $profile['profile']['cod'] . '.jpg') }}" id="background_service_preview" alt="BackgroundService"> <br>
                                             <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgBgService(event)" name="background_service" id="background_service">
-                                            <small id="background_service_warning" class="text-danger fst-italic">* dimensions must 2880 x 1984 in JPG (max size: 500KB)</small>
+                                            <small id="background_service_warning" class="text-danger fst-italic">* dimensions must 1440 x 692 in JPG (max size: 500KB)</small>
                                             <small id="background_service_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
                                                 <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_service"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image_profile == 1) ? 'd-none' : '' }}" id="btn_delete_background_service"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_background_service == 1) ? 'd-none' : '' }}" id="btn_delete_background_service"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -288,7 +288,7 @@
                                             <small id="background_article_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
                                                 <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_article"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image_profile == 1) ? 'd-none' : '' }}" id="btn_delete_background_article"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_background_article == 1) ? 'd-none' : '' }}" id="btn_delete_background_article"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -316,8 +316,8 @@
             output.src = URL.createObjectURL(event.target.files[0]);
         };
         $(document).ready(function() {
-            var profileImagePreview = $("#background_home_preview")[0];
-            var profileImageSrc = profileImagePreview.getAttribute('src');
+            var backgroundHomePreview = $("#background_home_preview")[0];
+            var backgroundHomeSrc = backgroundHomePreview.getAttribute('src');
 
             $("#btn_upload_background_home").on('click', function() {
                 $("#background_home").click();
@@ -336,13 +336,13 @@
                             $("#background_home_warning").text("");
                             $("#background_home_response").text("* image dimensions not valid");
                             document.getElementById("background_home").value = "";
-                            profileImagePreview.src = profileImageSrc;
+                            backgroundHomePreview.src = backgroundHomeSrc;
                         }
                     } else {
                         $("#background_home_warning").text("");
                         $("#background_home_response").text("* image over size");
                         document.getElementById("background_home").value = "";
-                        profileImagePreview.src = profileImageSrc;
+                        backgroundHomePreview.src = backgroundHomeSrc;
                     }
                 };
 
@@ -414,8 +414,8 @@
             output.src = URL.createObjectURL(event.target.files[0]);
         };
         $(document).ready(function() {
-            var profileImagePreview = $("#background_service_preview")[0];
-            var profileImageSrc = profileImagePreview.getAttribute('src');
+            var backgroundServicePreview = $("#background_service_preview")[0];
+            var backgroundServiceSrc = backgroundServicePreview.getAttribute('src');
 
             $("#btn_upload_background_service").on('click', function() {
                 $("#background_service").click();
@@ -428,19 +428,19 @@
 
                 img.onload = function() {
                     if (file.size / 1024 <= 500) {
-                        if (this.width == 2880 && this.height == 1984) {
+                        if (this.width == 1440 && this.height == 692) {
                             $("#background_service_response").text("");
                         } else {
                             $("#background_service_warning").text("");
                             $("#background_service_response").text("* image dimensions not valid");
                             document.getElementById("background_service").value = "";
-                            profileImagePreview.src = profileImageSrc;
+                            backgroundServicePreview.src = backgroundServiceSrc;
                         }
                     } else {
                         $("#background_service_warning").text("");
                         $("#background_service_response").text("* image over size");
                         document.getElementById("background_service").value = "";
-                        profileImagePreview.src = profileImageSrc;
+                        backgroundServicePreview.src = backgroundServiceSrc;
                     }
                 };
 
@@ -452,14 +452,68 @@
             });
         });
 
+        // delete background service image
+        $(document).ready(function() {
+            $('#btn_delete_background_service').click(function(event) {
+                event.preventDefault();
+                
+                Swal.fire({
+                    title: 'Yakin?',
+                    text: 'Anda akan menghapus background service Anda!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('kretech.profile.update') }}",
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'delete_background_service'
+                            },
+                            success: function(response) {
+                                // console.log(response);
+
+                                // early change image
+                                $('#background_service_preview').attr('src', response.src);
+                                $('#btn_delete_background_service').addClass('d-none');
+
+                                Swal.fire({
+                                    title: 'Yeay!',
+                                    text: 'Background Service Anda berhasil dihapus!',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    // showConfirmButton: false
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                // console.log(xhr.statusText + '|' + xhr.responseJSON.message + ' | ' + status + ' | ' + error);
+                                Swal.fire({
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
         // background article image
         var loadImgBgArticle = function(event) {
             var output = document.getElementById('background_article_preview');
             output.src = URL.createObjectURL(event.target.files[0]);
         };
         $(document).ready(function() {
-            var profileImagePreview = $("#background_article_preview")[0];
-            var profileImageSrc = profileImagePreview.getAttribute('src');
+            var backgroundArticlePreview = $("#background_article_preview")[0];
+            var backgroundArticleSrc = backgroundArticlePreview.getAttribute('src');
 
             $("#btn_upload_background_article").on('click', function() {
                 $("#background_article").click();
@@ -478,13 +532,13 @@
                             $("#background_article_warning").text("");
                             $("#background_article_response").text("* image dimensions not valid");
                             document.getElementById("background_article").value = "";
-                            profileImagePreview.src = profileImageSrc;
+                            backgroundArticlePreview.src = backgroundArticleSrc;
                         }
                     } else {
                         $("#background_article_warning").text("");
                         $("#background_article_response").text("* image over size");
                         document.getElementById("background_article").value = "";
-                        profileImagePreview.src = profileImageSrc;
+                        backgroundArticlePreview.src = backgroundArticleSrc;
                     }
                 };
 
@@ -493,6 +547,60 @@
                 };
 
                 img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // delete background article image
+        $(document).ready(function() {
+            $('#btn_delete_background_article').click(function(event) {
+                event.preventDefault();
+                
+                Swal.fire({
+                    title: 'Yakin?',
+                    text: 'Anda akan menghapus background article Anda!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('kretech.profile.update') }}",
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'delete_background_article'
+                            },
+                            success: function(response) {
+                                // console.log(response);
+
+                                // early change image
+                                $('#background_article_preview').attr('src', response.src);
+                                $('#btn_delete_background_article').addClass('d-none');
+
+                                Swal.fire({
+                                    title: 'Yeay!',
+                                    text: 'Background Article Anda berhasil dihapus!',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    // showConfirmButton: false
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                // console.log(xhr.statusText + '|' + xhr.responseJSON.message + ' | ' + status + ' | ' + error);
+                                Swal.fire({
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    }
+                });
             });
         });
 
