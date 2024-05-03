@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -69,7 +70,7 @@ class PortfolioController extends BaseController
         }
         // set id for create portfolio last id + 1
         $set_id = str_pad((int)$last_id + 1, strlen($last_id), '0', STR_PAD_LEFT);
-
+        
         return view('Kretech::kretech_portfolio', [
             'title'     => $title,
             'set_id'    => $set_id
@@ -85,6 +86,7 @@ class PortfolioController extends BaseController
             'create_title'              => 'required',
             'create_link'               => 'required',
             'create_client'             => 'required',
+            'create_bg_detail'          => 'image|mimes:jpg|max:2048',
             'create_content_image_1'    => 'image|mimes:jpg|max:2048',
             'create_content_image_2'    => 'image|mimes:jpg|max:2048',
             'create_content_image_3'    => 'image|mimes:jpg|max:2048',
@@ -138,6 +140,9 @@ class PortfolioController extends BaseController
         $status                 = $request->create_status;
         $created_at             = Date('Y-m-d H:i:s');
         $updated_at             = Date('Y-m-d H:i:s');
+        $bg_detail              = $request->file('create_bg_detail');
+        $bg_detail_name         = isset($bg_detail) ? 'kretech_img_profile_bg_portfolio_dtl_' . $code . '_' . $id . '.' . $bg_detail->extension() : '';
+        $bg_detail_default      = public_path('assets/img/kretech_img_profile_bg_portfolio_dtl_default.jpg');
         $content_image_1        = $request->file('create_content_image_1');
         $content_image_1_name   = isset($content_image_1) ? 'kretech_img_content_portfolio_' . $id . '_item_1' . '.' . $content_image_1->extension() : '';
         $content_image_2        = $request->file('create_content_image_2');
@@ -170,12 +175,67 @@ class PortfolioController extends BaseController
             'status'            => $status,
             'created_at'        => $created_at,
             'updated_at'        => $updated_at,
+            'bg_detail'         => $bg_detail_name,
             'content_image_1'   => $content_image_1_name,
             'content_image_2'   => $content_image_2_name,
             'content_image_3'   => $content_image_3_name,
             'content_image_4'   => $content_image_4_name,
             'content_image_5'   => $content_image_5_name
         ];
+
+        // check bg detail
+        if ($bg_detail !== null || $bg_detail != '') {
+            /** CURL portfolio detail background */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $bg_detail_upload = $request->file('create_bg_detail');
+            $bg_detail_name_upload = isset($bg_detail_upload) ? $code . '-bg-portfolio-dtl-' . $id . '.' . $bg_detail_upload->extension() : '';
+            $bg_detail_upload_path = $bg_detail_upload->path();
+            $data = array(
+                'background_detail_portfolio_file_1' => new \CURLFile($bg_detail_upload_path, $bg_detail_upload->getClientMimeType(), $bg_detail_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Detail Background')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+            $bg_detail->move(public_path('assets/img'), $bg_detail_name);
+        } else if ($bg_detail === null) {
+            /** CURL portfolio detail background */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $bg_detail_default = public_path('assets\img\kretech_img_profile_bg_portfolio_dtl_default.jpg');
+            $bg_detail_upload = new UploadedFile(
+                $bg_detail_default,
+                'kretech_img_profile_bg_portfolio_dtl_default.jpg',
+                mime_content_type($bg_detail_default),
+                filesize($bg_detail_default),
+                false
+            );
+            $bg_detail_name_upload = isset($bg_detail_upload) ? $code . '-bg-portfolio-dtl-' . $id . '.' . $bg_detail_upload->extension() : '';
+            $bg_detail_upload_path = $bg_detail_upload->path();
+            $data = array(
+                'background_detail_portfolio_file_1' => new \CURLFile($bg_detail_upload_path, $bg_detail_upload->getClientMimeType(), $bg_detail_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Detail Background Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+            $bg_detail_set_1 = public_path('assets/img/kretech_img_profile_bg_portfolio_dtl_' . $code . '_' . $id . '.jpg');
+            if (!copy($bg_detail_default, $bg_detail_set_1)) {
+                Alert::error('Failed', 'Set Portfolio Detail Background Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+        }
 
         // check content image 1
         if ($content_image_1 !== null || $content_image_1 != '') {
@@ -513,36 +573,38 @@ class PortfolioController extends BaseController
         // get portfolio by id 
         foreach ($get_portfolio as $portfolio) {
             if ($portfolio['id'] == $id) {
-                $portfolios = $portfolio;
+                $portfolios         = $portfolio;
+                $portfolios['cod']  = $code;
             }
         }
 
         return response()->json($portfolios);
     }
-
+    
     public function update(Request $request)
     {
         // auth
         $auth = Auth::user();
-
+        
         $validator = Validator::make($request->all(), [
             'edit_title'            => 'required',
             'edit_link'             => 'required',
             'edit_client'           => 'required',
+            'edit_bg_detail'        => 'image|mimes:jpg|max:2048',
             'edit_content_image_1'  => 'image|mimes:jpg|max:2048',
             'edit_content_image_2'  => 'image|mimes:jpg|max:2048',
             'edit_content_image_3'  => 'image|mimes:jpg|max:2048',
             'edit_content_image_4'  => 'image|mimes:jpg|max:2048',
             'edit_content_image_5'  => 'image|mimes:jpg|max:2048'
         ]);
-
+    
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
         // get profile
         $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
-
+        
         // get params
         $user_id                = Auth::user()->id;
         $module                 = 'Kretech';
@@ -582,6 +644,9 @@ class PortfolioController extends BaseController
         $status                 = $request->edit_status;
         $created_at             = $request->edit_created_at;
         $updated_at             = Date('Y-m-d H:i:s');
+        $bg_detail              = $request->file('edit_bg_detail');
+        $bg_detail_name         = isset($bg_detail) ? 'kretech_img_profile_bg_portfolio_dtl_' . $code . '_' . $id . '.' . $bg_detail->extension() : '';
+        $bg_detail_default      = public_path('assets/img/kretech_img_profile_bg_portfolio_dtl_default.jpg');
         $content_image_1        = $request->file('edit_content_image_1');
         $content_image_1_name   = isset($content_image_1) ? 'kretech_img_content_portfolio_' . $id . '_item_1' . '.' . $content_image_1->extension() : '';
         $content_image_2        = $request->file('edit_content_image_2');
@@ -614,12 +679,67 @@ class PortfolioController extends BaseController
             'status'            => $status,
             'created_at'        => $created_at,
             'updated_at'        => $updated_at,
+            'bg_detail'         => $bg_detail_name,
             'content_image_1'   => $content_image_1_name,
             'content_image_2'   => $content_image_2_name,
             'content_image_3'   => $content_image_3_name,
             'content_image_4'   => $content_image_4_name,
             'content_image_5'   => $content_image_5_name
         ];
+
+        // check bg detail
+        if ($bg_detail !== null || $bg_detail != '') {
+            /** CURL portfolio detail background */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $bg_detail_upload = $request->file('edit_bg_detail');
+            $bg_detail_name_upload = isset($bg_detail_upload) ? $code . '-bg-portfolio-dtl-' . $id . '.' . $bg_detail_upload->extension() : '';
+            $bg_detail_upload_path = $bg_detail_upload->path();
+            $data = array(
+                'background_detail_portfolio_file_1' => new \CURLFile($bg_detail_upload_path, $bg_detail_upload->getClientMimeType(), $bg_detail_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Detail Background')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+            $bg_detail->move(public_path('assets/img'), $bg_detail_name);
+        } else if ($bg_detail === null) {
+            /** CURL portfolio detail background */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $bg_detail_default = public_path('assets\img\kretech_img_profile_bg_portfolio_dtl_default.jpg');
+            $bg_detail_upload = new UploadedFile(
+                $bg_detail_default,
+                'kretech_img_profile_bg_portfolio_dtl_default.jpg',
+                mime_content_type($bg_detail_default),
+                filesize($bg_detail_default),
+                false
+            );
+            $bg_detail_name_upload = isset($bg_detail_upload) ? $code . '-bg-portfolio-dtl-' . $id . '.' . $bg_detail_upload->extension() : '';
+            $bg_detail_upload_path = $bg_detail_upload->path();
+            $data = array(
+                'background_detail_portfolio_file_1' => new \CURLFile($bg_detail_upload_path, $bg_detail_upload->getClientMimeType(), $bg_detail_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Portfolio Detail Background Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+            $bg_detail_set_1 = public_path('assets/img/kretech_img_profile_bg_portfolio_dtl_' . $code . '_' . $id . '.jpg');
+            if (!copy($bg_detail_default, $bg_detail_set_1)) {
+                Alert::error('Failed', 'Set Portfolio Detail Background Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+        }
 
         // check content image 1
         if ($content_image_1 !== null || $content_image_1 != '') {
@@ -642,7 +762,7 @@ class PortfolioController extends BaseController
                 return redirect()->back();
             }
             $content_image_1->move(public_path('assets/img'), $content_image_1_name);
-        } else if ($request->create_content_title_1 != null && $content_image_1 === null) {
+        } else if ($request->edit_content_title_1 != null && $content_image_1 === null) {
             /** CURL portfolio image */
             $curl = curl_init();
             // Set destination URL
@@ -696,7 +816,7 @@ class PortfolioController extends BaseController
                 return redirect()->back();
             }
             $content_image_2->move(public_path('assets/img'), $content_image_2_name);
-        } else if ($request->create_content_title_2 != null && $content_image_2 === null) {
+        } else if ($request->edit_content_title_2 != null && $content_image_2 === null) {
             /** CURL portfolio image */
             $curl = curl_init();
             // Set destination URL
@@ -750,7 +870,7 @@ class PortfolioController extends BaseController
                 return redirect()->back();
             }
             $content_image_3->move(public_path('assets/img'), $content_image_3_name);
-        } else if ($request->create_content_title_3 != null && $content_image_3 === null) {
+        } else if ($request->edit_content_title_3 != null && $content_image_3 === null) {
             /** CURL portfolio image */
             $curl = curl_init();
             // Set destination URL
@@ -804,7 +924,7 @@ class PortfolioController extends BaseController
                 return redirect()->back();
             }
             $content_image_4->move(public_path('assets/img'), $content_image_4_name);
-        } else if ($request->create_content_title_4 != null && $content_image_4 === null) {
+        } else if ($request->edit_content_title_4 != null && $content_image_4 === null) {
             /** CURL portfolio image */
             $curl = curl_init();
             // Set destination URL
@@ -858,7 +978,7 @@ class PortfolioController extends BaseController
                 return redirect()->back();
             }
             $content_image_5->move(public_path('assets/img'), $content_image_5_name);
-        } else if ($request->create_content_title_5 != null && $content_image_5 === null) {
+        } else if ($request->edit_content_title_5 != null && $content_image_5 === null) {
             /** CURL portfolio image */
             $curl = curl_init();
             // Set destination URL

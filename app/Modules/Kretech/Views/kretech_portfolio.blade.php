@@ -85,15 +85,25 @@
                             @csrf
                             {{-- hidden input --}}
                             <input type="hidden" class="d-none" name="create_id" value="{{ $set_id }}" required>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="create_title" class="form-label">Title</label>
                                 <input type="text" class="form-control" name="create_title" id="create_title" value="{{ old('create_title') }}" required>
                                 <div class="invalid-feedback">Please enter your title.</div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="create_link" class="form-label">Link</label>
                                 <input type="text" class="form-control" name="create_link" id="create_link" value="{{ old('create_link') }}" required>
                                 <div class="invalid-feedback">Please enter your link.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="create_bg_detail" class="form-label">Background Detail</label> <br>
+                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_profile_bg_portfolio_dtl_default.jpg') }}" id="create_bg_detail_preview" alt="BackgroundPortfolioDetail"> <br>
+                                <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadDetailBgCreate(event)" name="create_bg_detail" id="create_bg_detail">
+                                <small id="create_bg_detail_warning" class="text-danger fst-italic">* dimensions must 2880 x 830 in JPG (max size: 500KB)</small>
+                                <small id="create_bg_detail_response" class="text-danger fst-italic"></small>
+                                <div class="pt-2">
+                                    <a type="button" class="btn btn-primary btn-sm" id="btn_upload_create_bg_detail"><i class="bi bi-upload"></i></a>
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <label for="create_client" class="form-label">Client</label>
@@ -186,15 +196,26 @@
                             {{-- hidden input --}}
                             <input type="hidden" class="form-control" name="edit_id" id="edit_id" required>
                             <input type="hidden" class="form-control" name="edit_created_at" id="edit_created_at" required>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="edit_title" class="form-label">Title</label>
                                 <input type="text" class="form-control" name="edit_title" id="edit_title" required>
                                 <div class="invalid-feedback">Please enter your title.</div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="edit_link" class="form-label">Link</label>
                                 <input type="text" class="form-control" name="edit_link" id="edit_link" required>
                                 <div class="invalid-feedback">Please enter your link.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_bg_detail" class="form-label">Background Detail</label> <br>
+                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_profile_bg_portfolio_dtl_default.jpg') }}" id="edit_bg_detail_preview" alt="BackgroundPortfolioDetail"> <br>
+                                <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadDetailBgEdit(event)" name="edit_bg_detail" id="edit_bg_detail">
+                                <small id="edit_bg_detail_warning" class="text-danger fst-italic">* dimensions must 2880 x 830 in JPG (max size: 500KB)</small>
+                                <small id="edit_bg_detail_response" class="text-danger fst-italic"></small>
+                                <div class="pt-2">
+                                    <a type="button" class="btn btn-primary btn-sm" id="btn_upload_edit_bg_detail"><i class="bi bi-upload"></i></a>
+                                    {{-- <a type="button" class="btn btn-danger btn-sm" id="btn_delete_edit_bg_detail"><i class="bi bi-trash"></i></a> --}}
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <label for="edit_client" class="form-label">Client</label>
@@ -492,6 +513,7 @@
                     $('#edit_created_at').val(data.cat);
                     $('#edit_title').val(data.ttl);
                     $('#edit_link').val(data.lnk);
+                    $('#edit_bg_detail_preview').attr('src', window.location.origin + '/assets/img/kretech_img_profile_bg_portfolio_dtl_' + data.cod + '_' + data.id + '.jpg');
                     $('#edit_client').val(data.cln);
                     if (data.ctg == 'art') {
                         $('#edit_category').val('art');
@@ -587,6 +609,93 @@
             });
         });
 
+        // create background detail
+        var loadDetailBgCreate = function(event) {
+            var output = document.getElementById('create_bg_detail_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var bgDetailPreview = $("#create_bg_detail_preview")[0];
+            var bgDetailSrc = bgDetailPreview.getAttribute('src');
+
+            $("#btn_upload_create_bg_detail").on('click', function() {
+                $("#create_bg_detail").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#create_bg_detail', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 2880 && this.height == 830) {
+                            $("#create_bg_detail_response").text("");
+                        } else {
+                            $("#create_bg_detail_warning").text("");
+                            $("#create_bg_detail_response").text("* image dimensions not valid");
+                            document.getElementById("create_bg_detail").value = "";
+                            bgDetailPreview.src = bgDetailSrc;
+                        }
+                    } else {
+                        $("#create_bg_detail_warning").text("");
+                        $("#create_bg_detail_response").text("* image over size");
+                        document.getElementById("create_bg_detail").value = "";
+                        bgDetailPreview.src = bgDetailSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+        // edit background detail
+        var loadDetailBgEdit = function(event) {
+            var output = document.getElementById('edit_bg_detail_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var bgDetailPreview = $("#edit_bg_detail_preview")[0];
+            var bgDetailSrc = bgDetailPreview.getAttribute('src');
+
+            $("#btn_upload_edit_bg_detail").on('click', function() {
+                $("#edit_bg_detail").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#edit_bg_detail', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 2880 && this.height == 830) {
+                            $("#edit_bg_detail_response").text("");
+                        } else {
+                            $("#edit_bg_detail_warning").text("");
+                            $("#edit_bg_detail_response").text("* image dimensions not valid");
+                            document.getElementById("edit_bg_detail").value = "";
+                            bgDetailPreview.src = bgDetailSrc;
+                        }
+                    } else {
+                        $("#edit_bg_detail_warning").text("");
+                        $("#edit_bg_detail_response").text("* image over size");
+                        document.getElementById("edit_bg_detail").value = "";
+                        bgDetailPreview.src = bgDetailSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+
         // create content image 1
         var loadImgContentCreate1 = function(event) {
             var output = document.getElementById('create_content_image_1_preview');
@@ -673,7 +782,7 @@
                 img.src = URL.createObjectURL(file);
             });
         });
-        // delete content item 2
+        // delete content item 1
         $(document).ready(function() {
             $("#btn_delete_edit_content_item_1").on('click', function() {
                 Swal.fire({
