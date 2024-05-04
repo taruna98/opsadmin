@@ -172,7 +172,7 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Portfolio Edit</h5>
+                        <h5 class="modal-title">Portfolio Edit <span class="edit_port_id d-none"></span></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -214,7 +214,7 @@
                                 <small id="edit_bg_detail_response" class="text-danger fst-italic"></small>
                                 <div class="pt-2">
                                     <a type="button" class="btn btn-primary btn-sm" id="btn_upload_edit_bg_detail"><i class="bi bi-upload"></i></a>
-                                    {{-- <a type="button" class="btn btn-danger btn-sm" id="btn_delete_edit_bg_detail"><i class="bi bi-trash"></i></a> --}}
+                                    <a type="button" class="btn btn-danger btn-sm {{ ($delete_port_bg_detail == 1) ? 'd-none' : '' }}" id="btn_delete_edit_bg_detail"><i class="bi bi-trash"></i></a>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -511,6 +511,7 @@
                 success: function(data) {
                     $('#edit_id').val(data.id);
                     $('#edit_created_at').val(data.cat);
+                    $('.edit_port_id').text(data.id);
                     $('#edit_title').val(data.ttl);
                     $('#edit_link').val(data.lnk);
                     $('#edit_bg_detail_preview').attr('src', window.location.origin + '/assets/img/kretech_img_profile_bg_portfolio_dtl_' + data.cod + '_' + data.id + '.jpg');
@@ -693,6 +694,62 @@
                 };
 
                 img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // delete background detail
+        $(document).ready(function() {
+            $('#btn_delete_edit_bg_detail').click(function(event) {
+                event.preventDefault();
+                
+                Swal.fire({
+                    title: 'Yakin?',
+                    text: 'Anda akan menghapus portfolio background detail Anda!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var portId = $('.edit_port_id').text();
+                        $.ajax({
+                            url: "{{ route('kretech.portfolio.file') }}",
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'delete_portfolio_background_detail',
+                                port_id: portId
+                            },
+                            success: function(response) {
+                                // console.log(response);
+
+                                // early change image
+                                $('#edit_bg_detail_preview').attr('src', response.src);
+                                $('#btn_delete_edit_bg_detail').addClass('d-none');
+
+                                Swal.fire({
+                                    title: 'Yeay!',
+                                    text: 'Portfolio Background Detail Anda berhasil dihapus!',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    // showConfirmButton: false
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                // console.log(xhr.statusText + '|' + xhr.responseJSON.message + ' | ' + status + ' | ' + error);
+                                Swal.fire({
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    }
+                });
             });
         });
 

@@ -70,10 +70,21 @@ class PortfolioController extends BaseController
         }
         // set id for create portfolio last id + 1
         $set_id = str_pad((int)$last_id + 1, strlen($last_id), '0', STR_PAD_LEFT);
-        
+
+        // check portfolio background detail update
+        $check_port_bg_detail = LogActivity::select('activity')->where('user_id', $id)->where('scene', 'Portfolio')->where('activity', 'like', '% Portfolio Background Detail')->orderBy('created_at', 'desc')->first();
+        if ($check_port_bg_detail) {
+            $check_port_bg_detail = explode('-', $check_port_bg_detail->activity)[2];
+            $check_port_bg_detail = explode(' ', $check_port_bg_detail)[1];
+            $delete_port_bg_detail = ($check_port_bg_detail == 'Delete') ? 1 : 0;
+        } else {
+            $delete_port_bg_detail = 0;
+        }
+
         return view('Kretech::kretech_portfolio', [
-            'title'     => $title,
-            'set_id'    => $set_id
+            'title'                 => $title,
+            'set_id'                => $set_id,
+            'delete_port_bg_detail' => $delete_port_bg_detail
         ]);
     }
 
@@ -708,6 +719,16 @@ class PortfolioController extends BaseController
                 return redirect()->back();
             }
             $bg_detail->move(public_path('assets/img'), $bg_detail_name);
+
+            // var log activity
+            $activity   = 'Edit - ' . $auth->email . ' - Change Portfolio Background Detail';
+
+            // save log activity
+            $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+            if (!$save_log_activity) {
+                Alert::error('Failed', 'Update Profile')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
         } else if ($bg_detail === null) {
             /** CURL portfolio detail background */
             $curl = curl_init();
@@ -737,6 +758,16 @@ class PortfolioController extends BaseController
             $bg_detail_set_1 = public_path('assets/img/kretech_img_profile_bg_portfolio_dtl_' . $code . '_' . $id . '.jpg');
             if (!copy($bg_detail_default, $bg_detail_set_1)) {
                 Alert::error('Failed', 'Set Portfolio Detail Background Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+
+            // var log activity
+            $activity   = 'Edit - ' . $auth->email . ' - Change Portfolio Background Detail Default';
+            
+            // save log activity
+            $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+            if (!$save_log_activity) {
+                Alert::error('Failed', 'Update Profile')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
                 return redirect()->back();
             }
         }
@@ -1029,6 +1060,9 @@ class PortfolioController extends BaseController
             return redirect()->back();
         }
 
+        // var log activity
+        $activity   = 'Edit - ' . $request->edit_id;
+
         // save log activity
         $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
         if (!$save_log_activity) {
@@ -1073,5 +1107,78 @@ class PortfolioController extends BaseController
         }
 
         return response()->json($portfolios);
+    }
+
+    public function file(Request $request)
+    {
+        // auth
+        $auth = Auth::user();
+        
+        // request ajax delete image
+        if ($request->ajax()) {
+
+            // get profile
+            $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
+    
+            // get field
+            $user_id                = $auth->id;
+            $module                 = 'Kretech';
+            $ip                     = $request->ip();
+            $destination_url        = env('API_URL') . 'data/upload_image.php';
+            // ---
+            $code                   = $profile->cod;
+            $src_port_bg_detail_def = asset('assets/img/kretech_img_profile_bg_portfolio_dtl_default.jpg');
+    
+            if ($request->input('action') == 'delete_portfolio_background_detail') {
+                $scene      = 'Portfolio';
+                $activity   = 'Edit - ' . $auth->email . ' - Delete Portfolio Background Detail';
+                $port_id    = $request->input('port_id');
+        
+                /** CURL portfolio background detail */
+                $curl = curl_init();
+                // Set destination URL
+                curl_setopt($curl, CURLOPT_URL, $destination_url);
+                curl_setopt($curl, CURLOPT_POST, true);
+                $port_bg_detail_default = public_path('assets\img\kretech_img_profile_bg_portfolio_dtl_default.jpg');
+                $port_bg_detail_upload = new UploadedFile(
+                    $port_bg_detail_default,
+                    'kretech_img_profile_bg_portfolio_dtl_default.jpg',
+                    mime_content_type($port_bg_detail_default),
+                    filesize($port_bg_detail_default),
+                    false
+                );
+                
+                $port_bg_detail_name_upload = isset($port_bg_detail_upload) ? $code . '-bg-portfolio-dtl-' . $port_id . '.' . $port_bg_detail_upload->extension() : '';
+                $port_bg_detail_upload_path = $port_bg_detail_upload->path();
+                $data = array(
+                    'background_detail_portfolio_file_1' => new \CURLFile($port_bg_detail_upload_path, $port_bg_detail_upload->getClientMimeType(), $port_bg_detail_name_upload)
+                );
+
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                $result = curl_exec($curl);
+                /** CURL photo break */
+                if ($result === false) {
+                    Alert::error('Failed', 'Set Portfolio Background Detail Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                    return redirect()->back();
+                }
+        
+                // delete portfolio background detail
+                $path_port_bg_detail_default = public_path('assets/img/kretech_img_profile_bg_portfolio_dtl_default.jpg');
+                $path_port_bg_detail_profile = public_path('assets/img/kretech_img_profile_bg_portfolio_dtl_' . $code . '_' . $port_id . '.jpg');
+            
+                if (!File::copy($path_port_bg_detail_default, $path_port_bg_detail_profile)) {
+                    return response()->json(['message' => 'Portfolio Background Detail Anda gagal dihapus!'], 500);
+                }
+        
+                // save log activity
+                $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+                if (!$save_log_activity) {
+                    Alert::error('Failed', 'Delete Portfolio Background Detail')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                    return redirect()->back();
+                }
+        
+                return response()->json(['message' => 'success', 'src' => $src_port_bg_detail_def], 200);
+            }
+        }
     }
 }
