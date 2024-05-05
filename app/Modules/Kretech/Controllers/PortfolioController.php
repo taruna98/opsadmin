@@ -1102,7 +1102,8 @@ class PortfolioController extends BaseController
         // get portfolio by id 
         foreach ($get_portfolio as $portfolio) {
             if ($portfolio['id'] == $id) {
-                $portfolios = $portfolio;
+                $portfolios         = $portfolio;
+                $portfolios['cod']  = $code;
             }
         }
 

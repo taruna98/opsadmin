@@ -83,7 +83,8 @@ class ArticleController extends BaseController
         $validator = Validator::make($request->all(), [
             'create_title'          => 'required',
             'create_description'    => 'required',
-            'create_image_1'        => 'image|mimes:jpg|max:2048',
+            'create_bg_detail'      => 'image|mimes:jpg|max:2048',
+            'create_image_1'        => 'image|mimes:jpg|max:2048'
         ]);
 
         if ($validator->fails()) {
@@ -111,6 +112,9 @@ class ArticleController extends BaseController
         $status             = $request->create_status;
         $created_at         = Date('Y-m-d H:i:s');
         $updated_at         = Date('Y-m-d H:i:s');
+        $bg_detail          = $request->file('create_bg_detail');
+        $bg_detail_name     = isset($bg_detail) ? 'kretech_img_profile_bg_article_dtl_' . $code . '_' . $id . '.' . $bg_detail->extension() : '';
+        $bg_detail_default  = public_path('assets/img/kretech_img_profile_bg_article_dtl_default.jpg');
         $image_1            = $request->file('create_image_1');
         $image_1_name       = isset($image_1) ? 'kretech_img_article_' . $id . '_thumbnail' . '.' . $image_1->extension() : '';
         $image_default  = public_path('assets/img/kretech_img_content_article_thumbnail_default.jpg');
@@ -132,8 +136,63 @@ class ArticleController extends BaseController
             'status'            => $status,
             'created_at'        => $created_at,
             'updated_at'        => $updated_at,
+            'bg_detail'         => $bg_detail_name,
             'image_1'           => $image_1_name
         ];
+
+        // check bg detail
+        if ($bg_detail !== null || $bg_detail != '') {
+            /** CURL article detail background */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $bg_detail_upload = $request->file('create_bg_detail');
+            $bg_detail_name_upload = isset($bg_detail_upload) ? $code . '-bg-article-dtl-' . $id . '.' . $bg_detail_upload->extension() : '';
+            $bg_detail_upload_path = $bg_detail_upload->path();
+            $data = array(
+                'background_detail_article_file_1' => new \CURLFile($bg_detail_upload_path, $bg_detail_upload->getClientMimeType(), $bg_detail_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Article Detail Background')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+            $bg_detail->move(public_path('assets/img'), $bg_detail_name);
+        } else if ($bg_detail === null) {
+            /** CURL article detail background */
+            $curl = curl_init();
+            // Set destination URL
+            curl_setopt($curl, CURLOPT_URL, $destination_url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            $bg_detail_default = public_path('assets\img\kretech_img_profile_bg_article_dtl_default.jpg');
+            $bg_detail_upload = new UploadedFile(
+                $bg_detail_default,
+                'kretech_img_profile_bg_article_dtl_default.jpg',
+                mime_content_type($bg_detail_default),
+                filesize($bg_detail_default),
+                false
+            );
+            $bg_detail_name_upload = isset($bg_detail_upload) ? $code . '-bg-article-dtl-' . $id . '.' . $bg_detail_upload->extension() : '';
+            $bg_detail_upload_path = $bg_detail_upload->path();
+            $data = array(
+                'background_detail_article_file_1' => new \CURLFile($bg_detail_upload_path, $bg_detail_upload->getClientMimeType(), $bg_detail_name_upload)
+            );
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $result = curl_exec($curl);
+            /** CURL photo break */
+            if ($result === false) {
+                Alert::error('Failed', 'Set Article Detail Background Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+            $bg_detail_set_1 = public_path('assets/img/kretech_img_profile_bg_article_dtl_' . $code . '_' . $id . '.jpg');
+            if (!copy($bg_detail_default, $bg_detail_set_1)) {
+                Alert::error('Failed', 'Set Article Detail Background Default')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+                return redirect()->back();
+            }
+        }
 
         // check image 1
         if ($image_1 !== null || $image_1 != '') {

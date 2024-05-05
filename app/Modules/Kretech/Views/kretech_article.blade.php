@@ -85,12 +85,12 @@
                             @csrf
                             {{-- hidden input --}}
                             <input type="hidden" class="d-none" name="create_id" value="{{ $set_id }}" required>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="create_title" class="form-label">Title</label>
                                 <input type="text" class="form-control" name="create_title" id="create_title" value="{{ old('create_title') }}" required>
                                 <div class="invalid-feedback">Please enter your title.</div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="create_category" class="form-label">Select Category</label>
                                 <select class="form-select" name="create_category" id="create_category" required>
                                     <option selected value="art">Art</option>
@@ -99,6 +99,16 @@
                                     <option value="visual design">Visual Design</option>
                                 </select>
                                 <div class="invalid-feedback">Please select category.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="create_bg_detail" class="form-label">Background Detail</label> <br>
+                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_profile_bg_article_dtl_default.jpg') }}" id="create_bg_detail_preview" alt="BackgroundArticleDetail"> <br>
+                                <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadDetailBgCreate(event)" name="create_bg_detail" id="create_bg_detail">
+                                <small id="create_bg_detail_warning" class="text-danger fst-italic">* dimensions must 2880 x 830 in JPG (max size: 500KB)</small>
+                                <small id="create_bg_detail_response" class="text-danger fst-italic"></small>
+                                <div class="pt-2">
+                                    <a type="button" class="btn btn-primary btn-sm" id="btn_upload_create_bg_detail"><i class="bi bi-upload"></i></a>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <label for="create_status" class="form-label">Select Status</label>
@@ -579,6 +589,50 @@
                 error: function(xhr) {
                     console.log(xhr.responseText);
                 }
+            });
+        });
+
+        // create background detail
+        var loadDetailBgCreate = function(event) {
+            var output = document.getElementById('create_bg_detail_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var bgDetailPreview = $("#create_bg_detail_preview")[0];
+            var bgDetailSrc = bgDetailPreview.getAttribute('src');
+
+            $("#btn_upload_create_bg_detail").on('click', function() {
+                $("#create_bg_detail").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#create_bg_detail', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 2880 && this.height == 830) {
+                            $("#create_bg_detail_response").text("");
+                        } else {
+                            $("#create_bg_detail_warning").text("");
+                            $("#create_bg_detail_response").text("* image dimensions not valid");
+                            document.getElementById("create_bg_detail").value = "";
+                            bgDetailPreview.src = bgDetailSrc;
+                        }
+                    } else {
+                        $("#create_bg_detail_warning").text("");
+                        $("#create_bg_detail_response").text("* image over size");
+                        document.getElementById("create_bg_detail").value = "";
+                        bgDetailPreview.src = bgDetailSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
             });
         });
 

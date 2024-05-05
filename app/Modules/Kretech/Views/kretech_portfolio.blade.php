@@ -326,6 +326,10 @@
                                         <a class="text-decoration-none text-dark" id="detail_updated_at">Updated At</a>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between">
+                                        <b>Background Detail</b>
+                                        <img class="rounded w-50" id="detail_background_preview" alt="BackgroundDetail">
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
                                         <b>Content</b>
                                     </li>
                                     <li class="list-group-item content-item-1 d-none justify-content-between">
@@ -584,6 +588,7 @@
                     }
                     $('#detail_created_at').text(data.cat);
                     $('#detail_updated_at').text(data.uat);
+                    $('#detail_background_preview').attr('src', window.location.origin + '/assets/img/' + 'kretech_img_profile_bg_portfolio_dtl_' + data.cod + '_' + data.id + '.jpg');
                     $.each(data.sbt.split('|'), function(idx1, val1) {
                         $('.content-item-' + (idx1 + 1)).removeClass('d-none');
                         $('.content-item-' + (idx1 + 1)).addClass('d-flex');
