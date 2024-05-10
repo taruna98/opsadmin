@@ -642,6 +642,16 @@ class ProfileController extends BaseController
         Alert::success('Success', 'Update Background Article')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
         return redirect()->back();
       }
+    } else if ($request->updatefor == 'cv') {
+      $validator = Validator::make($request->all(), [
+        // 'background_home' => 'required|image|mimes:jpg|max:2048',
+      ]);
+
+      if ($validator->fails()) {
+        return redirect()->back()->withErrors($validator)->withInput();
+      }
+      
+      return 'test upload pdf';
     }
   }
 }

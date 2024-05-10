@@ -47,6 +47,10 @@
                             </li>
 
                             <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-upload-cv">Upload CV</button>
+                            </li>
+
+                            <li class="nav-item">
                                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
                             </li>
 
@@ -172,6 +176,50 @@
                                     </div>
                                 </form><!-- End Profile Edit Form -->
 
+                            </div>
+
+                            <div class="tab-pane fade profile-upload-cv pt-3" id="profile-upload-cv">
+                                @if ($errors->any())
+                                    <div>
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li class="bg-danger my-1 rounded"><span class="text-white px-1">{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                                <!-- Upload CV Form -->
+                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="row mb-3 d-none">
+                                        <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <input name="updatefor" type="text" class="form-control" value="cv">
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="profile_cv_for" class="col-12 col-form-label">Curiculum Vitae</label>
+                                        <div class="col-12">
+                                            <span class="text-center d-none" id="loading_animation" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                                <i class="fas fa-spinner fa-spin fa-2xl" style="color: #000"></i>
+                                            </span>
+                                            <div class="bg-secondary rounded p-1" id="profile_cv_preview">
+                                                <embed class="w-100" style="height: 50vh" id="profile_cv_view" type="application/pdf">
+                                            </div>
+                                            <input type="file" class="form-control d-none" accept=".pdf" onchange="loadCv1(event)" name="profile_cv" id="profile_cv">
+                                            <small id="profile_cv_response" class="text-danger fst-italic">* file must in PDF (max size: 2MB)</small>
+                                            <div class="pt-2">
+                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_profile_cv"><i class="bi bi-upload"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-primary">Upload</button>
+                                    </div>
+                                </form><!-- End Upload CV Form -->
+                                
                             </div>
 
                             <div class="tab-pane fade profile-change-password pt-3" id="profile-change-password">
@@ -701,6 +749,37 @@
                         });
                     }
                 });
+            });
+        });
+
+        // upload cv
+        var loadCv1 = function(event) {
+            $('#loading_animation').removeClass('d-none');
+            var fileCv1 = $('#profile_cv').prop('files')[0];
+            if (fileCv1 && fileCv1.size <= 2048576) {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    setTimeout(function() {
+                        $('#profile_cv_response').text('');
+                        $('#profile_cv_preview').removeClass('d-none');
+                        $('#profile_cv_view').attr('src', URL.createObjectURL(fileCv1) + '#toolbar=0');
+                        $('#loading_animation').addClass('d-none');
+                    }, 1000);
+                };
+                reader.onerror = function(event) {
+                    // console.error('file error : ', event.target.error);
+                    $('#profile_cv_response').text('* file\'s problem');
+                    $('#loading_animation').addClass('d-none');
+                };
+                reader.readAsDataURL(fileCv1);
+            } else {
+                $('#profile_cv_response').text("* file\'s over size");
+                $('#loading_animation').addClass('d-none');
+            }
+        }
+        $(document).ready(function() {
+            $("#btn_upload_profile_cv").on('click', function() {
+                $("#profile_cv").click();
             });
         });
 
