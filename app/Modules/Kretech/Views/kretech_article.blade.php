@@ -147,7 +147,7 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Article Edit</h5>
+                        <h5 class="modal-title">Article Edit <span class="edit_art_id d-none"></span></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -171,12 +171,12 @@
                             {{-- hidden input --}}
                             <input type="hidden" class="form-control" name="edit_id" id="edit_id" required>
                             <input type="hidden" class="form-control" name="edit_created_at" id="edit_created_at" required>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="edit_title" class="form-label">Title</label>
                                 <input type="text" class="form-control" name="edit_title" id="edit_title" required>
                                 <div class="invalid-feedback">Please enter your title.</div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="edit_category" class="form-label">Select Category</label>
                                 <select class="form-select" name="edit_category" id="edit_category" required>
                                     <option value="art">Art</option>
@@ -185,6 +185,17 @@
                                     <option value="visual design">Visual Design</option>
                                 </select>
                                 <div class="invalid-feedback">Please select category.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_bg_detail" class="form-label">Background Detail</label> <br>
+                                <img class="rounded w-100" src="{{ URL::asset('assets/img/kretech_img_profile_bg_article_dtl_default.jpg') }}" id="edit_bg_detail_preview" alt="BackgroundArticleDetail"> <br>
+                                <input class="input-img d-none" type="file" class="form-control" accept=".jpg" onchange="loadDetailBgEdit(event)" name="edit_bg_detail" id="edit_bg_detail">
+                                <small id="edit_bg_detail_warning" class="text-danger fst-italic">* dimensions must 2880 x 830 in JPG (max size: 500KB)</small>
+                                <small id="edit_bg_detail_response" class="text-danger fst-italic"></small>
+                                <div class="pt-2">
+                                    <a type="button" class="btn btn-primary btn-sm" id="btn_upload_edit_bg_detail"><i class="bi bi-upload"></i></a>
+                                    <a type="button" class="btn btn-danger btn-sm {{ ($delete_art_bg_detail == 1) ? 'd-none' : '' }}" id="btn_delete_edit_bg_detail"><i class="bi bi-trash"></i></a>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <label for="edit_status" class="form-label">Select Status</label>
@@ -231,6 +242,10 @@
                         <div class="row g-3">
                             <div class="col-md-12">
                                 <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <b>Background Detail</b>
+                                        <img class="rounded w-50" id="detail_background_preview" alt="BackgroundDetail">
+                                    </li>
                                     <li class="list-group-item d-flex justify-content-between">
                                         <b>Image Thumbnail</b>
                                         <img class="rounded w-50" src="" id="detail_image_1_preview" alt="Article">
@@ -372,6 +387,7 @@
                 success: function(data) {
                     $('#edit_id').val(data.id);
                     $('#edit_created_at').val(data.cat);
+                    $('.edit_art_id').text(data.id);
                     $('#edit_title').val(data.ttl);
                     if (data.ctg == 'art') {
                         $('#edit_category').val('art');
@@ -382,6 +398,7 @@
                     } else if (data.ctg == 'visual design') {
                         $('#edit_category').val('visual design');
                     }
+                    $('#edit_bg_detail_preview').attr('src', window.location.origin + '/assets/img/kretech_img_profile_bg_article_dtl_' + data.cod + '_' + data.id + '.jpg');
                     if (data.stt == '1') {
                         $('#edit_status').val('1');
                     } else {
@@ -564,13 +581,14 @@
                 url: '/kretech/article/detail/' + userId,
                 type: 'GET',
                 success: function(data) {
+                    $('#detail_background_preview').attr('src', window.location.origin + '/assets/img/' + 'kretech_img_profile_bg_article_dtl_' + data.cod + '_' + data.id + '.jpg');
                     $('#detail_image_1_preview').removeAttr('src');
                     $('#detail_image_1_preview').attr('src', window.location.origin + '/assets/img/' + 'kretech_img_article_' + data.id + '_thumbnail.jpg');
                     // check image src not found in directory
                     var imgSrc = $('#detail_image_1_preview').attr('src');
                     var img = new Image();
                     $(img).on('error', function() {
-                        $('#detail_image_1_preview').attr('src', window.location.origin + '/assets/img/kretech_img_content_portfolio_default.jpg');
+                        $('#detail_image_1_preview').attr('src', window.location.origin + '/assets/img/kretech_img_content_article_default.jpg');
                     });
                     img.src = imgSrc;
                     $('#detail_id').text(data.id);
@@ -633,6 +651,105 @@
                 };
 
                 img.src = URL.createObjectURL(file);
+            });
+        });
+        // edit background detail
+        var loadDetailBgEdit = function(event) {
+            var output = document.getElementById('edit_bg_detail_preview');
+            output.src = URL.createObjectURL(event.target.files[0]);
+        };
+        $(document).ready(function() {
+            var bgDetailPreview = $("#edit_bg_detail_preview")[0];
+            var bgDetailSrc = bgDetailPreview.getAttribute('src');
+
+            $("#btn_upload_edit_bg_detail").on('click', function() {
+                $("#edit_bg_detail").click();
+            });
+
+            // handle image change event using event delegation
+            $(document).on('change', '#edit_bg_detail', function(e) {
+                var file = e.target.files[0];
+                var img = new Image();
+
+                img.onload = function() {
+                    if (file.size / 1024 <= 500) {
+                        if (this.width == 2880 && this.height == 830) {
+                            $("#edit_bg_detail_response").text("");
+                        } else {
+                            $("#edit_bg_detail_warning").text("");
+                            $("#edit_bg_detail_response").text("* image dimensions not valid");
+                            document.getElementById("edit_bg_detail").value = "";
+                            bgDetailPreview.src = bgDetailSrc;
+                        }
+                    } else {
+                        $("#edit_bg_detail_warning").text("");
+                        $("#edit_bg_detail_response").text("* image over size");
+                        document.getElementById("edit_bg_detail").value = "";
+                        bgDetailPreview.src = bgDetailSrc;
+                    }
+                };
+
+                img.onerror = function() {
+                    alert("not a valid file: " + file.type);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        });
+
+        // delete background detail
+        $(document).ready(function() {
+            $('#btn_delete_edit_bg_detail').click(function(event) {
+                event.preventDefault();
+                
+                Swal.fire({
+                    title: 'Yakin?',
+                    text: 'Anda akan menghapus article background detail Anda!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var artId = $('.edit_art_id').text();
+                        $.ajax({
+                            url: "{{ route('kretech.article.file') }}",
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'delete_article_background_detail',
+                                art_id: artId
+                            },
+                            success: function(response) {
+                                // console.log(response);
+
+                                // early change image
+                                $('#edit_bg_detail_preview').attr('src', response.src);
+                                $('#btn_delete_edit_bg_detail').addClass('d-none');
+
+                                Swal.fire({
+                                    title: 'Yeay!',
+                                    text: 'Article Background Detail Anda berhasil dihapus!',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    // showConfirmButton: false
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                // console.log(xhr.statusText + '|' + xhr.responseJSON.message + ' | ' + status + ' | ' + error);
+                                Swal.fire({
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    }
+                });
             });
         });
 
