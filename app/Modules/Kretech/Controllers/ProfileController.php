@@ -53,6 +53,10 @@ class ProfileController extends BaseController
       return redirect()->back();
     }
 
+    // get cv
+    // Storage::url('public/file/pdf/' . $code . '_CV.pdf')
+    $cv_url = (File::exists(public_path('file/pdf/' . $code . '_CV.pdf'))) ? $code : '0';
+
     // check image profile update
     $check_image_profile = LogActivity::select('activity')->where('user_id', $id)->where('scene', 'Content/Profile/Profile')->where('activity', 'like', '% Image Profile')->orderBy('created_at', 'desc')->first();
     if ($check_image_profile) {
@@ -96,6 +100,7 @@ class ProfileController extends BaseController
     return view('Kretech::kretech_profile', [
       'title'                     => $title,
       'profile'                   => $get_profile,
+      'cv_url'                    => $cv_url,
       'delete_image_profile'      => $delete_image_profile,
       'delete_background_home'    => $delete_background_home,
       'delete_background_service' => $delete_background_service,
@@ -644,14 +649,62 @@ class ProfileController extends BaseController
       }
     } else if ($request->updatefor == 'cv') {
       $validator = Validator::make($request->all(), [
-        // 'background_home' => 'required|image|mimes:jpg|max:2048',
+        'profile_cv' => 'required|mimes:pdf|max:2048'
       ]);
 
       if ($validator->fails()) {
         return redirect()->back()->withErrors($validator)->withInput();
       }
-      
-      return 'test upload pdf';
+
+      // get profile
+      $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
+
+      // get field
+      $user_id          = $auth->id;
+      $module           = 'Kretech';
+      $scene            = 'Content/Profile/CV';
+      $activity         = 'Edit - ' . $auth->email . ' - Upload CV';
+      $ip               = $request->ip();
+      $destination_url  = env('API_URL') . 'data/upload_file.php';
+      // ---
+      $file_name        = $profile->cod . '_CV.pdf';
+
+      /** CURL Curiculum Vitae */
+      $curl = curl_init();
+      // Set destination URL
+      curl_setopt($curl, CURLOPT_URL, $destination_url);
+      curl_setopt($curl, CURLOPT_POST, true);
+      $profile_cv_upload = $request->file('profile_cv');
+      $profile_cv_name_upload = isset($profile_cv_upload) ? $profile->cod . '_CV.' . $profile_cv_upload->extension() : '';
+      $profile_cv_upload_path = $profile_cv_upload->path();
+      $data = array(
+        'profile_cv_file_1' => new \CURLFile($profile_cv_upload_path, $profile_cv_upload->getClientMimeType(), $profile_cv_name_upload)
+      );
+      curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+      $result = curl_exec($curl);
+      /** CURL file break */
+      if ($result === false) {
+        Alert::error('Failed', 'Set Curiculum Vitae')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+        return redirect()->back();
+      }
+
+      // upload cv to public
+      $save_pdf = $request->file('profile_cv')->move(public_path('file/pdf'), $file_name);
+
+      if (!$save_pdf) {
+        Alert::error('Failed', 'Upload CV')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+        return redirect()->back();
+      }
+
+      // save log activity
+      $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+      if (!$save_log_activity) {
+          Alert::error('Failed', 'Upload CV')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          return redirect()->back();
+      }
+
+      Alert::success('Success', 'Upload CV')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+      return redirect()->back();
     }
   }
 }

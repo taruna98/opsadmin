@@ -201,6 +201,7 @@
                                     <div class="row mb-3">
                                         <label for="profile_cv_for" class="col-12 col-form-label">Curiculum Vitae</label>
                                         <div class="col-12">
+                                            <span class="profile_cv_url d-none">{{ $cv_url }}</span>
                                             <span class="text-center d-none" id="loading_animation" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                                                 <i class="fas fa-spinner fa-spin fa-2xl" style="color: #000"></i>
                                             </span>
@@ -778,8 +779,12 @@
             }
         }
         $(document).ready(function() {
-            $("#btn_upload_profile_cv").on('click', function() {
-                $("#profile_cv").click();
+            var cv_url = $('.profile_cv_url').text();
+            if (cv_url != '0') {
+                $('#profile_cv_view').attr('src', window.location.origin + '/file/pdf/' + cv_url + '_CV.pdf#toolbar=0');
+            }
+            $('#btn_upload_profile_cv').on('click', function() {
+                $('#profile_cv').click();
             });
         });
 
