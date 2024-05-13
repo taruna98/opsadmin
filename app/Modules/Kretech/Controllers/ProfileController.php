@@ -97,6 +97,18 @@ class ProfileController extends BaseController
       $delete_background_article = 0;
     }
 
+    // check profile cv update
+    $check_profile_cv = LogActivity::select('activity')->where('user_id', $id)->where('scene', 'Content/Profile/CV')->where('activity', 'like', '% Profile CV')->orderBy('created_at', 'desc')->first();
+    if ($check_profile_cv) {
+      $check_profile_cv = explode('-', $check_profile_cv->activity)[2];
+      $check_profile_cv = explode(' ', $check_profile_cv)[1];
+      $delete_profile_cv = ($check_profile_cv == 'Delete') ? 1 : 0;
+      $upload_profile_cv = ($check_profile_cv == 'Upload') ? 1 : 0;
+    } else {
+      $delete_profile_cv = 0;
+      $upload_profile_cv = 0;
+    }
+
     return view('Kretech::kretech_profile', [
       'title'                     => $title,
       'profile'                   => $get_profile,
@@ -104,7 +116,9 @@ class ProfileController extends BaseController
       'delete_image_profile'      => $delete_image_profile,
       'delete_background_home'    => $delete_background_home,
       'delete_background_service' => $delete_background_service,
-      'delete_background_article' => $delete_background_article
+      'delete_background_article' => $delete_background_article,
+      'delete_profile_cv'         => $delete_profile_cv,
+      'upload_profile_cv'         => $upload_profile_cv
     ]);
   }
 
@@ -124,6 +138,7 @@ class ProfileController extends BaseController
       $module                     = 'Kretech';
       $ip                         = $request->ip();
       $destination_url            = env('API_URL') . 'data/upload_image.php';
+      $destination_url_2          = env('API_URL') . 'data/upload_file.php';
       // ---
       $code                       = $profile->cod;
       $src_profile_img_def        = asset('assets/img/img_profile_default.jpg');
@@ -315,6 +330,44 @@ class ProfileController extends BaseController
         }
 
         return response()->json(['message' => 'success', 'src' => $src_background_article_def], 200);
+      } else if ($request->input('action') == 'delete_profile_cv') {
+        $scene    = 'Content/Profile/CV';
+        $activity = 'Edit - ' . $auth->email . ' - Delete Profile CV';
+
+        if (!File::exists(public_path('file/pdf/' . $code . '_CV.pdf'))) {
+          return response()->json(['message' => 'not found'], 404);
+        }
+        
+        // delete profile cv
+        $delete_cv = File::delete(public_path('file/pdf/' . $code . '_CV.pdf'));
+
+        if (!$delete_cv) {
+          return response()->json(['message' => 'not modified'], 304);
+        }
+
+        /** CURL Curiculum Vitae */
+        $curl = curl_init();
+        // Set destination URL
+        curl_setopt($curl, CURLOPT_URL, $destination_url_2);
+        curl_setopt($curl, CURLOPT_POST, true);
+        $data = array(
+          'profile_cv_file_1' => 'delete cv|' . $code . '_CV.pdf'
+        );
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($curl);
+        /** CURL file break */
+        if ($result === false) {
+          return response()->json(['message' => 'not modified'], 304);
+        }
+  
+        // save log activity
+        $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+        if (!$save_log_activity) {
+            Alert::error('Failed', 'Delete Profile CV')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+            return redirect()->back();
+        }
+
+        return response()->json(['message' => 'success'], 200);
       }
     }
 
@@ -663,7 +716,7 @@ class ProfileController extends BaseController
       $user_id          = $auth->id;
       $module           = 'Kretech';
       $scene            = 'Content/Profile/CV';
-      $activity         = 'Edit - ' . $auth->email . ' - Upload CV';
+      $activity         = 'Edit - ' . $auth->email . ' - Upload Profile CV';
       $ip               = $request->ip();
       $destination_url  = env('API_URL') . 'data/upload_file.php';
       // ---
@@ -688,22 +741,22 @@ class ProfileController extends BaseController
         return redirect()->back();
       }
 
-      // upload cv to public
+      // upload profile cv to public
       $save_pdf = $request->file('profile_cv')->move(public_path('file/pdf'), $file_name);
 
       if (!$save_pdf) {
-        Alert::error('Failed', 'Upload CV')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+        Alert::error('Failed', 'Upload Profile CV')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
         return redirect()->back();
       }
 
       // save log activity
       $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
       if (!$save_log_activity) {
-          Alert::error('Failed', 'Upload CV')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
+          Alert::error('Failed', 'Upload Profile CV')->showConfirmButton($btnText = 'OK', $btnColor = '#DC3545')->autoClose(3000);
           return redirect()->back();
       }
 
-      Alert::success('Success', 'Upload CV')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
+      Alert::success('Success', 'Upload Profile CV')->showConfirmButton($btnText = 'OK', $btnColor = '#0D6EFD')->autoClose(3000);
       return redirect()->back();
     }
   }

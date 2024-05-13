@@ -212,6 +212,7 @@
                                             <small id="profile_cv_response" class="text-danger fst-italic">* file must in PDF (max size: 2MB)</small>
                                             <div class="pt-2">
                                                 <a type="button" class="btn btn-primary btn-sm" id="btn_upload_profile_cv"><i class="bi bi-upload"></i></a>
+                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_profile_cv == 1) ? 'd-none' : '' }}" id="btn_delete_profile_cv"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -753,7 +754,7 @@
             });
         });
 
-        // upload cv
+        // upload profile cv
         var loadCv1 = function(event) {
             $('#loading_animation').removeClass('d-none');
             var fileCv1 = $('#profile_cv').prop('files')[0];
@@ -785,6 +786,60 @@
             }
             $('#btn_upload_profile_cv').on('click', function() {
                 $('#profile_cv').click();
+            });
+        });
+
+        // delete profile cv
+        $(document).ready(function() {
+            $('#btn_delete_profile_cv').click(function(event) {
+                event.preventDefault();
+                
+                Swal.fire({
+                    title: 'Yakin?',
+                    text: 'Anda akan menghapus CV Anda!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('kretech.profile.update') }}",
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'delete_profile_cv'
+                            },
+                            success: function(response) {
+                                // console.log(response);
+
+                                // early delete cv
+                                $('#profile_cv_view').attr('src', '');
+                                $('#btn_delete_profile_cv').addClass('d-none');
+
+                                Swal.fire({
+                                    title: 'Yeay!',
+                                    text: 'CV Anda berhasil dihapus!',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    // showConfirmButton: false
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                // console.log(xhr.statusText + '|' + xhr.responseJSON.message + ' | ' + status + ' | ' + error);
+                                Swal.fire({
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    }
+                });
             });
         });
 
