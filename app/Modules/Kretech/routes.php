@@ -20,6 +20,10 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function 
         // Kretech Dashboard
         Route::get('dashboard', 'DashboardController@index')->name('kretech.dashboard');
 
+        // Kretech Tasking
+        Route::get('tasking', 'TaskingController@index')->name('kretech.tasking');
+        Route::get('tasking/detail/{id}', 'TaskingController@detail')->name('kretech.tasking.detail');
+
         // Kretech User
         Route::get('user', 'UserController@index')->name('kretech.user');
         Route::get('user/detail/{id}', 'UserController@detail')->name('kretech.user.detail');
@@ -35,7 +39,7 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function 
         Route::post('portfolio/update/{id}', 'PortfolioController@update')->name('kretech.portfolio.update');
         Route::get('portfolio/detail/{id}', 'PortfolioController@detail')->name('kretech.portfolio.detail');
         Route::post('portfolio/file', 'PortfolioController@file')->name('kretech.portfolio.file');
-        
+
         // Kretech Article
         Route::get('article', 'ArticleController@index')->name('kretech.article');
         Route::post('article/store', 'ArticleController@store')->name('kretech.article.store');
@@ -44,7 +48,7 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function 
         Route::get('article/detail/{id}', 'ArticleController@detail')->name('kretech.article.detail');
         Route::post('article/upload_image', 'ArticleController@upload_image')->name('kretech.article.upload.image');
         Route::post('article/file', 'ArticleController@file')->name('kretech.article.file');
-        
+
         // Kretech Activity
         Route::get('activity', 'ActivityController@index')->name('kretech.activity');
     });
