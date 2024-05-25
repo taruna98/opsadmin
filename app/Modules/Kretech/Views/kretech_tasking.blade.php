@@ -151,7 +151,15 @@
                         },
                         {
                             data: 'task',
-                            name: 'task'
+                            name: 'task',
+                            render: function(data, type, row, meta) {
+                                if (row.scene == 'Register') {
+                                    return data + '<span class="task-email-' + row.id + ' d-none">' +
+                                        row.email +
+                                        '</span>';
+                                }
+                                return data;
+                            }
                         },
                         {
                             data: 'admin_id',
@@ -169,7 +177,7 @@
                                 if (data == 1) {
                                     return '<span class="badge rounded-pill bg-info">Mail Send to User by Request</span>';
                                 } else if (data == 2) {
-                                    return '<span class="badge rounded-pill bg-info">User Verified Link</span>';
+                                    return '<span class="badge rounded-pill bg-primary">User Verified Link</span>';
                                 }
                             }
                         },
@@ -177,8 +185,20 @@
                             data: 'id',
                             name: 'id',
                             render: function(data, type, row, meta) {
-                                var html = '<button class="btn-detail btn btn-info btn-sm mx-1" id="' +
-                                    data + '"><i class="bi bi-eye text-white"></i></button>';
+                                if (row.status == 1) {
+                                    var html =
+                                        '<button class="btn-detail btn btn-info btn-sm mx-1" id="' +
+                                        data + '"><i class="bi bi-eye text-white"></i></button>';
+                                } else if (row.status == 2) {
+                                    var html =
+                                        '<button class="btn-accept btn btn-primary btn-sm mx-1" id="' +
+                                        data + '"><i class="bi bi-check text-white"></i></button>';
+                                    html +=
+                                        '<button class="btn-decline btn btn-danger btn-sm mx-1" id="' +
+                                        data + '"><i class="bi bi-x text-white"></i></button>';
+                                    html += '<button class="btn-detail btn btn-info btn-sm mx-1" id="' +
+                                        data + '"><i class="bi bi-eye text-white"></i></button>';
+                                }
                                 return html;
                             }
                         }
@@ -191,7 +211,10 @@
                         [5, 10, 25, 50, -1],
                         [5, 10, 25, 50, "All"]
                     ],
-                    pageLength: 5
+                    pageLength: 5,
+                    initComplete: function(settings, json) {
+                        // console.log(json);
+                    }
                 });
             });
 
@@ -213,7 +236,11 @@
                         }
                         $('#detail_module').text(data.module);
                         $('#detail_scene').text(data.scene);
-                        $('#detail_task').text(data.task);
+                        if (data.scene == 'Register') {
+                            $('#detail_task').text(data.task + ' - ' + data.email);
+                        } else {
+                            $('#detail_task').text(data.task);
+                        }
                         if (data.admin_id == 0) {
                             $('#detail_admin_id').html(
                                 '<span class="badge rounded-pill bg-primary">No Action</span>');
@@ -224,13 +251,62 @@
                             );
                         } else if (data.status == 2) {
                             $('#detail_status').html(
-                                '<span class="badge rounded-pill bg-info">User Verified Link</span>');
+                                '<span class="badge rounded-pill bg-primary">User Verified Link</span>');
                         }
                         $('#detail_request_at').text(data.created_at);
                         $('#taskingDetailModal').modal('show');
                     },
                     error: function(xhr) {
                         console.log(xhr.responseText);
+                    }
+                });
+            });
+
+            // kretech user register accept
+            $(document).on('click', '.btn-accept', function() {
+                var email = $('.task-email-' + $(this).attr('id')).text();
+                $.ajax({
+                    url: "{{ route('kretech.tasking.approved') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        action: 'tasking approved',
+                        email: email,
+                        status: 3
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Izinkan permohonan?',
+                            text: 'User ini akan diberi izin sebagai member Web Profile',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085D6',
+                            cancelButtonColor: '#D33',
+                            confirmButtonText: 'Ya, Izinkan!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                console.log(response);
+                                // if (response == 'success register user') {
+                                //     Swal.fire({
+                                //         title: 'Approved !',
+                                //         text: 'User telah didaftarkan',
+                                //         icon: 'success',
+                                //         showConfirmButton: false,
+                                //         timer: 1500
+                                //     });
+                                // }
+                            }
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        // console.log(xhr.statusText + '|' + xhr.responseJSON.message + ' | ' + status + ' | ' + error);
+                        Swal.fire({
+                            title: 'Oops!',
+                            text: xhr.responseJSON.message,
+                            icon: 'error',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
                     }
                 });
             });

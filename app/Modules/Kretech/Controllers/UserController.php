@@ -48,7 +48,7 @@ class UserController extends BaseController
 
         // get user from table users
         $user = User::where('id', $id)->first();
-        
+
         // verify user from table profile
         $profile = DB::connection('mysql2')->table('profiles')->where('eml', $user->email)->first();
         if ($profile == null) {
