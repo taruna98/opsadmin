@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
@@ -66,9 +67,6 @@ class TaskingController extends BaseController
 
         // request ajax
         if ($request->ajax()) {
-            // get profile
-            $profile = DB::connection('mysql2')->table('profiles')->where('eml', $auth->email)->first();
-
             // get field
             $user_id    = $auth->id;
             $module     = 'Kretech';
@@ -78,11 +76,32 @@ class TaskingController extends BaseController
             if ($request->input('action') == 'tasking approved') {
 
                 // get variable
+                $module     = 'Kretech';
+                $scene      = 'Register';
+                $ip         = $request->ip();
+                // ---
                 $email      = $request->input('email');
                 $status     = $request->input('status');
-                // ---
-                $scene      = 'Register';
                 $activity   = 'Approve Request Web Profile - ' . $email;
+                $password   = Hash::make('123456');
+                $role       = 'kretech member';
+                $status     = 3;
+                $name       = preg_match('/^[^._\d]+/', $email, $matches) ? ucfirst($matches[0]) : 'User';
+
+                // temp variable
+                $temp = [
+                    'user_id'   => $user_id,
+                    'module'    => $module,
+                    'scene'     => $scene,
+                    'activity'  => $activity,
+                    'ip'        => $ip,
+                    // ---
+                    'name'      => $name,
+                    'email'     => $email,
+                    'password'  => $password,
+                    'role'      => $role,
+                    'status'    => $status
+                ];
 
                 // parse params to api
                 $approve_user = Http::post($api_url . 'profile/request', [
@@ -91,6 +110,34 @@ class TaskingController extends BaseController
                 ]);
 
                 if ($approve_user != 'success register user') {
+                    return $approve_user;
+                }
+
+                // create user
+                $user_create = User::create([
+                    'name'  => $name,
+                    'email' => $email,
+                    'password' => $password,
+                    'is_active' => $status,
+                ]);
+                $user_create->assignRole($role);
+
+                if (!$user_create) {
+                    return response('precondition failed', 412);
+                }
+
+                // get from table user_requests
+                $get_user_requests = DB::connection('mysql')->table('user_requests')->where('email', $email)->where('status', 3)->first();
+
+                // update tasking
+                $update_tasking = DB::connection('mysql')->table('tasking')
+                    ->where('id', $get_user_requests->task_id)
+                    ->where('status', 3)
+                    ->update([
+                        'user_id'   => $user_create->id,
+                        'admin_id'  => $user_id
+                    ]);
+                if ($update_tasking === 0) {
                     return response('precondition failed', 412);
                 }
 

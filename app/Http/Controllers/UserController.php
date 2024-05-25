@@ -224,8 +224,8 @@ class UserController extends BaseController
         $profile_create = Profile::create([
             'cod'   => $code,
             'eml'   => $email,
-            'nme'   => $name,
-            'stt'   => $status,
+            // 'nme'   => $name,
+            // 'stt'   => $status,
         ]);
 
         if (!$profile_create) {

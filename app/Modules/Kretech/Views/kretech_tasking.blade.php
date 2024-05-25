@@ -285,16 +285,16 @@
                             confirmButtonText: 'Ya, Izinkan!'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                console.log(response);
-                                // if (response == 'success register user') {
-                                //     Swal.fire({
-                                //         title: 'Approved !',
-                                //         text: 'User telah didaftarkan',
-                                //         icon: 'success',
-                                //         showConfirmButton: false,
-                                //         timer: 1500
-                                //     });
-                                // }
+                                // console.log(response);
+                                if (response == 'success register user') {
+                                    Swal.fire({
+                                        title: 'Approved !',
+                                        text: 'User telah didaftarkan',
+                                        icon: 'success',
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+                                }
                             }
                         });
                     },
