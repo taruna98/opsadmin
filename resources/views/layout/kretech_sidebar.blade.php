@@ -27,6 +27,13 @@
             <i class="bi bi-people"></i>
             <span>User</span>
         </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{ request()->segment(2) == 'user-request' ? '' : 'collapsed' }}"
+            href="{{ route('kretech.user_request') }}">
+            <i class="bi bi-person-up"></i>
+            <span>User Request</span>
+        </a>
     </li><!-- End Users Nav -->
 @endif
 

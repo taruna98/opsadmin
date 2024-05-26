@@ -85,23 +85,22 @@ class TaskingController extends BaseController
                 $activity   = 'Approve Request Web Profile - ' . $email;
                 $password   = Hash::make('123456');
                 $role       = 'kretech member';
-                $status     = 3;
                 $name       = preg_match('/^[^._\d]+/', $email, $matches) ? ucfirst($matches[0]) : 'User';
 
-                // temp variable
-                $temp = [
-                    'user_id'   => $user_id,
-                    'module'    => $module,
-                    'scene'     => $scene,
-                    'activity'  => $activity,
-                    'ip'        => $ip,
-                    // ---
-                    'name'      => $name,
-                    'email'     => $email,
-                    'password'  => $password,
-                    'role'      => $role,
-                    'status'    => $status
-                ];
+                // // temp variable
+                // $temp = [
+                //     'user_id'   => $user_id,
+                //     'module'    => $module,
+                //     'scene'     => $scene,
+                //     'activity'  => $activity,
+                //     'ip'        => $ip,
+                //     // ---
+                //     'name'      => $name,
+                //     'email'     => $email,
+                //     'password'  => $password,
+                //     'role'      => $role,
+                //     'status'    => $status
+                // ];
 
                 // parse params to api
                 $approve_user = Http::post($api_url . 'profile/request', [
@@ -148,6 +147,80 @@ class TaskingController extends BaseController
                 }
 
                 return $approve_user;
+            }
+        }
+    }
+
+    public function rejected(Request $request)
+    {
+        // auth
+        $auth = Auth::user();
+
+        // declare variable
+        $api_url = env('API_URL');
+
+        // request ajax
+        if ($request->ajax()) {
+            // get field
+            $user_id    = $auth->id;
+            $module     = 'Kretech';
+            $ip         = $request->ip();
+
+            // reject user
+            if ($request->input('action') == 'tasking rejected') {
+
+                // get variable
+                $module     = 'Kretech';
+                $scene      = 'Register';
+                $ip         = $request->ip();
+                // ---
+                $email      = $request->input('email');
+                $status     = $request->input('status');
+                $activity   = 'Reject Request Web Profile - ' . $email;
+
+                // // temp variable
+                // $temp = [
+                //     'user_id'   => $user_id,
+                //     'module'    => $module,
+                //     'scene'     => $scene,
+                //     'activity'  => $activity,
+                //     'ip'        => $ip,
+                //     // ---
+                //     'email'     => $email,
+                //     'status'    => $status
+                // ];
+
+                // parse params to api
+                $reject_user = Http::post($api_url . 'profile/request', [
+                    'email'     => $email,
+                    'status'    => $status
+                ]);
+
+                if ($reject_user != 'rejected user') {
+                    return $reject_user;
+                }
+
+                // get from table user_requests
+                $get_user_requests = DB::connection('mysql')->table('user_requests')->where('email', $email)->where('status', -3)->first();
+
+                // update tasking
+                $update_tasking = DB::connection('mysql')->table('tasking')
+                    ->where('id', $get_user_requests->task_id)
+                    ->where('status', -3)
+                    ->update([
+                        'admin_id' => $user_id
+                    ]);
+                if ($update_tasking === 0) {
+                    return response('precondition failed', 412);
+                }
+
+                // save log activity
+                $save_log_activity = LogActivity::saveLogActivity($user_id, $module, $scene, $activity, $ip);
+                if (!$save_log_activity) {
+                    return response('precondition failed', 412);
+                }
+
+                return $reject_user;
             }
         }
     }

@@ -23,11 +23,15 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => 'kretech'], function 
         // Kretech Tasking
         Route::get('tasking', 'TaskingController@index')->name('kretech.tasking');
         Route::post('tasking/approved', 'TaskingController@approved')->name('kretech.tasking.approved');
+        Route::post('tasking/rejected', 'TaskingController@rejected')->name('kretech.tasking.rejected');
         Route::get('tasking/detail/{id}', 'TaskingController@detail')->name('kretech.tasking.detail');
 
         // Kretech User
         Route::get('user', 'UserController@index')->name('kretech.user');
         Route::get('user/detail/{id}', 'UserController@detail')->name('kretech.user.detail');
+
+        // Kretech User Request
+        Route::get('user-request', 'UserRequestController@index')->name('kretech.user_request');
 
         // Kretech Profile
         Route::get('profile', 'ProfileController@index')->name('kretech.profile');

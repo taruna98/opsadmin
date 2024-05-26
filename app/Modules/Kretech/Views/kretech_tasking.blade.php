@@ -39,7 +39,6 @@
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">User ID</th>
-                                        <th scope="col">Module</th>
                                         <th scope="col">Scene</th>
                                         <th scope="col">Task</th>
                                         <th scope="col">Admin ID</th>
@@ -142,10 +141,6 @@
                             }
                         },
                         {
-                            data: 'module',
-                            name: 'module'
-                        },
-                        {
                             data: 'scene',
                             name: 'scene'
                         },
@@ -167,6 +162,8 @@
                             render: function(data, type, row, meta) {
                                 if (data == 0) {
                                     return '<span class="badge rounded-pill bg-primary">No Action</span>';
+                                } else {
+                                    return data;
                                 }
                             }
                         },
@@ -178,6 +175,12 @@
                                     return '<span class="badge rounded-pill bg-info">Mail Send to User by Request</span>';
                                 } else if (data == 2) {
                                     return '<span class="badge rounded-pill bg-primary">User Verified Link</span>';
+                                } else if (data == -2) {
+                                    return '<span class="badge rounded-pill bg-secondary">User Not Verified Link</span>';
+                                } else if (data == 3) {
+                                    return '<span class="badge rounded-pill bg-success">User Registered</span>';
+                                } else if (data == -3) {
+                                    return '<span class="badge rounded-pill bg-danger">User Rejected</span>';
                                 }
                             }
                         },
@@ -185,7 +188,8 @@
                             data: 'id',
                             name: 'id',
                             render: function(data, type, row, meta) {
-                                if (row.status == 1) {
+                                if ((row.status == 1) || (row.status == -2) || (row.status == -3) || (
+                                        row.status == 3)) {
                                     var html =
                                         '<button class="btn-detail btn btn-info btn-sm mx-1" id="' +
                                         data + '"><i class="bi bi-eye text-white"></i></button>';
@@ -244,6 +248,8 @@
                         if (data.admin_id == 0) {
                             $('#detail_admin_id').html(
                                 '<span class="badge rounded-pill bg-primary">No Action</span>');
+                        } else {
+                            $('#detail_admin_id').text(data.admin_id);
                         }
                         if (data.status == 1) {
                             $('#detail_status').html(
@@ -252,6 +258,16 @@
                         } else if (data.status == 2) {
                             $('#detail_status').html(
                                 '<span class="badge rounded-pill bg-primary">User Verified Link</span>');
+                        } else if (data.status == -2) {
+                            $('#detail_status').html(
+                                '<span class="badge rounded-pill bg-secondary">User Not Verified Link</span>'
+                            );
+                        } else if (data.status == 3) {
+                            $('#detail_status').html(
+                                '<span class="badge rounded-pill bg-success">User Registered</span>');
+                        } else if (data.status == -3) {
+                            $('#detail_status').html(
+                                '<span class="badge rounded-pill bg-danger">User Rejected</span>');
                         }
                         $('#detail_request_at').text(data.created_at);
                         $('#taskingDetailModal').modal('show');
@@ -265,28 +281,28 @@
             // kretech user register accept
             $(document).on('click', '.btn-accept', function() {
                 var email = $('.task-email-' + $(this).attr('id')).text();
-                $.ajax({
-                    url: "{{ route('kretech.tasking.approved') }}",
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        action: 'tasking approved',
-                        email: email,
-                        status: 3
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            title: 'Izinkan permohonan?',
-                            text: 'User ini akan diberi izin sebagai member Web Profile',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085D6',
-                            cancelButtonColor: '#D33',
-                            confirmButtonText: 'Ya, Izinkan!'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // console.log(response);
+                Swal.fire({
+                    title: 'Izinkan permohonan?',
+                    text: 'User ini akan diberi izin sebagai member Web Profile',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya, Izinkan!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('kretech.tasking.approved') }}",
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'tasking approved',
+                                email: email,
+                                status: 3
+                            },
+                            success: function(response) {
                                 if (response == 'success register user') {
+                                    location.reload();
                                     Swal.fire({
                                         title: 'Approved !',
                                         text: 'User telah didaftarkan',
@@ -295,17 +311,67 @@
                                         timer: 1500
                                     });
                                 }
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire({
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON ? xhr.responseJSON.message :
+                                        'Something went wrong',
+                                    icon: 'error',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
                             }
                         });
-                    },
-                    error: function(xhr, status, error) {
-                        // console.log(xhr.statusText + '|' + xhr.responseJSON.message + ' | ' + status + ' | ' + error);
-                        Swal.fire({
-                            title: 'Oops!',
-                            text: xhr.responseJSON.message,
-                            icon: 'error',
-                            timer: 3000,
-                            showConfirmButton: false
+                    }
+                });
+            });
+
+            // kretech user register decline
+            $(document).on('click', '.btn-decline', function() {
+                var email = $('.task-email-' + $(this).attr('id')).text();
+                Swal.fire({
+                    title: 'Tolak permohonan?',
+                    text: 'User ini tidak diberi izin sebagai member Web Profile',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085D6',
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: 'Ya, Tolak!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('kretech.tasking.rejected') }}",
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'tasking rejected',
+                                email: email,
+                                status: -3
+                            },
+                            success: function(response) {
+                                // console.log(reqponse);
+                                if (response == 'rejected user') {
+                                    location.reload();
+                                    Swal.fire({
+                                        title: 'Rejected !',
+                                        text: 'User tidak didaftarkan',
+                                        icon: 'success',
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire({
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON ? xhr.responseJSON.message :
+                                        'Something went wrong',
+                                    icon: 'error',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            }
                         });
                     }
                 });
