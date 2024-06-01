@@ -17,7 +17,8 @@
 
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-                        <img src="{{ URL::asset('assets/img/kretech_img_profile_' . $profile['profile']['cod'] . '.jpg') }}" alt="Profile" class="rounded-circle img-profile">
+                        <img src="{{ URL::asset('assets/img/' . (File::exists(public_path('assets/img/kretech_img_profile_' . $profile['profile']['cod'] . '.jpg')) ? 'kretech_img_profile_' . $profile['profile']['cod'] : 'kretech_img_profile_default') . '.jpg') }}"
+                            alt="Profile" class="rounded-circle img-profile">
                         <h4 class="my-1">{{ ucwords($profile['profile']['nme']) }}</h4>
                         <p class="my-1 text-muted"><i>{{ $profile['profile']['eml'] }}</i></p>
                         <div class="social-links mt-2 d-none">
@@ -43,19 +44,23 @@
                             </li>
 
                             <li class="nav-item">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Profile</button>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit
+                                    Profile</button>
                             </li>
 
                             <li class="nav-item">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-upload-cv">Upload CV</button>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-upload-cv">Upload
+                                    CV</button>
                             </li>
 
                             <li class="nav-item">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
+                                <button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#profile-change-password">Change Password</button>
                             </li>
 
                             <li class="nav-item">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-background">Change Background</button>
+                                <button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#profile-change-background">Change Background</button>
                             </li>
 
                         </ul>
@@ -71,20 +76,23 @@
                                     <div class="col-lg-3 col-md-4 label">Code</div>
                                     <div class="col-lg-9 col-md-8 fw-bold">{{ $profile['profile']['cod'] }}</div>
                                 </div>
-                                
+
                                 <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Profession</div>
-                                    <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $profile['profile']['hsb']) }}</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold">
+                                        {{ str_replace('|', ', ', $profile['profile']['hsb']) }}</div>
                                 </div>
 
                                 <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Tools</div>
-                                    <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $profile['profile']['mtl']) }}</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold">
+                                        {{ str_replace('|', ', ', $profile['profile']['mtl']) }}</div>
                                 </div>
 
                                 <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Skill</div>
-                                    <div class="col-lg-9 col-md-8 fw-bold">{{ str_replace('|', ', ', $profile['profile']['msk']) }}</div>
+                                    <div class="col-lg-9 col-md-8 fw-bold">
+                                        {{ str_replace('|', ', ', $profile['profile']['msk']) }}</div>
                                 </div>
 
                                 <div class="row my-2">
@@ -94,7 +102,9 @@
 
                                 <div class="row my-2">
                                     <div class="col-lg-3 col-md-4 label">Status</div>
-                                    <div class="col-lg-9 col-md-8 fw-bold"><span class="badge bg-{{ ($profile['profile']['stt'] == 1) ? 'success' : 'danger' }}">{{ ($profile['profile']['stt'] == 1) ? 'Active' : 'Not Active' }}</span></div>
+                                    <div class="col-lg-9 col-md-8 fw-bold"><span
+                                            class="badge bg-{{ $profile['profile']['stt'] == 1 ? 'success' : 'danger' }}">{{ $profile['profile']['stt'] == 1 ? 'Active' : 'Not Active' }}</span>
+                                    </div>
                                 </div>
 
                             </div>
@@ -104,13 +114,15 @@
                                     <div>
                                         <ul>
                                             @foreach ($errors->all() as $error)
-                                                <li class="bg-danger my-1 rounded"><span class="text-white px-1">{{ $error }}</li>
+                                                <li class="bg-danger my-1 rounded"><span
+                                                        class="text-white px-1">{{ $error }}</li>
                                             @endforeach
                                         </ul>
                                     </div>
                                 @endif
                                 <!-- Profile Edit Form -->
-                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}" enctype="multipart/form-data">
+                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}"
+                                    enctype="multipart/form-data">
                                     @csrf
                                     <div class="row mb-3 d-none">
                                         <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>
@@ -120,15 +132,23 @@
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="profile_image" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
+                                        <label for="profile_image" class="col-md-4 col-lg-3 col-form-label">Profile
+                                            Image</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <img class="rounded" src="{{ URL::asset('assets/img/kretech_img_profile_' . $profile['profile']['cod'] . '.jpg') }}" id="profile_image_preview" alt="Profile"> <br>
-                                            <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgProfile(event)" name="profile_image" id="profile_image">
-                                            <small id="profile_image_warning" class="text-danger fst-italic">* dimensions must 120 x 120 in PNG (max size: 500KB)</small>
+                                            <img class="rounded"
+                                                src="{{ URL::asset('assets/img/' . (File::exists(public_path('assets/img/kretech_img_profile_' . $profile['profile']['cod'] . '.jpg')) ? 'kretech_img_profile_' . $profile['profile']['cod'] : 'kretech_img_profile_default') . '.jpg') }}"
+                                                id="profile_image_preview" alt="Profile"> <br>
+                                            <input class="d-none" type="file" class="form-control" accept=".jpg"
+                                                onchange="loadImgProfile(event)" name="profile_image" id="profile_image">
+                                            <small id="profile_image_warning" class="text-danger fst-italic">* dimensions
+                                                must 120 x 120 in PNG (max size: 500KB)</small>
                                             <small id="profile_image_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
-                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_profile_image"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_image_profile == 1) ? 'd-none' : '' }}" id="btn_delete_profile_image"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-primary btn-sm"
+                                                    id="btn_upload_profile_image"><i class="bi bi-upload"></i></a>
+                                                <a type="button"
+                                                    class="btn btn-danger btn-sm {{ $delete_image_profile == 1 ? 'd-none' : '' }}"
+                                                    id="btn_delete_profile_image"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -136,7 +156,8 @@
                                     <div class="row mb-3">
                                         <label for="name" class="col-md-4 col-lg-3 col-form-label">Name</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="name" type="text" class="form-control" id="name" value="{{ ucwords($profile['profile']['nme']) }}">
+                                            <input name="name" type="text" class="form-control" id="name"
+                                                value="{{ ucwords($profile['profile']['nme']) }}">
                                         </div>
                                     </div>
 
@@ -148,26 +169,33 @@
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="profession" class="col-md-4 col-lg-3 col-form-label">Profession</label>
+                                        <label for="profession"
+                                            class="col-md-4 col-lg-3 col-form-label">Profession</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="profession" type="text" class="form-control" id="profession" value="{{ str_replace('|', ', ', $profile['profile']['hsb']) }}">
-                                            <small class="text-danger fst-italic">* please separate profession by comma ','</small>
+                                            <input name="profession" type="text" class="form-control" id="profession"
+                                                value="{{ str_replace('|', ', ', $profile['profile']['hsb']) }}">
+                                            <small class="text-danger fst-italic">* please separate profession by comma
+                                                ','</small>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="tools" class="col-md-4 col-lg-3 col-form-label">Tools</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="tools" type="text" class="form-control" id="tools" value="{{ str_replace('|', ', ', $profile['profile']['mtl']) }}">
-                                            <small class="text-danger fst-italic">* please separate tools by comma ','</small>
+                                            <input name="tools" type="text" class="form-control" id="tools"
+                                                value="{{ str_replace('|', ', ', $profile['profile']['mtl']) }}">
+                                            <small class="text-danger fst-italic">* please separate tools by comma
+                                                ','</small>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="skill" class="col-md-4 col-lg-3 col-form-label">Skill</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="skill" type="text" class="form-control" id="skill" value="{{ str_replace('|', ', ', $profile['profile']['msk']) }}">
-                                            <small class="text-danger fst-italic">* please separate skill by comma ','</small>
+                                            <input name="skill" type="text" class="form-control" id="skill"
+                                                value="{{ str_replace('|', ', ', $profile['profile']['msk']) }}">
+                                            <small class="text-danger fst-italic">* please separate skill by comma
+                                                ','</small>
                                         </div>
                                     </div>
 
@@ -183,13 +211,15 @@
                                     <div>
                                         <ul>
                                             @foreach ($errors->all() as $error)
-                                                <li class="bg-danger my-1 rounded"><span class="text-white px-1">{{ $error }}</li>
+                                                <li class="bg-danger my-1 rounded"><span
+                                                        class="text-white px-1">{{ $error }}</li>
                                             @endforeach
                                         </ul>
                                     </div>
                                 @endif
                                 <!-- Upload CV Form -->
-                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}" enctype="multipart/form-data">
+                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}"
+                                    enctype="multipart/form-data">
                                     @csrf
                                     <div class="row mb-3 d-none">
                                         <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>
@@ -202,17 +232,24 @@
                                         <label for="profile_cv_for" class="col-12 col-form-label">Curiculum Vitae</label>
                                         <div class="col-12">
                                             <span class="profile_cv_url d-none">{{ $cv_url }}</span>
-                                            <span class="text-center d-none" id="loading_animation" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                            <span class="text-center d-none" id="loading_animation"
+                                                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                                                 <i class="fas fa-spinner fa-spin fa-2xl" style="color: #000"></i>
                                             </span>
                                             <div class="bg-secondary rounded p-1" id="profile_cv_preview">
-                                                <embed class="w-100" style="height: 50vh" id="profile_cv_view" type="application/pdf">
+                                                <embed class="w-100" style="height: 50vh" id="profile_cv_view"
+                                                    type="application/pdf">
                                             </div>
-                                            <input type="file" class="form-control d-none" accept=".pdf" onchange="loadCv1(event)" name="profile_cv" id="profile_cv">
-                                            <small id="profile_cv_response" class="text-danger fst-italic">* file must in PDF (max size: 2MB)</small>
+                                            <input type="file" class="form-control d-none" accept=".pdf"
+                                                onchange="loadCv1(event)" name="profile_cv" id="profile_cv">
+                                            <small id="profile_cv_response" class="text-danger fst-italic">* file must in
+                                                PDF (max size: 2MB)</small>
                                             <div class="pt-2">
-                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_profile_cv"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_profile_cv == 1) ? 'd-none' : '' }}" id="btn_delete_profile_cv"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-primary btn-sm"
+                                                    id="btn_upload_profile_cv"><i class="bi bi-upload"></i></a>
+                                                <a type="button"
+                                                    class="btn btn-danger btn-sm {{ $delete_profile_cv == 1 ? 'd-none' : '' }}"
+                                                    id="btn_delete_profile_cv"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -221,7 +258,7 @@
                                         <button type="submit" class="btn btn-primary">Upload</button>
                                     </div>
                                 </form><!-- End Upload CV Form -->
-                                
+
                             </div>
 
                             <div class="tab-pane fade profile-change-password pt-3" id="profile-change-password">
@@ -229,47 +266,62 @@
                                     <div>
                                         <ul>
                                             @foreach ($errors->all() as $error)
-                                                <li class="bg-danger my-1 rounded"><span class="text-white px-1">{{ $error }}</li>
+                                                <li class="bg-danger my-1 rounded"><span
+                                                        class="text-white px-1">{{ $error }}</li>
                                             @endforeach
                                         </ul>
                                     </div>
                                 @endif
                                 <!-- Change Password Form -->
-                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}" enctype="multipart/form-data">
+                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}"
+                                    enctype="multipart/form-data">
                                     @csrf
                                     <div class="row mb-3 d-none">
                                         <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="updatefor" type="text" class="form-control" value="password">
+                                            <input name="updatefor" type="text" class="form-control"
+                                                value="password">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="current_password" class="col-md-4 col-lg-3 col-form-label">Current Password</label>
+                                        <label for="current_password" class="col-md-4 col-lg-3 col-form-label">Current
+                                            Password</label>
                                         <div class="col-md-8 col-lg-9">
                                             <div class="input-group">
-                                                <input name="current_password" type="password" class="form-control" id="current_password">
-                                                <button class="btn btn-outline-secondary btn-toggle-password" type="button" data-target="current_password"><i class="bi bi-eye"></i></button>
+                                                <input name="current_password" type="password" class="form-control"
+                                                    id="current_password">
+                                                <button class="btn btn-outline-secondary btn-toggle-password"
+                                                    type="button" data-target="current_password"><i
+                                                        class="bi bi-eye"></i></button>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="new_password" class="col-md-4 col-lg-3 col-form-label">New Password</label>
+                                        <label for="new_password" class="col-md-4 col-lg-3 col-form-label">New
+                                            Password</label>
                                         <div class="col-md-8 col-lg-9">
                                             <div class="input-group">
-                                                <input name="new_password" type="password" class="form-control" id="new_password">
-                                                <button class="btn btn-outline-secondary btn-toggle-password" type="button" data-target="new_password"><i class="bi bi-eye"></i></button>
+                                                <input name="new_password" type="password" class="form-control"
+                                                    id="new_password">
+                                                <button class="btn btn-outline-secondary btn-toggle-password"
+                                                    type="button" data-target="new_password"><i
+                                                        class="bi bi-eye"></i></button>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="new_password_2" class="col-md-4 col-lg-3 col-form-label">Re-enter New Password</label>
+                                        <label for="new_password_2" class="col-md-4 col-lg-3 col-form-label">Re-enter New
+                                            Password</label>
                                         <div class="col-md-8 col-lg-9">
                                             <div class="input-group">
-                                                <input name="new_password_2" type="password" class="form-control" id="new_password_2">
-                                                <button class="btn btn-outline-secondary btn-toggle-password" type="button" data-target="new_password_2"><i class="bi bi-eye"></i></button>
+                                                <input name="new_password_2" type="password" class="form-control"
+                                                    id="new_password_2">
+                                                <button class="btn btn-outline-secondary btn-toggle-password"
+                                                    type="button" data-target="new_password_2"><i
+                                                        class="bi bi-eye"></i></button>
                                             </div>
                                         </div>
                                     </div>
@@ -286,59 +338,91 @@
                                     <div>
                                         <ul>
                                             @foreach ($errors->all() as $error)
-                                                <li class="bg-danger my-1 rounded"><span class="text-white px-1">{{ $error }}</li>
+                                                <li class="bg-danger my-1 rounded"><span
+                                                        class="text-white px-1">{{ $error }}</li>
                                             @endforeach
                                         </ul>
                                     </div>
                                 @endif
                                 <!-- Change Background Form -->
-                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}" enctype="multipart/form-data">
+                                <form role="form" method="post" action="{{ route('kretech.profile.update') }}"
+                                    enctype="multipart/form-data">
                                     @csrf
                                     <div class="row mb-3 d-none">
                                         <label for="updatefor" class="col-md-4 col-lg-3 col-form-label">Update For</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="updatefor" type="text" class="form-control" value="background">
+                                            <input name="updatefor" type="text" class="form-control"
+                                                value="background">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="background_home_for" class="col-md-4 col-lg-3 col-form-label">Background Home</label>
+                                        <label for="background_home_for"
+                                            class="col-md-4 col-lg-3 col-form-label">Background Home</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <img class="rounded img-fluid" src="{{ URL::asset('assets/img/kretech_img_profile_bg_home_' . $profile['profile']['cod'] . '.jpg') }}" id="background_home_preview" alt="BackgroundHome"> <br>
-                                            <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgBgHome(event)" name="background_home" id="background_home">
-                                            <small id="background_home_warning" class="text-danger fst-italic">* dimensions must 2880 x 1984 in JPG (max size: 500KB)</small>
+                                            <img class="rounded img-fluid"
+                                                src="{{ URL::asset('assets/img/' . (File::exists(public_path('assets/img/kretech_img_profile_bg_home_' . $profile['profile']['cod'] . '.jpg')) ? 'kretech_img_profile_bg_home_' . $profile['profile']['cod'] : 'kretech_img_profile_bg_home_default') . '.jpg') }}"
+                                                id="background_home_preview" alt="BackgroundHome"> <br>
+                                            <input class="d-none" type="file" class="form-control" accept=".jpg"
+                                                onchange="loadImgBgHome(event)" name="background_home"
+                                                id="background_home">
+                                            <small id="background_home_warning" class="text-danger fst-italic">*
+                                                dimensions must 2880 x 1984 in JPG (max size: 500KB)</small>
                                             <small id="background_home_response" class="text-danger fst-italic"></small>
                                             <div class="pt-2">
-                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_home"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_background_home == 1) ? 'd-none' : '' }}" id="btn_delete_background_home"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-primary btn-sm"
+                                                    id="btn_upload_background_home"><i class="bi bi-upload"></i></a>
+                                                <a type="button"
+                                                    class="btn btn-danger btn-sm {{ $delete_background_home == 1 ? 'd-none' : '' }}"
+                                                    id="btn_delete_background_home"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="background_service_for" class="col-md-4 col-lg-3 col-form-label">Background Service</label>
+                                        <label for="background_service_for"
+                                            class="col-md-4 col-lg-3 col-form-label">Background Service</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <img class="rounded img-fluid" src="{{ URL::asset('assets/img/kretech_img_profile_bg_service_' . $profile['profile']['cod'] . '.jpg') }}" id="background_service_preview" alt="BackgroundService"> <br>
-                                            <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgBgService(event)" name="background_service" id="background_service">
-                                            <small id="background_service_warning" class="text-danger fst-italic">* dimensions must 1440 x 692 in JPG (max size: 500KB)</small>
-                                            <small id="background_service_response" class="text-danger fst-italic"></small>
+                                            <img class="rounded img-fluid"
+                                                src="{{ URL::asset('assets/img/' . (File::exists(public_path('assets/img/kretech_img_profile_bg_service_' . $profile['profile']['cod'] . '.jpg')) ? 'kretech_img_profile_bg_service_' . $profile['profile']['cod'] : 'kretech_img_profile_bg_service_default') . '.jpg') }}"
+                                                id="background_service_preview" alt="BackgroundService"> <br>
+                                            <input class="d-none" type="file" class="form-control" accept=".jpg"
+                                                onchange="loadImgBgService(event)" name="background_service"
+                                                id="background_service">
+                                            <small id="background_service_warning" class="text-danger fst-italic">*
+                                                dimensions must 1440 x 692 in JPG (max size: 500KB)</small>
+                                            <small id="background_service_response"
+                                                class="text-danger fst-italic"></small>
                                             <div class="pt-2">
-                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_service"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_background_service == 1) ? 'd-none' : '' }}" id="btn_delete_background_service"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-primary btn-sm"
+                                                    id="btn_upload_background_service"><i class="bi bi-upload"></i></a>
+                                                <a type="button"
+                                                    class="btn btn-danger btn-sm {{ $delete_background_service == 1 ? 'd-none' : '' }}"
+                                                    id="btn_delete_background_service"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="background_article_for" class="col-md-4 col-lg-3 col-form-label">Background Article</label>
+                                        <label for="background_article_for"
+                                            class="col-md-4 col-lg-3 col-form-label">Background Article</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <img class="rounded img-fluid" src="{{ URL::asset('assets/img/kretech_img_profile_bg_article_' . $profile['profile']['cod'] . '.jpg') }}" id="background_article_preview" alt="BackgroundArticle"> <br>
-                                            <input class="d-none" type="file" class="form-control" accept=".jpg" onchange="loadImgBgArticle(event)" name="background_article" id="background_article">
-                                            <small id="background_article_warning" class="text-danger fst-italic">* dimensions must 1440 x 790 in JPG (max size: 500KB)</small>
-                                            <small id="background_article_response" class="text-danger fst-italic"></small>
+                                            <img class="rounded img-fluid"
+                                                src="{{ URL::asset('assets/img/' . (File::exists(public_path('assets/img/kretech_img_profile_bg_article_' . $profile['profile']['cod'] . '.jpg')) ? 'kretech_img_profile_bg_article_' . $profile['profile']['cod'] : 'kretech_img_profile_bg_article_default') . '.jpg') }}"
+                                                id="background_article_preview" alt="BackgroundArticle"> <br>
+                                            <input class="d-none" type="file" class="form-control" accept=".jpg"
+                                                onchange="loadImgBgArticle(event)" name="background_article"
+                                                id="background_article">
+                                            <small id="background_article_warning" class="text-danger fst-italic">*
+                                                dimensions must 1440 x 790 in JPG (max size: 500KB)</small>
+                                            <small id="background_article_response"
+                                                class="text-danger fst-italic"></small>
                                             <div class="pt-2">
-                                                <a type="button" class="btn btn-primary btn-sm" id="btn_upload_background_article"><i class="bi bi-upload"></i></a>
-                                                <a type="button" class="btn btn-danger btn-sm {{ ($delete_background_article == 1) ? 'd-none' : '' }}" id="btn_delete_background_article"><i class="bi bi-trash"></i></a>
+                                                <a type="button" class="btn btn-primary btn-sm"
+                                                    id="btn_upload_background_article"><i class="bi bi-upload"></i></a>
+                                                <a type="button"
+                                                    class="btn btn-danger btn-sm {{ $delete_background_article == 1 ? 'd-none' : '' }}"
+                                                    id="btn_delete_background_article"><i class="bi bi-trash"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -408,7 +492,7 @@
         $(document).ready(function() {
             $('#btn_delete_background_home').click(function(event) {
                 event.preventDefault();
-                
+
                 Swal.fire({
                     title: 'Yakin?',
                     text: 'Anda akan menghapus background home Anda!',
@@ -506,7 +590,7 @@
         $(document).ready(function() {
             $('#btn_delete_background_service').click(function(event) {
                 event.preventDefault();
-                
+
                 Swal.fire({
                     title: 'Yakin?',
                     text: 'Anda akan menghapus background service Anda!',
@@ -529,7 +613,8 @@
                                 // console.log(response);
 
                                 // early change image
-                                $('#background_service_preview').attr('src', response.src);
+                                $('#background_service_preview').attr('src', response
+                                    .src);
                                 $('#btn_delete_background_service').addClass('d-none');
 
                                 Swal.fire({
@@ -604,7 +689,7 @@
         $(document).ready(function() {
             $('#btn_delete_background_article').click(function(event) {
                 event.preventDefault();
-                
+
                 Swal.fire({
                     title: 'Yakin?',
                     text: 'Anda akan menghapus background article Anda!',
@@ -627,7 +712,8 @@
                                 // console.log(response);
 
                                 // early change image
-                                $('#background_article_preview').attr('src', response.src);
+                                $('#background_article_preview').attr('src', response
+                                    .src);
                                 $('#btn_delete_background_article').addClass('d-none');
 
                                 Swal.fire({
@@ -702,7 +788,7 @@
         $(document).ready(function() {
             $('#btn_delete_profile_image').click(function(event) {
                 event.preventDefault();
-                
+
                 Swal.fire({
                     title: 'Yakin?',
                     text: 'Anda akan menghapus avatar Anda!',
@@ -782,7 +868,8 @@
         $(document).ready(function() {
             var cv_url = $('.profile_cv_url').text();
             if (cv_url != '0') {
-                $('#profile_cv_view').attr('src', window.location.origin + '/file/pdf/' + cv_url + '_CV.pdf#toolbar=0');
+                $('#profile_cv_view').attr('src', window.location.origin + '/file/pdf/' + cv_url +
+                    '_CV.pdf#toolbar=0');
             }
             $('#btn_upload_profile_cv').on('click', function() {
                 $('#profile_cv').click();
@@ -793,7 +880,7 @@
         $(document).ready(function() {
             $('#btn_delete_profile_cv').click(function(event) {
                 event.preventDefault();
-                
+
                 Swal.fire({
                     title: 'Yakin?',
                     text: 'Anda akan menghapus CV Anda!',
